@@ -36,9 +36,10 @@ var timeCmd = &cobra.Command{
 		// Ensure required arguments
 		if len(args) != 1 {
 			cmd.Usage()
-			log.Fatal().Msg("Command time requires one argument")
+			log.Warn().Msg("Command time requires one argument")
+			return
 		}
-
+		
 		// Connect to itd UNIX socket
 		conn, err := net.Dial("unix", SockPath)
 		if err != nil {

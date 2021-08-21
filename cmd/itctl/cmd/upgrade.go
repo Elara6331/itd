@@ -60,7 +60,8 @@ var upgradeCmd = &cobra.Command{
 			}
 		} else {
 			cmd.Usage()
-			log.Fatal().Msg("Upgrade command requires either archive or init packet and firmware.")
+			log.Warn().Msg("Upgrade command requires either archive or init packet and firmware.")
+			return
 		}
 
 		// Encode response into connection
