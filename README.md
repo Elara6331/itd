@@ -60,7 +60,7 @@ Use "itctl [command] --help" for more information about a command.
 
 ### Installation
 
-To install, install the go compiler and make. Usually, go is provided by a package either named `go` or `golang`, and make is usually provided by `make`.
+To install, install the go compiler and make. Usually, go is provided by a package either named `go` or `golang`, and make is usually provided by `make`. The go compiler must be version 1.16 or newer for the `io/fs` module.
 
 To install, run
 ```shell
