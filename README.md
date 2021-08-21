@@ -9,6 +9,7 @@
 
 - Notification relay
 - Music control
+- Get info from watch (HRM, Battery level, Firmware version)
 - Set current time
 - Control socket
 - Firmware upgrades
