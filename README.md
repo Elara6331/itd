@@ -69,6 +69,21 @@ make && sudo make install
 
 ---
 
+### Starting
+
+To start the daemon, run the following **without root**:
+
+```shell
+systemctl --user start itd
+```
+
+To autostart on login, run:
+```shell
+systemctl --user enable itd
+```
+
+---
+
 ### Cross compiling
 
 To cross compile, simply set the go environment variables. For example, for PinePhone, use:
