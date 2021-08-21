@@ -1,0 +1,11 @@
+[Unit]
+Description=InfiniTime Daemon (itd)
+After=bluetooth.target
+
+[Service]
+ExecStart=itd
+Restart=always
+StandardOutput=journal
+
+[Install]
+WantedBy=default.target

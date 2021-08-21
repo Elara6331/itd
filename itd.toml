@@ -1,0 +1,14 @@
+[conn]
+    reconnect = true
+
+[notify]
+    onConnect = true
+    onReconnect = true
+
+[notifications.ignore]
+    sender = []
+    summary = ["InfiniTime"]
+    body = []
+
+[music]
+    volInterval = 5
