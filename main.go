@@ -36,8 +36,8 @@ func init() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
 	// Set config settings
-	viper.AddConfigPath("/etc")
 	viper.AddConfigPath("$HOME/.config")
+	viper.AddConfigPath("/etc")
 	viper.SetConfigName("itd")
 	viper.SetConfigType("toml")
 	viper.WatchConfig()
