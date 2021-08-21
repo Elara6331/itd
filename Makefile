@@ -4,8 +4,8 @@ SERVICE_PREFIX = $(DESTDIR)$(PREFIX)/lib/systemd/user
 CFG_PREFIX = $(DESTDIR)/etc
 
 all:
-	go build
-	go build ./cmd/itctl
+	go build $(GOFLAGS)
+	go build ./cmd/itctl $(GOFLAGS)
 
 install:
 	install -Dm755 ./itd $(BIN_PREFIX)/itd
