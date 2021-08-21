@@ -19,6 +19,7 @@
 package cmd
 
 import (
+	"github.com/abiosoft/ishell"
 	"github.com/spf13/cobra"
 )
 
@@ -26,6 +27,34 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "itctl",
 	Short: "Control the itd daemon for InfiniTime smartwatches",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		// Create new shell
+		sh := ishell.New()
+		sh.SetPrompt("itctl> ")
+
+		// For every command in cobra
+		for _, subCmd := range cmd.Commands() {
+			// Add top level command to ishell
+			sh.AddCmd(&ishell.Cmd{
+				Name:     subCmd.Name(),
+				Help:     subCmd.Short,
+				Aliases:  subCmd.Aliases,
+				LongHelp: subCmd.Long,
+				Func: func(ctx *ishell.Context) {
+					// Append name and arguments of command
+					args := append([]string{ctx.Cmd.Name}, ctx.Args...)
+					// Set root command arguments
+					cmd.SetArgs(args)
+					// Execute root command with new arguments
+					cmd.Execute()
+				},
+			})
+		}
+
+		// Start shell
+		sh.Run()
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
