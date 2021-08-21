@@ -3,6 +3,8 @@
 
 `itd` is a daemon that uses my infinitime [library](https://go.arsenm.dev/infinitime) to interact with the [PineTime](https://www.pine64.org/pinetime/) running [InfiniTime](https://infinitime.io).
 
+[![Build status](https://ci.appveyor.com/api/projects/status/xgj5sobw76ndqaod?svg=true)](https://ci.appveyor.com/project/moussaelianarsen/itd)
+
 ---
 
 ### Features
