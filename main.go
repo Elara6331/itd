@@ -40,6 +40,7 @@ func init() {
 	viper.AddConfigPath("$HOME/.config")
 	viper.SetConfigName("itd")
 	viper.SetConfigType("toml")
+	viper.WatchConfig()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.SetEnvPrefix("itd")
 	if err := viper.ReadInConfig(); err != nil {
