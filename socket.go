@@ -51,7 +51,7 @@ const (
 )
 
 func startSocket(dev *infinitime.Device) error {
-	// Make socket directory if non existant
+	// Make socket directory if non-existent
 	err := os.MkdirAll(filepath.Dir(SockPath), 0755)
 	if err != nil {
 		return err
