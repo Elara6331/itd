@@ -272,6 +272,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			err = dev.DFU.Start()
 			if err != nil {
 				connErr(conn, err, "Error performing upgrade")
+				firmwareUpdating = false
 				break
 			}
 			firmwareUpdating = false
