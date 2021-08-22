@@ -2,8 +2,6 @@ module go.arsenm.dev/itd
 
 go 1.16
 
-replace go.arsenm.dev/infinitime => /home/arsen/Code/infinitime
-
 require (
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/abiosoft/ishell v2.0.0+incompatible
