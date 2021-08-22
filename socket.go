@@ -149,14 +149,14 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 		case ReqTypeNotify:
 			// If no data, return error
 			if req.Data == nil {
-				connErr(conn, nil, "Data required for notify types.Request")
+				connErr(conn, nil, "Data required for notify request")
 				break
 			}
 			var reqData types.ReqDataNotify
-			// Decode data map to notify types.Request data
+			// Decode data map to notify request data
 			err = mapstructure.Decode(req.Data, &reqData)
 			if err != nil {
-				connErr(conn, err, "Error decoding types.Request data")
+				connErr(conn, err, "Error decoding request data")
 				break
 			}
 			// Send notification to watch
@@ -170,13 +170,13 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 		case ReqTypeSetTime:
 			// If no data, return error
 			if req.Data == nil {
-				connErr(conn, nil, "Data required for settime types.Request")
+				connErr(conn, nil, "Data required for settime request")
 				break
 			}
 			// Get string from data or return error
 			reqTimeStr, ok := req.Data.(string)
 			if !ok {
-				connErr(conn, nil, "Data for settime types.Request must be RFC3339 formatted time string")
+				connErr(conn, nil, "Data for settime request must be RFC3339 formatted time string")
 				break
 			}
 
@@ -184,7 +184,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			if reqTimeStr == "now" {
 				reqTime = time.Now()
 			} else {
-				// Parse time as RFC3339/ISO9601
+				// Parse time as RFC3339/ISO8601
 				reqTime, err = time.Parse(time.RFC3339, reqTimeStr)
 				if err != nil {
 					connErr(conn, err, "Invalid time format. Time string must be formatted as ISO8601 or the word `now`")
@@ -202,14 +202,14 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 		case ReqTypeFwUpgrade:
 			// If no data, return error
 			if req.Data == nil {
-				connErr(conn, nil, "Data required for firmware upgrade types.Request")
+				connErr(conn, nil, "Data required for firmware upgrade request")
 				break
 			}
 			var reqData types.ReqDataFwUpgrade
-			// Decode data map to firmware upgrade types.Request data
+			// Decode data map to firmware upgrade request data
 			err = mapstructure.Decode(req.Data, &reqData)
 			if err != nil {
-				connErr(conn, err, "Error decoding types.Request data")
+				connErr(conn, err, "Error decoding request data")
 				break
 			}
 			switch reqData.Type {
