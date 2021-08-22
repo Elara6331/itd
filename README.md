@@ -60,6 +60,24 @@ Flags:
 
 Use "itctl [command] --help" for more information about a command.
 ```
+
+#### Interactive mode
+
+Running `itctl` by itself will open interactive mode. It's essentially a shell where you can enter commands. For example:
+
+```
+$ itctl                        
+itctl> fw ver
+1.3.0
+itctl> get batt
+81%
+itctl> get heart
+92 BPM
+itctl> set time 2021-08-22T00:06:18-07:00
+itctl> set time now
+itctl> exit
+```
+
 ---
 
 ### Installation
