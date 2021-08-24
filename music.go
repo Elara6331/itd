@@ -85,9 +85,9 @@ func initMusicCtrl(dev *infinitime.Device) error {
 			case infinitime.MusicEventPrev:
 				player.Prev()
 			case infinitime.MusicEventVolUp:
-				player.VolUp(viper.GetUint("music.volInterval"))
+				player.VolUp(viper.GetUint("music.vol.interval"))
 			case infinitime.MusicEventVolDown:
-				player.VolDown(viper.GetUint("music.volInterval"))
+				player.VolDown(viper.GetUint("music.vol.interval"))
 			}
 		}
 	}()

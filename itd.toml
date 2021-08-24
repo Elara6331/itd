@@ -1,14 +1,25 @@
+# This is temporary, it is to show a notice
+# to people still using the old config
+cfg.version = 2
+
+[socket]
+path = "/tmp/itd/socket"
+
 [conn]
     reconnect = true
 
-[notify]
-    onConnect = true
-    onReconnect = true
+[on.connect]
+    notify = true
 
-[notifications.ignore]
+[on.reconnect]
+    notify = true
+    setTime = true
+
+[notifs.ignore]
     sender = []
     summary = ["InfiniTime"]
     body = []
 
 [music]
-    volInterval = 5
+    vol.interval = 5
+
