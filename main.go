@@ -50,6 +50,10 @@ func init() {
 }
 
 func main() {
+	if viper.GetInt("cfg.version") != 2 {
+		log.Fatal().Msg("Please update your config to the newest format, only v2 configs supported.")
+	}
+
 	// Cleanly exit after function
 	defer infinitime.Exit()
 
@@ -63,14 +67,16 @@ func main() {
 
 	// When InfiniTime reconnects
 	dev.OnReconnect(func() {
-		// Set time to current time
-		err = dev.SetTime(time.Now())
-		if err != nil {
-			log.Error().Err(err).Msg("Error setting current time on connected InfiniTime")
+		if viper.GetBool("on.reconnect.setTime") {
+			// Set time to current time
+			err = dev.SetTime(time.Now())
+			if err != nil {
+				log.Error().Err(err).Msg("Error setting current time on connected InfiniTime")
+			}
 		}
 
 		// If config specifies to notify on reconnect
-		if viper.GetBool("notify.onReconnect") {
+		if viper.GetBool("on.reconnect.notify") {
 			// Send notification to InfiniTime
 			err = dev.Notify("itd", "Successfully reconnected")
 			if err != nil {
@@ -89,7 +95,7 @@ func main() {
 	log.Info().Str("version", ver).Msg("Connected to InfiniTime")
 
 	// If config specifies to notify on connect
-	if viper.GetBool("notify.onConnect") {
+	if viper.GetBool("on.connect.notify") {
 		// Send notification to InfiniTime
 		err = dev.Notify("itd", "Successfully connected")
 		if err != nil {

@@ -29,11 +29,10 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/internal/types"
 )
-
-const SockPath = "/tmp/itd/socket"
 
 const (
 	ReqTypeHeartRate = "hrt"
@@ -52,19 +51,19 @@ const (
 
 func startSocket(dev *infinitime.Device) error {
 	// Make socket directory if non-existent
-	err := os.MkdirAll(filepath.Dir(SockPath), 0755)
+	err := os.MkdirAll(filepath.Dir(viper.GetString("socket.path")), 0755)
 	if err != nil {
 		return err
 	}
 
 	// Remove old socket if it exists
-	err = os.RemoveAll(SockPath)
+	err = os.RemoveAll(viper.GetString("socket.path"))
 	if err != nil {
 		return err
 	}
 
 	// Listen on socket path
-	ln, err := net.Listen("unix", SockPath)
+	ln, err := net.Listen("unix", viper.GetString("socket.path"))
 	if err != nil {
 		return err
 	}
@@ -83,7 +82,7 @@ func startSocket(dev *infinitime.Device) error {
 	}()
 
 	// Log socket start
-	log.Info().Str("path", SockPath).Msg("Started control socket")
+	log.Info().Str("path", viper.GetString("socket.path")).Msg("Started control socket")
 
 	return nil
 }

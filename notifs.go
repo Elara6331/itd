@@ -90,9 +90,9 @@ func initNotifRelay(dev *infinitime.Device) error {
 
 // ignored checks whether any fields were ignored in the config
 func ignored(sender, summary, body string) bool {
-	ignoreSender := viper.GetStringSlice("notifications.ignore.sender")
-	ignoreSummary := viper.GetStringSlice("notifications.ignore.summary")
-	ignoreBody := viper.GetStringSlice("notifications.ignore.body")
+	ignoreSender := viper.GetStringSlice("notifs.ignore.sender")
+	ignoreSummary := viper.GetStringSlice("notifs.ignore.summary")
+	ignoreBody := viper.GetStringSlice("notifs.ignore.body")
 	return strSlcContains(ignoreSender, sender) ||
 		strSlcContains(ignoreSummary, summary) ||
 		strSlcContains(ignoreBody, body)
