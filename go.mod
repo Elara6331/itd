@@ -19,7 +19,7 @@ require (
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
-	go.arsenm.dev/infinitime v0.0.0-20210822201216-955384489609
-	golang.org/x/sys v0.0.0-20210820121016-41cdb8703e55 // indirect
+	go.arsenm.dev/infinitime v0.0.0-20210823171603-8648afeebf08
+	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
