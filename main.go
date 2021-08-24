@@ -19,35 +19,14 @@
 package main
 
 import (
-	"os"
-	"strings"
 	"time"
 
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"go.arsenm.dev/infinitime"
 )
 
 var firmwareUpdating = false
-
-func init() {
-	// Set up logger
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-
-	// Set config settings
-	viper.AddConfigPath("$HOME/.config")
-	viper.AddConfigPath("/etc")
-	viper.SetConfigName("itd")
-	viper.SetConfigType("toml")
-	viper.WatchConfig()
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.SetEnvPrefix("itd")
-	if err := viper.ReadInConfig(); err != nil {
-		log.Warn().Err(err).Msg("Could not read in config")
-	}
-	viper.AutomaticEnv()
-}
 
 func main() {
 	if viper.GetInt("cfg.version") != 2 {

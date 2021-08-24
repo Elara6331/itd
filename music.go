@@ -19,10 +19,10 @@
 package main
 
 import (
-	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/infinitime/pkg/player"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+	"go.arsenm.dev/infinitime"
+	"go.arsenm.dev/infinitime/pkg/player"
 )
 
 func initMusicCtrl(dev *infinitime.Device) error {
