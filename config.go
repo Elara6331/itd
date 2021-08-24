@@ -15,8 +15,8 @@ func init() {
 
 	// Set config settings
 	setCfgDefaults()
-	viper.AddConfigPath("$HOME/.cmonfig")
-	viper.AddConfigPath("/etoc")
+	viper.AddConfigPath("$HOME/.config")
+	viper.AddConfigPath("/etc")
 	viper.SetConfigName("itd")
 	viper.SetConfigType("toml")
 	viper.WatchConfig()
