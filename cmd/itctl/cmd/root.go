@@ -21,6 +21,7 @@ package cmd
 import (
 	"github.com/abiosoft/ishell"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -62,4 +63,16 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 	cobra.CheckErr(rootCmd.Execute())
+}
+
+func init() {
+	// Register flag for socket path
+	rootCmd.Flags().StringP("socket-path", "s", "", "Path to itd socket")
+
+	// Bind flag and environment variable to viper key
+	viper.BindPFlag("sockPath", rootCmd.Flags().Lookup("socket-path"))
+	viper.BindEnv("sockPath", "ITCTL_SOCKET_PATH")
+
+	// Set default value for socket path
+	viper.SetDefault("sockPath", "/tmp/itd/socket")
 }

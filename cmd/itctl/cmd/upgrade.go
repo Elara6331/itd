@@ -38,7 +38,7 @@ var upgradeCmd = &cobra.Command{
 	Aliases: []string{"upg"},
 	Run: func(cmd *cobra.Command, args []string) {
 		// Connect to itd UNIX socket
-		conn, err := net.Dial("unix", SockPath)
+		conn, err := net.Dial("unix", viper.GetString("sockPath"))
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error dialing socket. Is itd running?")
 		}
@@ -49,13 +49,13 @@ var upgradeCmd = &cobra.Command{
 		if viper.GetString("archive") != "" {
 			// Get archive data struct
 			data = types.ReqDataFwUpgrade{
-				Type:  UpgradeTypeArchive,
+				Type:  types.UpgradeTypeArchive,
 				Files: []string{viper.GetString("archive")},
 			}
 		} else if viper.GetString("initPkt") != "" && viper.GetString("firmware") != "" {
 			// Get files data struct
 			data = types.ReqDataFwUpgrade{
-				Type:  UpgradeTypeFiles,
+				Type:  types.UpgradeTypeFiles,
 				Files: []string{viper.GetString("initPkt"), viper.GetString("firmware")},
 			}
 		} else {
@@ -66,7 +66,7 @@ var upgradeCmd = &cobra.Command{
 
 		// Encode response into connection
 		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: ReqTypeFwUpgrade,
+			Type: types.ReqTypeFwUpgrade,
 			Data: data,
 		})
 		if err != nil {

@@ -34,21 +34,6 @@ import (
 	"go.arsenm.dev/itd/internal/types"
 )
 
-const (
-	ReqTypeHeartRate = "hrt"
-	ReqTypeBattLevel = "battlvl"
-	ReqTypeFwVersion = "fwver"
-	ReqTypeFwUpgrade = "fwupg"
-	ReqTypeBtAddress = "btaddr"
-	ReqTypeNotify    = "notify"
-	ReqTypeSetTime   = "settime"
-)
-
-const (
-	UpgradeTypeArchive = iota
-	UpgradeTypeFiles
-)
-
 func startSocket(dev *infinitime.Device) error {
 	// Make socket directory if non-existent
 	err := os.MkdirAll(filepath.Dir(viper.GetString("socket.path")), 0755)
@@ -107,7 +92,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 		}
 
 		switch req.Type {
-		case ReqTypeHeartRate:
+		case types.ReqTypeHeartRate:
 			// Get heart rate from watch
 			heartRate, err := dev.HeartRate()
 			if err != nil {
@@ -118,7 +103,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			json.NewEncoder(conn).Encode(types.Response{
 				Value: heartRate,
 			})
-		case ReqTypeBattLevel:
+		case types.ReqTypeBattLevel:
 			// Get battery level from watch
 			battLevel, err := dev.BatteryLevel()
 			if err != nil {
@@ -129,7 +114,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			json.NewEncoder(conn).Encode(types.Response{
 				Value: battLevel,
 			})
-		case ReqTypeFwVersion:
+		case types.ReqTypeFwVersion:
 			// Get firmware version from watch
 			version, err := dev.Version()
 			if err != nil {
@@ -140,12 +125,12 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			json.NewEncoder(conn).Encode(types.Response{
 				Value: version,
 			})
-		case ReqTypeBtAddress:
+		case types.ReqTypeBtAddress:
 			// Encode bluetooth address to connection
 			json.NewEncoder(conn).Encode(types.Response{
 				Value: dev.Address(),
 			})
-		case ReqTypeNotify:
+		case types.ReqTypeNotify:
 			// If no data, return error
 			if req.Data == nil {
 				connErr(conn, nil, "Data required for notify request")
@@ -166,7 +151,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode empty types.Response to connection
 			json.NewEncoder(conn).Encode(types.Response{})
-		case ReqTypeSetTime:
+		case types.ReqTypeSetTime:
 			// If no data, return error
 			if req.Data == nil {
 				connErr(conn, nil, "Data required for settime request")
@@ -198,7 +183,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode empty types.Response to connection
 			json.NewEncoder(conn).Encode(types.Response{})
-		case ReqTypeFwUpgrade:
+		case types.ReqTypeFwUpgrade:
 			// If no data, return error
 			if req.Data == nil {
 				connErr(conn, nil, "Data required for firmware upgrade request")
@@ -212,7 +197,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				break
 			}
 			switch reqData.Type {
-			case UpgradeTypeArchive:
+			case types.UpgradeTypeArchive:
 				// If less than one file, return error
 				if len(reqData.Files) < 1 {
 					connErr(conn, nil, "Archive upgrade requires one file with .zip extension")
@@ -229,7 +214,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 					connErr(conn, err, "Error loading archive file")
 					break
 				}
-			case UpgradeTypeFiles:
+			case types.UpgradeTypeFiles:
 				// If less than two files, return error
 				if len(reqData.Files) < 2 {
 					connErr(conn, nil, "Files upgrade requires two files. First with .dat and second with .bin extension.")

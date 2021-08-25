@@ -1,5 +1,20 @@
 package types
 
+const (
+	ReqTypeHeartRate = iota
+	ReqTypeBattLevel
+	ReqTypeFwVersion
+	ReqTypeFwUpgrade
+	ReqTypeBtAddress
+	ReqTypeNotify
+	ReqTypeSetTime
+)
+
+const (
+	UpgradeTypeArchive = iota
+	UpgradeTypeFiles
+)
+
 type ReqDataFwUpgrade struct {
 	Type  int
 	Files []string
@@ -12,7 +27,7 @@ type Response struct {
 }
 
 type Request struct {
-	Type string      `json:"type"`
+	Type int         `json:"type"`
 	Data interface{} `json:"data,omitempty"`
 }
 

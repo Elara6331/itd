@@ -25,6 +25,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"go.arsenm.dev/itd/internal/types"
 )
 
@@ -39,9 +40,9 @@ var timeCmd = &cobra.Command{
 			log.Warn().Msg("Command time requires one argument")
 			return
 		}
-		
+
 		// Connect to itd UNIX socket
-		conn, err := net.Dial("unix", SockPath)
+		conn, err := net.Dial("unix", viper.GetString("sockPath"))
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error dialing socket. Is itd running?")
 		}
@@ -49,7 +50,7 @@ var timeCmd = &cobra.Command{
 
 		// Encode request into connection
 		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: ReqTypeSetTime,
+			Type: types.ReqTypeSetTime,
 			Data: args[0],
 		})
 		if err != nil {

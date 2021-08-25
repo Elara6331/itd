@@ -18,23 +18,6 @@
 
 package cmd
 
-const SockPath = "/tmp/itd/socket"
-
-const (
-	ReqTypeHeartRate = "hrt"
-	ReqTypeBattLevel = "battlvl"
-	ReqTypeFwVersion = "fwver"
-	ReqTypeFwUpgrade = "fwupg"
-	ReqTypeBtAddress = "btaddr"
-	ReqTypeNotify    = "notify"
-	ReqTypeSetTime   = "settime"
-)
-
-const (
-	UpgradeTypeArchive = iota
-	UpgradeTypeFiles
-)
-
 type DFUProgress struct {
 	Received int64 `mapstructure:"recvd"`
 	Total    int64 `mapstructure:"total"`
