@@ -3,7 +3,7 @@
 cfg.version = 2
 
 [socket]
-path = "/tmp/itd/socket"
+    path = "/tmp/itd/socket"
 
 [conn]
     reconnect = true
