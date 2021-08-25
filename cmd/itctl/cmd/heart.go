@@ -26,6 +26,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"go.arsenm.dev/itd/internal/types"
 )
 
@@ -35,7 +36,7 @@ var heartCmd = &cobra.Command{
 	Short: "Get heart rate from InfiniTime",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Connect to itd UNIX socket
-		conn, err := net.Dial("unix", SockPath)
+		conn, err := net.Dial("unix", viper.GetString("sockPath"))
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error dialing socket. Is itd running?")
 		}
@@ -43,7 +44,7 @@ var heartCmd = &cobra.Command{
 
 		// Encode request into connection
 		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: ReqTypeHeartRate,
+			Type: types.ReqTypeHeartRate,
 		})
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error making request")
