@@ -22,7 +22,9 @@ func infoTab(parent fyne.Window) *fyne.Container {
 		canvas.NewRectangle(color.Transparent),
 	)
 
+	// Create label for heart rate
 	heartRateLbl := newText("0 BPM", 24)
+	// Creae container to store heart rate section
 	heartRate := container.NewVBox(
 		newText("Heart Rate", 12),
 		heartRateLbl,
@@ -30,12 +32,17 @@ func infoTab(parent fyne.Window) *fyne.Container {
 	)
 	infoLayout.Add(heartRate)
 
+	// Watch for heart rate updates
 	go watch(types.ReqTypeWatchHeartRate, func(data interface{}) {
+		// Change text of heart rate label
 		heartRateLbl.Text = fmt.Sprintf("%d BPM", int(data.(float64)))
+		// Refresh label
 		heartRateLbl.Refresh()
 	}, parent)
 
+	// Create label for battery level
 	battLevelLbl := newText("0%", 24)
+	// Create container to store battery level section
 	battLevel := container.NewVBox(
 		newText("Battery Level", 12),
 		battLevelLbl,
@@ -43,6 +50,7 @@ func infoTab(parent fyne.Window) *fyne.Container {
 	)
 	infoLayout.Add(battLevel)
 
+	// Watch for changes in battery level
 	go watch(types.ReqTypeWatchBattLevel, func(data interface{}) {
 		battLevelLbl.Text = fmt.Sprintf("%d%%", int(data.(float64)))
 		battLevelLbl.Refresh()
