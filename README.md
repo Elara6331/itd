@@ -61,6 +61,30 @@ Flags:
 Use "itctl [command] --help" for more information about a command.
 ```
 
+---
+
+### `itgui`
+
+In `cmd/itgui`, there is a gui frontend to the socket of `itd`. It uses the [fyne library](https://fyne.io/) for Go. It can be compiled by running:
+
+```shell
+go build ./cmd/itgui
+```
+
+#### Screenshots
+
+![Info tab](https://i.imgur.com/okxG9EI.png)
+
+![Notify tab](https://i.imgur.com/DrVhOAq.png)
+
+![Set time tab](https://i.imgur.com/j9civeY.png)
+
+![Upgrade tab](https://i.imgur.com/1KY6fG4.png)
+
+![Upgrade in progress](https://i.imgur.com/w5qbWAw.png)
+
+---
+
 #### Interactive mode
 
 Running `itctl` by itself will open interactive mode. It's essentially a shell where you can enter commands. For example:
