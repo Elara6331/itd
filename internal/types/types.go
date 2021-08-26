@@ -8,6 +8,8 @@ const (
 	ReqTypeBtAddress
 	ReqTypeNotify
 	ReqTypeSetTime
+	ReqTypeWatchHeartRate
+	ReqTypeWatchBattLevel
 )
 
 const (
@@ -34,4 +36,9 @@ type Request struct {
 type ReqDataNotify struct {
 	Title string
 	Body  string
+}
+
+type DFUProgress struct {
+	Received int64 `mapstructure:"recvd"`
+	Total    int64 `mapstructure:"total"`
 }
