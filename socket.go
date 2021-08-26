@@ -103,6 +103,32 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			json.NewEncoder(conn).Encode(types.Response{
 				Value: heartRate,
 			})
+		case types.ReqTypeWatchHeartRate:
+			heartRateCh, err := dev.WatchHeartRate()
+			if err != nil {
+				connErr(conn, err, "Error getting heart rate channel")
+				break
+			}
+			go func() {
+				for heartRate := range heartRateCh {
+					json.NewEncoder(conn).Encode(types.Response{
+						Value: heartRate,
+					})
+				}
+			}()
+		case types.ReqTypeWatchBattLevel:
+			battLevelCh, err := dev.WatchBatteryLevel()
+			if err != nil {
+				connErr(conn, err, "Error getting heart rate channel")
+				break
+			}
+			go func() {
+				for battLevel := range battLevelCh {
+					json.NewEncoder(conn).Encode(types.Response{
+						Value: battLevel,
+					})
+				}
+			}()
 		case types.ReqTypeBattLevel:
 			// Get battery level from watch
 			battLevel, err := dev.BatteryLevel()
