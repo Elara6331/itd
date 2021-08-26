@@ -8,9 +8,12 @@ import (
 var SockPath = "/tmp/itd/socket"
 
 func main() {
+	// Create new app
 	a := app.New()
+	// Create new window with title "itgui"
 	window := a.NewWindow("itgui")
 
+	// Create new app tabs container
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Info", infoTab(window)),
 		container.NewTabItem("Notify", notifyTab(window)),
@@ -18,6 +21,8 @@ func main() {
 		container.NewTabItem("Upgrade", upgradeTab(window)),
 	)
 
+	// Set tabs as window content
 	window.SetContent(tabs)
+	// Show window and run app
 	window.ShowAndRun()
 }
