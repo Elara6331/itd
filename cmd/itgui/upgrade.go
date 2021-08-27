@@ -164,10 +164,6 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 				guiErr(err, "Error decoding response value", false, parent)
 				return
 			}
-			// If transfer finished, break
-			if event.Received == event.Total {
-				break
-			}
 			// Set label text to received / total B
 			progressLbl.SetText(fmt.Sprintf("%d / %d B", event.Received, event.Total))
 			// Set progress bar values
@@ -175,6 +171,10 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 			progressBar.Value = float64(event.Received)
 			// Refresh progress bar
 			progressBar.Refresh()
+			// If transfer finished, break
+			if event.Received == event.Total {
+				break
+			}
 		}
 	})
 
