@@ -2,6 +2,7 @@ package main
 
 import (
 	"image/color"
+	"os"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -10,7 +11,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func guiErr(err error, msg string, parent fyne.Window) {
+func guiErr(err error, msg string, fatal bool, parent fyne.Window) {
 	// Create new label containing message
 	msgLbl := widget.NewLabel(msg)
 	// Text formatting settings
@@ -33,6 +34,20 @@ func guiErr(err error, msg string, parent fyne.Window) {
 			widget.NewAccordionItem("More Details", errLbl),
 		))
 	}
-	// Show error dialog
-	dialog.NewCustom("Error", "Ok", content, parent).Show()
+	if fatal {
+		// Create new error dialog
+		errDlg := dialog.NewCustom("Error", "Close", content, parent)
+		// On close, exit with code 1
+		errDlg.SetOnClosed(func() {
+			os.Exit(1)
+		})
+		// Show dialog
+		errDlg.Show()
+		// Run app prematurely to stop further execution
+		parent.ShowAndRun()
+	} else {
+		// Show error dialog
+		dialog.NewCustom("Error", "Ok", content, parent).Show()
+	}
+
 }

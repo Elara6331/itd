@@ -58,7 +58,7 @@ func infoTab(parent fyne.Window) *fyne.Container {
 
 	fwVerString, err := get(types.ReqTypeFwVersion)
 	if err != nil {
-		panic(err)
+		guiErr(err, "Error getting firmware string", true, parent)
 	}
 
 	fwVer := container.NewVBox(
@@ -99,7 +99,7 @@ func watch(req int, onRecv func(data interface{}), parent fyne.Window) error {
 	for scanner.Scan() {
 		res, err := getResp(scanner.Bytes())
 		if err != nil {
-			guiErr(err, "Error getting response from connection", parent)
+			guiErr(err, "Error getting response from connection", false, parent)
 			continue
 		}
 		onRecv(res.Value)
