@@ -29,7 +29,7 @@ func timeTab(parent fyne.Window) *fyne.Container {
 		// Parse time as RFC1123 string
 		parsedTime, err := time.Parse(time.RFC1123, timeEntry.Text)
 		if err != nil {
-			guiErr(err, "Error parsing time string", parent)
+			guiErr(err, "Error parsing time string", false, parent)
 			return
 		}
 		// Set time to parsed time

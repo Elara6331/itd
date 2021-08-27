@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net"
+
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 )
@@ -12,6 +14,11 @@ func main() {
 	a := app.New()
 	// Create new window with title "itgui"
 	window := a.NewWindow("itgui")
+
+	_, err := net.Dial("unix", SockPath)
+	if err != nil {
+		guiErr(err, "Error dialing itd socket", true, window)
+	}
 
 	// Create new app tabs container
 	tabs := container.NewAppTabs(

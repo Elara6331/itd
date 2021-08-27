@@ -92,7 +92,7 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 		// If archive path does not exist and both init packet and firmware paths
 		// also do not exist, return error
 		if archivePath == "" && (initPktPath == "" && fiwmarePath == "") {
-			guiErr(nil, "Upgrade requires archive or files selected", parent)
+			guiErr(nil, "Upgrade requires archive or files selected", false, parent)
 			return
 		}
 
@@ -125,7 +125,7 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 		// Dial itd UNIX socket
 		conn, err := net.Dial("unix", SockPath)
 		if err != nil {
-			guiErr(err, "Error dialing socket", parent)
+			guiErr(err, "Error dialing socket", false, parent)
 			return
 		}
 		defer conn.Close()
@@ -150,18 +150,18 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 			// Decode scanned line into response struct
 			err = json.Unmarshal(scanner.Bytes(), &res)
 			if err != nil {
-				guiErr(err, "Error decoding response", parent)
+				guiErr(err, "Error decoding response", false, parent)
 				return
 			}
 			if res.Error {
-				guiErr(err, "Error returned in response", parent)
+				guiErr(err, "Error returned in response", false, parent)
 				return
 			}
 			var event types.DFUProgress
 			// Decode response data into progress struct
 			err = mapstructure.Decode(res.Value, &event)
 			if err != nil {
-				guiErr(err, "Error decoding response value", parent)
+				guiErr(err, "Error decoding response value", false, parent)
 				return
 			}
 			// If transfer finished, break

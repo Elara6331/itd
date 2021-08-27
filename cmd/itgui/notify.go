@@ -25,7 +25,7 @@ func notifyTab(parent fyne.Window) *fyne.Container {
 		// Dial itd UNIX socket
 		conn, err := net.Dial("unix", SockPath)
 		if err != nil {
-			guiErr(err, "Error dialing socket", parent)
+			guiErr(err, "Error dialing socket", false, parent)
 			return
 		}
 		// Encode notify request on connection
