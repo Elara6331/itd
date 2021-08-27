@@ -95,14 +95,14 @@ var upgradeCmd = &cobra.Command{
 			if err != nil {
 				log.Fatal().Err(err).Msg("Error decoding response data")
 			}
-			// If transfer finished, break
-			if event.Received == event.Total {
-				break
-			}
 			// Set total bytes in progress bar
 			bar.SetTotal(event.Total)
 			// Set amount of bytes received in progress bar
 			bar.SetCurrent(event.Received)
+			// If transfer finished, break
+			if event.Received == event.Total {
+				break
+			}
 		}
 		// Finish progress bar
 		bar.Finish()
