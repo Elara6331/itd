@@ -4,7 +4,8 @@ import (
 	"strings"
 )
 
-// Maps stores transliteration maps as slices to preserve order
+// Maps stores transliteration maps as slices to preserve order.
+// Some of these maps were sourced from https://codeberg.org/Freeyourgadget/Gadgetbridge
 var Maps = map[string][]string{
 	"eASCII": {
 		"œ", "oe",
@@ -27,7 +28,7 @@ var Maps = map[string][]string{
 		"ü", "ue",
 		"Ä", "Ae",
 		"Ö", "Oe",
-		"Ü", "Üe",
+		"Ü", "Ue",
 		"ß", "ss",
 		"ẞ", "SS",
 	},
