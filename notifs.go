@@ -25,6 +25,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"go.arsenm.dev/infinitime"
+	"go.arsenm.dev/itd/translit"
 )
 
 func initNotifRelay(dev *infinitime.Device) error {
@@ -70,6 +71,13 @@ func initNotifRelay(dev *infinitime.Device) error {
 			if ignored(sender, summary, body) {
 				continue
 			}
+
+			maps := viper.GetStringSlice("notifs.translit.maps.use")
+			translit.Maps["custom"] = viper.GetStringSlice("notifs.translit.maps.custom")
+			replacer := translit.NewReplacer(maps...)
+			sender = replacer.Replace(sender)
+			summary = replacer.Replace(summary)
+			body = replacer.Replace(body)
 
 			var msg string
 			// If summary does not exist, set message to body.

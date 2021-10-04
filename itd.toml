@@ -15,6 +15,9 @@ cfg.version = 2
     notify = true
     setTime = true
 
+[notifs.translit.maps]
+    use = ["eASCII", "Russian", "Emoji"]
+
 [notifs.ignore]
     sender = []
     summary = ["InfiniTime"]

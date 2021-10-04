@@ -12,6 +12,7 @@
 ### Features
 
 - Notification relay
+- Notificstion transliteration
 - Music control
 - Get info from watch (HRM, Battery level, Firmware version)
 - Set current time
@@ -33,6 +34,40 @@ The socket accepts JSON requests. For example, sending a notification looks like
 It will return a JSON response. A response can have 3 fields: `error`, `msg`, and `value`. Error is a boolean that signals whether an error was returned. If error is true, the msg field will contain the error. Value can contain any data and depends on what the request was.
 
 The various request types and their data requirements can be seen in `internal/types`. I can make separate docs for it if I get enough requests.
+
+---
+
+### Transliteration
+
+Since the PineTime does not have enough space to store all unicode glyphs, it only stores the ASCII space and Cyrillic. Therefore, this daemon can transliterate unsupported characters into supported ones. Since some languages have different transliterations, the maps to be used must be specified in the config. Here are the available maps:
+
+- eASCII
+- Scandinavian
+- German
+- Hebrew
+- Greek
+- Russian
+- Ukranian
+- Arabic
+- Farsi
+- Polish
+- Lithuanian
+- Estonian
+- Icelandic
+- Czeck
+- French
+- Armenian
+- Emoji
+
+Place the desired map names in an array as `notifs.translit.maps.use`. They will be evaluated in order. You can also put custom transliterations in `notifs.translit.maps.custom`. These take priority over any other maps. The `notifs.translit.maps` config section should look like this:
+
+```toml
+[notifs.translit.maps]
+    use = ["eASCII", "Russian", "Emoji"]
+    custom = [
+        "test", "replaced"
+    ]
+```
 
 ---
 

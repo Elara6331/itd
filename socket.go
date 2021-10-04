@@ -32,6 +32,7 @@ import (
 	"github.com/spf13/viper"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/internal/types"
+	"go.arsenm.dev/itd/translit"
 )
 
 func startSocket(dev *infinitime.Device) error {
@@ -169,8 +170,11 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				connErr(conn, err, "Error decoding request data")
 				break
 			}
+			maps := viper.GetStringSlice("notifs.translit.maps.use")
+			translit.Maps["custom"] = viper.GetStringSlice("notifs.translit.maps.custom")
+			replacer := translit.NewReplacer(maps...)
 			// Send notification to watch
-			err = dev.Notify(reqData.Title, reqData.Body)
+			err = dev.Notify(replacer.Replace(reqData.Title), replacer.Replace(reqData.Body))
 			if err != nil {
 				connErr(conn, err, "Error sending notification")
 				break
