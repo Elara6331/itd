@@ -4,17 +4,60 @@ import (
 	"strings"
 )
 
+// Transliterate runs the given maps on s and returns the result
+func Transliterate(s string, useMaps ...string) string {
+	// Create variable to store modified string
+	out := s
+	// If custom map exists
+	if customMap, ok := Maps["custom"]; ok {
+		// Perform transliteration with it
+		out = customMap.Transliterate(out)
+	}
+	// For every map to use
+	for _, useMap := range useMaps {
+		// If custom, skip
+		if useMap == "custom" {
+			continue
+		}
+		// Get requested map
+		translitMap, ok := Maps[useMap]
+		if !ok {
+			continue
+		}
+		// Perform transliteration
+		out = translitMap.Transliterate(out)
+	}
+	// Return result
+	return out
+}
+
+// Transliterator is implemented by anything with a
+// Transliterate method, which performs transliteration
+// and returns the resulting string.
+type Transliterator interface {
+	Transliterate(string) string
+}
+
+// Map implements Transliterator using a slice where
+// every odd element is a key and every even one is a value
+// which replaces the key.
+type Map []string
+
+func (mt Map) Transliterate(s string) string {
+	return strings.NewReplacer(mt...).Replace(s)
+}
+
 // Maps stores transliteration maps as slices to preserve order.
 // Some of these maps were sourced from https://codeberg.org/Freeyourgadget/Gadgetbridge
-var Maps = map[string][]string{
-	"eASCII": {
+var Maps = map[string]Transliterator{
+	"eASCII": Map{
 		"œ", "oe",
 		"ª", "a",
 		"°", "o",
 		"«", `"`,
 		"»", `"`,
 	},
-	"Scandinavian": {
+	"Scandinavian": Map{
 		"Æ", "Ae",
 		"æ", "ae",
 		"Ø", "Oe",
@@ -22,7 +65,7 @@ var Maps = map[string][]string{
 		"Å", "Aa",
 		"å", "aa",
 	},
-	"German": {
+	"German": Map{
 		"ä", "ae",
 		"ö", "oe",
 		"ü", "ue",
@@ -32,7 +75,7 @@ var Maps = map[string][]string{
 		"ß", "ss",
 		"ẞ", "SS",
 	},
-	"Hebrew": {
+	"Hebrew": Map{
 		"א", "a",
 		"ב", "b",
 		"ג", "g",
@@ -61,7 +104,7 @@ var Maps = map[string][]string{
 		"ם", "m",
 		"ן", "n",
 	},
-	"Greek": {
+	"Greek": Map{
 		"α", "a",
 		"ά", "a",
 		"β", "v",
@@ -132,11 +175,11 @@ var Maps = map[string][]string{
 		"Ω", "O",
 		"Ώ", "O",
 	},
-	"Russian": {
+	"Russian": Map{
 		"Ё", "Йo",
 		"ё", "йo",
 	},
-	"Ukranian": {
+	"Ukranian": Map{
 		"ґ", "gh",
 		"є", "je",
 		"і", "i",
@@ -146,7 +189,7 @@ var Maps = map[string][]string{
 		"І", "I",
 		"Ї", "JI",
 	},
-	"Arabic": {
+	"Arabic": Map{
 		"ا", "a",
 		"ب", "b",
 		"ت", "t",
@@ -194,7 +237,7 @@ var Maps = map[string][]string{
 		"٨", "8",
 		"٩", "9",
 	},
-	"Farsi": {
+	"Farsi": Map{
 		"پ", "p",
 		"چ", "ch",
 		"ژ", "zh",
@@ -223,11 +266,11 @@ var Maps = map[string][]string{
 		"ُ", "o",
 		"ّ", "",
 	},
-	"Polish": {
+	"Polish": Map{
 		"Ł", "L",
 		"ł", "l",
 	},
-	"Lithuanian": {
+	"Lithuanian": Map{
 		"ą", "a",
 		"č", "c",
 		"ę", "e",
@@ -238,7 +281,7 @@ var Maps = map[string][]string{
 		"ū", "u",
 		"ž", "z",
 	},
-	"Estonian": {
+	"Estonian": Map{
 		"ä", "a",
 		"Ä", "A",
 		"ö", "o",
@@ -248,13 +291,13 @@ var Maps = map[string][]string{
 		"ü", "u",
 		"Ü", "U",
 	},
-	"Icelandic": {
+	"Icelandic": Map{
 		"Þ", "Th",
 		"þ", "th",
 		"Ð", "D",
 		"ð", "d",
 	},
-	"Czeck": {
+	"Czeck": Map{
 		"ř", "r",
 		"ě", "e",
 		"ý", "y",
@@ -268,7 +311,7 @@ var Maps = map[string][]string{
 		"ť", "t",
 		"ň", "n",
 	},
-	"French": {
+	"French": Map{
 		"à", "a",
 		"â", "a",
 		"é", "e",
@@ -280,7 +323,7 @@ var Maps = map[string][]string{
 		"ÿ", "y",
 		"ç", "c",
 	},
-	"Armenian": {
+	"Armenian": Map{
 		"աու", "au",
 		"բու", "bu",
 		"գու", "gu",
@@ -393,7 +436,7 @@ var Maps = map[string][]string{
 		"ֆ", "f",
 		"ւ", "",
 	},
-	"Emoji": {
+	"Emoji": Map{
 		"😂", ":')",
 		"😊", ":)",
 		"😃", ":)",
@@ -421,22 +464,4 @@ var Maps = map[string][]string{
 		"😴", ":zzz:",
 		"💤", ":zzz:",
 	},
-}
-
-func NewReplacer(useMaps ...string) *strings.Replacer {
-	var replace []string
-	if customMap, ok := Maps["custom"]; ok {
-		replace = append(replace, customMap...)
-	}
-	for _, useMap := range useMaps {
-		if useMap == "custom" {
-			continue
-		}
-		translitMap, ok := Maps[useMap]
-		if !ok {
-			continue
-		}
-		replace = append(replace, translitMap...)
-	}
-	return strings.NewReplacer(replace...)
 }
