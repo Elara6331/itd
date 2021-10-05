@@ -39,7 +39,7 @@ The various request types and their data requirements can be seen in `internal/t
 
 ### Transliteration
 
-Since the PineTime does not have enough space to store all unicode glyphs, it only stores the ASCII space and Cyrillic. Therefore, this daemon can transliterate unsupported characters into supported ones. Since some languages have different transliterations, the maps to be used must be specified in the config. Here are the available maps:
+Since the PineTime does not have enough space to store all unicode glyphs, it only stores the ASCII space and Cyrillic. Therefore, this daemon can transliterate unsupported characters into supported ones. Since some languages have different transliterations, the transliterators to be used must be specified in the config. Here are the available transliterators:
 
 - eASCII
 - Scandinavian
@@ -57,12 +57,13 @@ Since the PineTime does not have enough space to store all unicode glyphs, it on
 - Czeck
 - French
 - Armenian
+- Korean
 - Emoji
 
-Place the desired map names in an array as `notifs.translit.maps.use`. They will be evaluated in order. You can also put custom transliterations in `notifs.translit.maps.custom`. These take priority over any other maps. The `notifs.translit.maps` config section should look like this:
+Place the desired map names in an array as `notifs.translit.use`. They will be evaluated in order. You can also put custom transliterations in `notifs.translit.custom`. These take priority over any other maps. The `notifs.translit` config section should look like this:
 
 ```toml
-[notifs.translit.maps]
+[notifs.translit]
     use = ["eASCII", "Russian", "Emoji"]
     custom = [
         "test", "replaced"

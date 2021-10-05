@@ -464,4 +464,5 @@ var Maps = map[string]Transliterator{
 		"😴", ":zzz:",
 		"💤", ":zzz:",
 	},
+	"Korean": &KoreanTranslit{},
 }
