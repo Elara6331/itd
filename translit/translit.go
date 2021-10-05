@@ -9,7 +9,7 @@ func Transliterate(s string, useMaps ...string) string {
 	// Create variable to store modified string
 	out := s
 	// If custom map exists
-	if customMap, ok := Maps["custom"]; ok {
+	if customMap, ok := Transliterators["custom"]; ok {
 		// Perform transliteration with it
 		out = customMap.Transliterate(out)
 	}
@@ -20,7 +20,7 @@ func Transliterate(s string, useMaps ...string) string {
 			continue
 		}
 		// Get requested map
-		translitMap, ok := Maps[useMap]
+		translitMap, ok := Transliterators[useMap]
 		if !ok {
 			continue
 		}
@@ -47,9 +47,9 @@ func (mt Map) Transliterate(s string) string {
 	return strings.NewReplacer(mt...).Replace(s)
 }
 
-// Maps stores transliteration maps as slices to preserve order.
-// Some of these maps were sourced from https://codeberg.org/Freeyourgadget/Gadgetbridge
-var Maps = map[string]Transliterator{
+// Transliterators stores transliterator implementations for each supported language.
+// Some of these were sourced from https://codeberg.org/Freeyourgadget/Gadgetbridge
+var Transliterators = map[string]Transliterator{
 	"eASCII": Map{
 		"œ", "oe",
 		"ª", "a",

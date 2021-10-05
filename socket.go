@@ -171,7 +171,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				break
 			}
 			maps := viper.GetStringSlice("notifs.translit.use")
-			translit.Maps["custom"] = translit.Map(viper.GetStringSlice("notifs.translit.custom"))
+			translit.Transliterators["custom"] = translit.Map(viper.GetStringSlice("notifs.translit.custom"))
 			title := translit.Transliterate(reqData.Title, maps...)
 			body := translit.Transliterate(reqData.Body, maps...)
 			// Send notification to watch
