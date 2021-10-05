@@ -58,6 +58,7 @@ Since the PineTime does not have enough space to store all unicode glyphs, it on
 - French
 - Armenian
 - Korean
+- Chinese
 - Emoji
 
 Place the desired map names in an array as `notifs.translit.use`. They will be evaluated in order. You can also put custom transliterations in `notifs.translit.custom`. These take priority over any other maps. The `notifs.translit` config section should look like this:
