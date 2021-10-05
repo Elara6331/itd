@@ -170,8 +170,8 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				connErr(conn, err, "Error decoding request data")
 				break
 			}
-			maps := viper.GetStringSlice("notifs.translit.maps.use")
-			translit.Maps["custom"] = translit.Map(viper.GetStringSlice("notifs.translit.maps.custom"))
+			maps := viper.GetStringSlice("notifs.translit.use")
+			translit.Maps["custom"] = translit.Map(viper.GetStringSlice("notifs.translit.custom"))
 			title := translit.Transliterate(reqData.Title, maps...)
 			body := translit.Transliterate(reqData.Body, maps...)
 			// Send notification to watch
