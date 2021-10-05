@@ -294,10 +294,14 @@ func translitSpecialProvisions(previousEnding rune, nextInitial rune) (string, b
 		switch previousEnding {
 		case 0x11A8:
 			return "ngn", true // ㄱ
-		case 0x11AE: // ㄷ
-		case 0x11BA: // ㅅ
-		case 0x11BD: // ㅈ
-		case 0x11BE: // ㅊ
+		case 0x11AE:
+			fallthrough // ㄷ
+		case 0x11BA:
+			fallthrough // ㅅ
+		case 0x11BD:
+			fallthrough // ㅈ
+		case 0x11BE:
+			fallthrough // ㅊ
 		case 0x11C0: // ㅌ
 			return "nn", true
 		case 0x11AF:
@@ -309,17 +313,24 @@ func translitSpecialProvisions(previousEnding rune, nextInitial rune) (string, b
 		}
 	case 0x1105: // ㄹ
 		switch previousEnding {
-		case 0x11A8: // ㄱ
-		case 0x11AB: // ㄴ
+		case 0x11A8:
+			fallthrough // ㄱ
+		case 0x11AB:
+			fallthrough // ㄴ
 		case 0x11AF: // ㄹ
 			return "ll", true
-		case 0x11AE: // ㄷ
-		case 0x11BA: // ㅅ
-		case 0x11BD: // ㅈ
-		case 0x11BE: // ㅊ
+		case 0x11AE:
+			fallthrough // ㄷ
+		case 0x11BA:
+			fallthrough // ㅅ
+		case 0x11BD:
+			fallthrough // ㅈ
+		case 0x11BE:
+			fallthrough // ㅊ
 		case 0x11C0: // ㅌ
 			return "nn", true
-		case 0x11B7: // ㅁ
+		case 0x11B7:
+			fallthrough // ㅁ
 		case 0x11B8: // ㅂ
 			return "mn", true
 		case 0x11BC:
@@ -331,10 +342,14 @@ func translitSpecialProvisions(previousEnding rune, nextInitial rune) (string, b
 		switch previousEnding {
 		case 0x11A8:
 			return "ngm", true // ㄱ
-		case 0x11AE: // ㄷ
-		case 0x11BA: // ㅅ
-		case 0x11BD: // ㅈ
-		case 0x11BE: // ㅊ
+		case 0x11AE:
+			fallthrough // ㄷ
+		case 0x11BA:
+			fallthrough // ㅅ
+		case 0x11BD:
+			fallthrough // ㅈ
+		case 0x11BE:
+			fallthrough // ㅊ
 		case 0x11C0: // ㅌ
 			return "nm", true
 		case 0x11B8:
@@ -372,10 +387,14 @@ func translitSpecialProvisions(previousEnding rune, nextInitial rune) (string, b
 		}
 	case 0x1110: // ㅌ
 		switch previousEnding {
-		case 0x11AE: // ㄷ
-		case 0x11BA: // ㅅ
-		case 0x11BD: // ㅈ
-		case 0x11BE: // ㅊ
+		case 0x11AE:
+			fallthrough // ㄷ
+		case 0x11BA:
+			fallthrough // ㅅ
+		case 0x11BD:
+			fallthrough // ㅈ
+		case 0x11BE:
+			fallthrough // ㅊ
 		case 0x11C0: // ㅌ
 			return "t-t", true
 		default:
@@ -391,7 +410,6 @@ func translitSpecialProvisions(previousEnding rune, nextInitial rune) (string, b
 	default:
 		return "", false
 	}
-	return "", false
 }
 
 // Decompose a syllable into several jamo. Does nothing if that isn't possible.
