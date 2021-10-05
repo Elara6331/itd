@@ -171,10 +171,11 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				break
 			}
 			maps := viper.GetStringSlice("notifs.translit.maps.use")
-			translit.Maps["custom"] = viper.GetStringSlice("notifs.translit.maps.custom")
-			replacer := translit.NewReplacer(maps...)
+			translit.Maps["custom"] = translit.Map(viper.GetStringSlice("notifs.translit.maps.custom"))
+			title := translit.Transliterate(reqData.Title, maps...)
+			body := translit.Transliterate(reqData.Body, maps...)
 			// Send notification to watch
-			err = dev.Notify(replacer.Replace(reqData.Title), replacer.Replace(reqData.Body))
+			err = dev.Notify(title, body)
 			if err != nil {
 				connErr(conn, err, "Error sending notification")
 				break

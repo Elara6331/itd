@@ -73,11 +73,10 @@ func initNotifRelay(dev *infinitime.Device) error {
 			}
 
 			maps := viper.GetStringSlice("notifs.translit.maps.use")
-			translit.Maps["custom"] = viper.GetStringSlice("notifs.translit.maps.custom")
-			replacer := translit.NewReplacer(maps...)
-			sender = replacer.Replace(sender)
-			summary = replacer.Replace(summary)
-			body = replacer.Replace(body)
+			translit.Maps["custom"] = translit.Map(viper.GetStringSlice("notifs.translit.maps.custom"))
+			sender = translit.Transliterate(sender, maps...)
+			summary = translit.Transliterate(summary, maps...)
+			body = translit.Transliterate(body, maps...)
 
 			var msg string
 			// If summary does not exist, set message to body.
