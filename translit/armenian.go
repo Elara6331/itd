@@ -4,7 +4,9 @@ import (
 	"strings"
 )
 
-type ArmenianTranslit struct{}
+type ArmenianTranslit struct {
+	initComplete bool
+}
 
 var armenianMap = []string{
 	"աու", "au",
@@ -121,15 +123,18 @@ var armenianMap = []string{
 }
 
 func (at *ArmenianTranslit) Init() {
-	lower := armenianMap
-	for i, val := range lower {
-		if i%2 == 1 {
-			continue
+	if !at.initComplete {
+		lower := armenianMap
+		for i, val := range lower {
+			if i%2 == 1 {
+				continue
+			}
+			capital := strings.Title(val)
+			if capital != val {
+				armenianMap = append(armenianMap, capital, strings.Title(armenianMap[i+1]))
+			}
 		}
-		capital := strings.Title(val)
-		if capital != val {
-			armenianMap = append(armenianMap, capital, strings.Title(armenianMap[i+1]))
-		}
+		at.initComplete = true
 	}
 }
 
