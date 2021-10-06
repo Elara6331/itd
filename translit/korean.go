@@ -39,6 +39,8 @@ var compatJamoBlock = &unicode.RangeTable{
 // This was translated to Go from the code in https://codeberg.org/Freeyourgadget/Gadgetbridge
 type KoreanTranslit struct{}
 
+func (KoreanTranslit) Init() {}
+
 // User input consisting of isolated jamo is usually mapped to the KS X 1001 compatibility
 // block, but jamo resulting from decomposed syllables are mapped to the modern one. This
 // function maps compat jamo to modern ones where possible and returns all other characters

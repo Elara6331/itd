@@ -12,7 +12,7 @@
 ### Features
 
 - Notification relay
-- Notificstion transliteration
+- Notification transliteration
 - Music control
 - Get info from watch (HRM, Battery level, Firmware version)
 - Set current time

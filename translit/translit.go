@@ -9,9 +9,9 @@ func Transliterate(s string, useMaps ...string) string {
 	// Create variable to store modified string
 	out := s
 	// If custom map exists
-	if customMap, ok := Transliterators["custom"]; ok {
+	if custom, ok := Transliterators["custom"]; ok {
 		// Perform transliteration with it
-		out = customMap.Transliterate(out)
+		out = custom.Transliterate(out)
 	}
 	// For every map to use
 	for _, useMap := range useMaps {
@@ -20,12 +20,13 @@ func Transliterate(s string, useMaps ...string) string {
 			continue
 		}
 		// Get requested map
-		translitMap, ok := Transliterators[useMap]
+		transliterator, ok := Transliterators[useMap]
 		if !ok {
 			continue
 		}
+		transliterator.Init()
 		// Perform transliteration
-		out = translitMap.Transliterate(out)
+		out = transliterator.Transliterate(out)
 	}
 	// Return result
 	return out
@@ -36,6 +37,7 @@ func Transliterate(s string, useMaps ...string) string {
 // and returns the resulting string.
 type Transliterator interface {
 	Transliterate(string) string
+	Init()
 }
 
 // Map implements Transliterator using a slice where
@@ -46,6 +48,8 @@ type Map []string
 func (mt Map) Transliterate(s string) string {
 	return strings.NewReplacer(mt...).Replace(s)
 }
+
+func (Map) Init() {}
 
 // Transliterators stores transliterator implementations for each supported language.
 // Some of these were sourced from https://codeberg.org/Freeyourgadget/Gadgetbridge

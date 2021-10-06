@@ -120,7 +120,7 @@ var armenianMap = []string{
 	"ւ", "",
 }
 
-func init() {
+func (at *ArmenianTranslit) Init() {
 	lower := armenianMap
 	for i, val := range lower {
 		if i%2 == 1 {
