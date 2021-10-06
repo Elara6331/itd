@@ -12,6 +12,8 @@ import (
 // conversion library.
 type ChineseTranslit struct{}
 
+func (ChineseTranslit) Init() {}
+
 func (ct *ChineseTranslit) Transliterate(s string) string {
 	// Create buffer for final output
 	outBuf := &bytes.Buffer{}
