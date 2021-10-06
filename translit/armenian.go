@@ -124,16 +124,23 @@ var armenianMap = []string{
 
 func (at *ArmenianTranslit) Init() {
 	if !at.initComplete {
+		// Copy map as original will be changed
 		lower := armenianMap
+		// For every value in copied map
 		for i, val := range lower {
+			// If index is odd, skip
 			if i%2 == 1 {
 				continue
 			}
+			// Capitalize first letter
 			capital := strings.Title(val)
+			// If capital is not the same as lowercase
 			if capital != val {
+				// Add capital to map
 				armenianMap = append(armenianMap, capital, strings.Title(armenianMap[i+1]))
 			}
 		}
+		// Set init complete to true so it is not run again
 		at.initComplete = true
 	}
 }

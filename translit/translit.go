@@ -41,7 +41,7 @@ type Transliterator interface {
 }
 
 // Map implements Transliterator using a slice where
-// every odd element is a key and every even one is a value
+// every even element is a key and every odd one is a value
 // which replaces the key.
 type Map []string
 
@@ -155,7 +155,7 @@ var Transliterators = map[string]Transliterator{
 		"Ζ", "Z",
 		"Η", "I",
 		"Ή", "I",
-		"Θ", "TH",
+		"Θ", "Th",
 		"Ι", "I",
 		"Ί", "I",
 		"Ϊ", "I",
@@ -163,7 +163,7 @@ var Transliterators = map[string]Transliterator{
 		"Λ", "L",
 		"Μ", "M",
 		"Ν", "N",
-		"Ξ", "KS",
+		"Ξ", "Ks",
 		"Ο", "O",
 		"Ό", "O",
 		"Π", "P",
@@ -174,8 +174,8 @@ var Transliterators = map[string]Transliterator{
 		"Ύ", "Y",
 		"Ϋ", "Y",
 		"Φ", "F",
-		"Χ", "CH",
-		"Ψ", "PS",
+		"Χ", "Ch",
+		"Ψ", "Ps",
 		"Ω", "O",
 		"Ώ", "O",
 	},
@@ -188,8 +188,8 @@ var Transliterators = map[string]Transliterator{
 		"є", "je",
 		"і", "i",
 		"ї", "ji",
-		"Ґ", "GH",
-		"Є", "JE",
+		"Ґ", "Gh",
+		"Є", "Je",
 		"І", "I",
 		"Ї", "JI",
 	},

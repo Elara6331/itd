@@ -39,6 +39,7 @@ func (ct *ChineseTranslit) Transliterate(s string) string {
 			outBuf.WriteRune(char)
 		}
 	}
+	// If buffer contains characters
 	if tmpBuf.Len() > 0 {
 		// Convert to pinyin (without tones)
 		out := pinyin.LazyConvert(tmpBuf.String(), nil)
