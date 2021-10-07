@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"path/filepath"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -18,11 +19,12 @@ import (
 
 func upgradeTab(parent fyne.Window) *fyne.Container {
 	var (
-		archivePath string
-		fiwmarePath string
-		initPktPath string
+		archivePath  string
+		firmwarePath string
+		initPktPath  string
 	)
 
+	var archiveBtn *widget.Button
 	// Create archive selection dialog
 	archiveDialog := dialog.NewFileOpen(func(uc fyne.URIReadCloser, e error) {
 		if e != nil || uc == nil {
@@ -30,25 +32,29 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 		}
 		uc.Close()
 		archivePath = uc.URI().Path()
+		archiveBtn.SetText(fmt.Sprintf("Select archive (.zip) [%s]", filepath.Base(archivePath)))
 	}, parent)
 	// Limit dialog to .zip files
 	archiveDialog.SetFilter(storage.NewExtensionFileFilter([]string{".zip"}))
 	// Create button to show dialog
-	archiveBtn := widget.NewButton("Select archive (.zip)", archiveDialog.Show)
+	archiveBtn = widget.NewButton("Select archive (.zip)", archiveDialog.Show)
 
+	var firmwareBtn *widget.Button
 	// Create firmware selection dialog
 	firmwareDialog := dialog.NewFileOpen(func(uc fyne.URIReadCloser, e error) {
 		if e != nil || uc == nil {
 			return
 		}
 		uc.Close()
-		fiwmarePath = uc.URI().Path()
+		firmwarePath = uc.URI().Path()
+		firmwareBtn.SetText(fmt.Sprintf("Select firmware (.bin) [%s]", filepath.Base(firmwarePath)))
 	}, parent)
 	// Limit dialog to .bin files
 	firmwareDialog.SetFilter(storage.NewExtensionFileFilter([]string{".bin"}))
 	// Create button to show dialog
-	firmwareBtn := widget.NewButton("Select init packet (.bin)", firmwareDialog.Show)
+	firmwareBtn = widget.NewButton("Select firmware (.bin)", firmwareDialog.Show)
 
+	var initPktBtn *widget.Button
 	// Create init packet selection dialog
 	initPktDialog := dialog.NewFileOpen(func(uc fyne.URIReadCloser, e error) {
 		if e != nil || uc == nil {
@@ -56,11 +62,12 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 		}
 		uc.Close()
 		initPktPath = uc.URI().Path()
+		initPktBtn.SetText(fmt.Sprintf("Select init packet (.dat) [%s]", filepath.Base(initPktPath)))
 	}, parent)
 	// Limit dialog to .dat files
 	initPktDialog.SetFilter(storage.NewExtensionFileFilter([]string{".dat"}))
 	// Create button to show dialog
-	initPktBtn := widget.NewButton("Select init packet (.dat)", initPktDialog.Show)
+	initPktBtn = widget.NewButton("Select init packet (.dat)", initPktDialog.Show)
 
 	// Hide init packet and firmware buttons
 	initPktBtn.Hide()
@@ -91,7 +98,7 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 	startBtn := widget.NewButton("Start", func() {
 		// If archive path does not exist and both init packet and firmware paths
 		// also do not exist, return error
-		if archivePath == "" && (initPktPath == "" && fiwmarePath == "") {
+		if archivePath == "" && (initPktPath == "" && firmwarePath == "") {
 			guiErr(nil, "Upgrade requires archive or files selected", false, parent)
 			return
 		}
@@ -119,7 +126,7 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 			files = append(files, archivePath)
 		case "Files":
 			fwUpgType = types.UpgradeTypeFiles
-			files = append(files, initPktPath, fiwmarePath)
+			files = append(files, initPktPath, firmwarePath)
 		}
 
 		// Dial itd UNIX socket

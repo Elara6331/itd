@@ -36,7 +36,7 @@ import (
 )
 
 func startSocket(dev *infinitime.Device) error {
-	// Make socket directory if non-existent
+	// Make socket directory if non-existant
 	err := os.MkdirAll(filepath.Dir(viper.GetString("socket.path")), 0755)
 	if err != nil {
 		return err
