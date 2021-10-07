@@ -2,6 +2,8 @@ module go.arsenm.dev/itd
 
 go 1.16
 
+replace go.arsenm.dev/infinitime => /home/arsen/Code/infinitime
+
 require (
 	fyne.io/fyne/v2 v2.0.4
 	github.com/VividCortex/ewma v1.2.0 // indirect
@@ -21,7 +23,7 @@ require (
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.8.1
-	go.arsenm.dev/infinitime v0.0.0-20210825051734-745b4bd37cf4
+	go.arsenm.dev/infinitime v0.0.0-20211007000821-a1e08ed862f1
 	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf // indirect
 	golang.org/x/text v0.3.7
 )
