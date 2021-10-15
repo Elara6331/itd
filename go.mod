@@ -2,8 +2,6 @@ module go.arsenm.dev/itd
 
 go 1.16
 
-replace go.arsenm.dev/infinitime => /home/arsen/Code/infinitime
-
 require (
 	fyne.io/fyne/v2 v2.1.0
 	github.com/VividCortex/ewma v1.2.0 // indirect
