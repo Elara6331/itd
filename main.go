@@ -94,6 +94,12 @@ func main() {
 		log.Error().Err(err).Msg("Error initializing music control")
 	}
 
+	// Start control socket
+	err = initCallNotifs(dev)
+	if err != nil {
+		log.Error().Err(err).Msg("Error starting socket")
+	}
+
 	// Initialize notification relay
 	err = initNotifRelay(dev)
 	if err != nil {
