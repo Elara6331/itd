@@ -227,6 +227,8 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				connErr(conn, err, "Error decoding request data")
 				break
 			}
+			// Reset DFU to prepare for next update
+			dev.DFU.Reset()
 			switch reqData.Type {
 			case types.UpgradeTypeArchive:
 				// If less than one file, return error
