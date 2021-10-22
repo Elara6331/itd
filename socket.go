@@ -117,6 +117,17 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 					})
 				}
 			}()
+		case types.ReqTypeBattLevel:
+			// Get battery level from watch
+			battLevel, err := dev.BatteryLevel()
+			if err != nil {
+				connErr(conn, err, "Error getting battery level")
+				break
+			}
+			// Encode battery level to connection
+			json.NewEncoder(conn).Encode(types.Response{
+				Value: battLevel,
+			})
 		case types.ReqTypeWatchBattLevel:
 			battLevelCh, err := dev.WatchBatteryLevel()
 			if err != nil {
@@ -130,17 +141,54 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 					})
 				}
 			}()
-		case types.ReqTypeBattLevel:
+		case types.ReqTypeMotion:
 			// Get battery level from watch
-			battLevel, err := dev.BatteryLevel()
+			motionVals, err := dev.Motion()
 			if err != nil {
-				connErr(conn, err, "Error getting battery level")
+				connErr(conn, err, "Error getting motion values")
 				break
 			}
 			// Encode battery level to connection
 			json.NewEncoder(conn).Encode(types.Response{
-				Value: battLevel,
+				Value: motionVals,
 			})
+		case types.ReqTypeWatchMotion:
+			motionValCh, _, err := dev.WatchMotion()
+			if err != nil {
+				connErr(conn, err, "Error getting heart rate channel")
+				break
+			}
+			go func() {
+				for motionVals := range motionValCh {
+					json.NewEncoder(conn).Encode(types.Response{
+						Value: motionVals,
+					})
+				}
+			}()
+		case types.ReqTypeStepCount:
+			// Get battery level from watch
+			stepCount, err := dev.StepCount()
+			if err != nil {
+				connErr(conn, err, "Error getting step count")
+				break
+			}
+			// Encode battery level to connection
+			json.NewEncoder(conn).Encode(types.Response{
+				Value: stepCount,
+			})
+		case types.ReqTypeWatchStepCount:
+			stepCountCh, _, err := dev.WatchStepCount()
+			if err != nil {
+				connErr(conn, err, "Error getting heart rate channel")
+				break
+			}
+			go func() {
+				for stepCount := range stepCountCh {
+					json.NewEncoder(conn).Encode(types.Response{
+						Value: stepCount,
+					})
+				}
+			}()
 		case types.ReqTypeFwVersion:
 			// Get firmware version from watch
 			version, err := dev.Version()
