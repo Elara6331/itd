@@ -10,6 +10,10 @@ const (
 	ReqTypeSetTime
 	ReqTypeWatchHeartRate
 	ReqTypeWatchBattLevel
+	ReqTypeMotion
+	ReqTypeWatchMotion
+	ReqTypeStepCount
+	ReqTypeWatchStepCount
 )
 
 const (
