@@ -46,3 +46,9 @@ type DFUProgress struct {
 	Received int64 `mapstructure:"recvd"`
 	Total    int64 `mapstructure:"total"`
 }
+
+type MotionValues struct {
+	X int16
+	Y int16
+	Z int16
+}
