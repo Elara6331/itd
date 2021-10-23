@@ -19,9 +19,13 @@
 package main
 
 import (
-	"os"
+	_ "go.arsenm.dev/itd/cmd/itctl/firmware"
+	_ "go.arsenm.dev/itd/cmd/itctl/get"
+	_ "go.arsenm.dev/itd/cmd/itctl/notify"
+	"go.arsenm.dev/itd/cmd/itctl/root"
+	_ "go.arsenm.dev/itd/cmd/itctl/set"
 
-	"go.arsenm.dev/itd/cmd/itctl/cmd"
+	"os"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -32,5 +36,5 @@ func init() {
 }
 
 func main() {
-	cmd.Execute()
+	root.Execute()
 }

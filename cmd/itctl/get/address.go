@@ -16,7 +16,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmd
+package get
 
 import (
 	"bufio"
@@ -30,11 +30,11 @@ import (
 	"go.arsenm.dev/itd/internal/types"
 )
 
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:     "version",
-	Aliases: []string{"ver"},
-	Short:   "Get firmware version of InfiniTime",
+// addressCmd represents the address command
+var addressCmd = &cobra.Command{
+	Use:     "address",
+	Aliases: []string{"addr"},
+	Short:   "Get InfiniTime's bluetooth address",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Connect to itd UNIX socket
 		conn, err := net.Dial("unix", viper.GetString("sockPath"))
@@ -45,7 +45,7 @@ var versionCmd = &cobra.Command{
 
 		// Encode request into connection
 		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeFwVersion,
+			Type: types.ReqTypeBtAddress,
 		})
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error making request")
@@ -74,5 +74,15 @@ var versionCmd = &cobra.Command{
 }
 
 func init() {
-	firmwareCmd.AddCommand(versionCmd)
+	getCmd.AddCommand(addressCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// addressCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// addressCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

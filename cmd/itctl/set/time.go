@@ -16,12 +16,11 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmd
+package set
 
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"net"
 
 	"github.com/rs/zerolog/log"
@@ -30,11 +29,18 @@ import (
 	"go.arsenm.dev/itd/internal/types"
 )
 
-// steps.goCmd represents the steps.go command
-var stepsCmd = &cobra.Command{
-	Use:   "steps",
-	Short: "Get step count from InfiniTime",
+// timeCmd represents the time command
+var timeCmd = &cobra.Command{
+	Use:   `time <ISO8601|"now">`,
+	Short: "Set InfiniTime's clock to specified time",
 	Run: func(cmd *cobra.Command, args []string) {
+		// Ensure required arguments
+		if len(args) != 1 {
+			cmd.Usage()
+			log.Warn().Msg("Command time requires one argument")
+			return
+		}
+
 		// Connect to itd UNIX socket
 		conn, err := net.Dial("unix", viper.GetString("sockPath"))
 		if err != nil {
@@ -44,13 +50,14 @@ var stepsCmd = &cobra.Command{
 
 		// Encode request into connection
 		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeStepCount,
+			Type: types.ReqTypeSetTime,
+			Data: args[0],
 		})
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error making request")
 		}
 
-		// Read one line from connection
+		// Read one line from connetion
 		line, _, err := bufio.NewReader(conn).ReadLine()
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error reading line from connection")
@@ -66,22 +73,9 @@ var stepsCmd = &cobra.Command{
 		if res.Error {
 			log.Fatal().Msg(res.Message)
 		}
-
-		// Print returned BPM
-		fmt.Printf("%d Steps\n", int(res.Value.(float64)))
 	},
 }
 
 func init() {
-	getCmd.AddCommand(stepsCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// steps.goCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// steps.goCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	setCmd.AddCommand(timeCmd)
 }

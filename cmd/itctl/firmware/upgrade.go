@@ -16,7 +16,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmd
+package firmware
 
 import (
 	"bufio"
@@ -30,6 +30,12 @@ import (
 	"github.com/spf13/viper"
 	"go.arsenm.dev/itd/internal/types"
 )
+
+type DFUProgress struct {
+	Received int64 `mapstructure:"recvd"`
+	Total    int64 `mapstructure:"total"`
+}
+
 
 // upgradeCmd represents the upgrade command
 var upgradeCmd = &cobra.Command{
