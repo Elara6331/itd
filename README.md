@@ -15,7 +15,7 @@
 - Notification transliteration
 - Call Notifications (ModemManager)
 - Music control
-- Get info from watch (HRM, Battery level, Firmware version)
+- Get info from watch (HRM, Battery level, Firmware version, Motion)
 - Set current time
 - Control socket
 - Firmware upgrades
@@ -29,7 +29,7 @@ This daemon creates a UNIX socket at `/tmp/itd/socket`. It allows you to directl
 The socket accepts JSON requests. For example, sending a notification looks like this:
 
 ```json
-{"type": "notify", "data": {"title": "title1", "body": "body1"}}
+{"type": 5, "data": {"title": "title1", "body": "body1"}}
 ```
 
 It will return a JSON response. A response can have 3 fields: `error`, `msg`, and `value`. Error is a boolean that signals whether an error was returned. If error is true, the msg field will contain the error. Value can contain any data and depends on what the request was.
@@ -83,10 +83,10 @@ This is the `itctl` usage screen:
 Control the itd daemon for InfiniTime smartwatches
 
 Usage:
+  itctl [flags]
   itctl [command]
 
 Available Commands:
-  completion  generate the autocompletion script for the specified shell
   firmware    Manage InfiniTime firmware
   get         Get information from InfiniTime
   help        Help about any command
@@ -94,7 +94,8 @@ Available Commands:
   set         Set information on InfiniTime
 
 Flags:
-  -h, --help   help for itctl
+  -h, --help                 help for itctl
+  -s, --socket-path string   Path to itd socket
 
 Use "itctl [command] --help" for more information about a command.
 ```
