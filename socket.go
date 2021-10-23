@@ -102,6 +102,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode heart rate to connection
 			json.NewEncoder(conn).Encode(types.Response{
+				Type:  types.ResTypeHeartRate,
 				Value: heartRate,
 			})
 		case types.ReqTypeWatchHeartRate:
@@ -113,6 +114,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			go func() {
 				for heartRate := range heartRateCh {
 					json.NewEncoder(conn).Encode(types.Response{
+						Type:  types.ResTypeWatchHeartRate,
 						Value: heartRate,
 					})
 				}
@@ -126,17 +128,19 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode battery level to connection
 			json.NewEncoder(conn).Encode(types.Response{
+				Type:  types.ResTypeBattLevel,
 				Value: battLevel,
 			})
 		case types.ReqTypeWatchBattLevel:
 			battLevelCh, err := dev.WatchBatteryLevel()
 			if err != nil {
-				connErr(conn, err, "Error getting heart rate channel")
+				connErr(conn, err, "Error getting battery level channel")
 				break
 			}
 			go func() {
 				for battLevel := range battLevelCh {
 					json.NewEncoder(conn).Encode(types.Response{
+						Type:  types.ResTypeWatchBattLevel,
 						Value: battLevel,
 					})
 				}
@@ -150,6 +154,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode battery level to connection
 			json.NewEncoder(conn).Encode(types.Response{
+				Type:  types.ResTypeMotion,
 				Value: motionVals,
 			})
 		case types.ReqTypeWatchMotion:
@@ -161,6 +166,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			go func() {
 				for motionVals := range motionValCh {
 					json.NewEncoder(conn).Encode(types.Response{
+						Type:  types.ResTypeWatchMotion,
 						Value: motionVals,
 					})
 				}
@@ -174,6 +180,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode battery level to connection
 			json.NewEncoder(conn).Encode(types.Response{
+				Type:  types.ResTypeStepCount,
 				Value: stepCount,
 			})
 		case types.ReqTypeWatchStepCount:
@@ -185,6 +192,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			go func() {
 				for stepCount := range stepCountCh {
 					json.NewEncoder(conn).Encode(types.Response{
+						Type:  types.ResTypeWatchStepCount,
 						Value: stepCount,
 					})
 				}
@@ -193,16 +201,18 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			// Get firmware version from watch
 			version, err := dev.Version()
 			if err != nil {
-				connErr(conn, err, "Error getting battery level")
+				connErr(conn, err, "Error getting firmware version")
 				break
 			}
 			// Encode version to connection
 			json.NewEncoder(conn).Encode(types.Response{
+				Type:  types.ResTypeFwVersion,
 				Value: version,
 			})
 		case types.ReqTypeBtAddress:
 			// Encode bluetooth address to connection
 			json.NewEncoder(conn).Encode(types.Response{
+				Type:  types.ResTypeBtAddress,
 				Value: dev.Address(),
 			})
 		case types.ReqTypeNotify:
@@ -229,7 +239,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				break
 			}
 			// Encode empty types.Response to connection
-			json.NewEncoder(conn).Encode(types.Response{})
+			json.NewEncoder(conn).Encode(types.Response{Type: types.ResTypeNotify})
 		case types.ReqTypeSetTime:
 			// If no data, return error
 			if req.Data == nil {
@@ -261,7 +271,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				break
 			}
 			// Encode empty types.Response to connection
-			json.NewEncoder(conn).Encode(types.Response{})
+			json.NewEncoder(conn).Encode(types.Response{Type: types.ResTypeSetTime})
 		case types.ReqTypeFwUpgrade:
 			// If no data, return error
 			if req.Data == nil {
@@ -326,6 +336,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				for event := range progress {
 					// Encode event on connection
 					json.NewEncoder(conn).Encode(types.Response{
+						Type:  types.ResTypeDFUProgress,
 						Value: event,
 					})
 				}
