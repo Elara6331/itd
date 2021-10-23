@@ -16,9 +16,19 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmd
+package get
 
-type DFUProgress struct {
-	Received int64 `mapstructure:"recvd"`
-	Total    int64 `mapstructure:"total"`
+import (
+	"github.com/spf13/cobra"
+	"go.arsenm.dev/itd/cmd/itctl/root"
+)
+
+// getCmd represents the get command
+var getCmd = &cobra.Command{
+	Use:   "get",
+	Short: "Get information from InfiniTime",
+}
+
+func init() {
+	root.RootCmd.AddCommand(getCmd)
 }

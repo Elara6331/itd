@@ -16,11 +16,12 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmd
+package firmware
 
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"net"
 
 	"github.com/rs/zerolog/log"
@@ -29,17 +30,12 @@ import (
 	"go.arsenm.dev/itd/internal/types"
 )
 
-// notifyCmd represents the notify command
-var notifyCmd = &cobra.Command{
-	Use:   "notify <title> <body>",
-	Short: "Send notification to InfiniTime",
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:     "version",
+	Aliases: []string{"ver"},
+	Short:   "Get firmware version of InfiniTime",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Ensure required arguments
-		if len(args) != 2 {
-			cmd.Usage()
-			log.Fatal().Msg("Command notify requires two arguments")
-		}
-
 		// Connect to itd UNIX socket
 		conn, err := net.Dial("unix", viper.GetString("sockPath"))
 		if err != nil {
@@ -49,11 +45,7 @@ var notifyCmd = &cobra.Command{
 
 		// Encode request into connection
 		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeNotify,
-			Data: types.ReqDataNotify{
-				Title: args[0],
-				Body:  args[1],
-			},
+			Type: types.ReqTypeFwVersion,
 		})
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error making request")
@@ -75,9 +67,12 @@ var notifyCmd = &cobra.Command{
 		if res.Error {
 			log.Fatal().Msg(res.Message)
 		}
+
+		// Print returned value
+		fmt.Println(res.Value)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(notifyCmd)
+	firmwareCmd.AddCommand(versionCmd)
 }

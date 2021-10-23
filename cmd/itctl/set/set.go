@@ -16,10 +16,11 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmd
+package set
 
 import (
 	"github.com/spf13/cobra"
+	"go.arsenm.dev/itd/cmd/itctl/root"
 )
 
 // setCmd represents the set command
@@ -29,5 +30,5 @@ var setCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(setCmd)
+	root.RootCmd.AddCommand(setCmd)
 }

@@ -16,7 +16,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmd
+package root
 
 import (
 	"github.com/abiosoft/ishell"
@@ -24,8 +24,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
+// RootCmd represents the base command when called without any subcommands
+var RootCmd = &cobra.Command{
 	Use:   "itctl",
 	Short: "Control the itd daemon for InfiniTime smartwatches",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -61,16 +61,16 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	rootCmd.CompletionOptions.DisableDefaultCmd = true
-	cobra.CheckErr(rootCmd.Execute())
+	RootCmd.CompletionOptions.DisableDefaultCmd = true
+	cobra.CheckErr(RootCmd.Execute())
 }
 
 func init() {
 	// Register flag for socket path
-	rootCmd.Flags().StringP("socket-path", "s", "", "Path to itd socket")
+	RootCmd.Flags().StringP("socket-path", "s", "", "Path to itd socket")
 
 	// Bind flag and environment variable to viper key
-	viper.BindPFlag("sockPath", rootCmd.Flags().Lookup("socket-path"))
+	viper.BindPFlag("sockPath", RootCmd.Flags().Lookup("socket-path"))
 	viper.BindEnv("sockPath", "ITCTL_SOCKET_PATH")
 
 	// Set default value for socket path

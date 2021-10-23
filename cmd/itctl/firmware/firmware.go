@@ -16,10 +16,11 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmd
+package firmware
 
 import (
 	"github.com/spf13/cobra"
+	"go.arsenm.dev/itd/cmd/itctl/root"
 )
 
 // firmwareCmd represents the firmware command
@@ -30,5 +31,5 @@ var firmwareCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(firmwareCmd)
+	root.RootCmd.AddCommand(firmwareCmd)
 }

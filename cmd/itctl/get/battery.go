@@ -16,7 +16,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmd
+package get
 
 import (
 	"bufio"
@@ -30,11 +30,11 @@ import (
 	"go.arsenm.dev/itd/internal/types"
 )
 
-// addressCmd represents the address command
-var addressCmd = &cobra.Command{
-	Use:     "address",
-	Aliases: []string{"addr"},
-	Short:   "Get InfiniTime's bluetooth address",
+// batteryCmd represents the batt command
+var batteryCmd = &cobra.Command{
+	Use:     "battery",
+	Aliases: []string{"batt"},
+	Short:   "Get battery level from InfiniTime",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Connect to itd UNIX socket
 		conn, err := net.Dial("unix", viper.GetString("sockPath"))
@@ -45,7 +45,7 @@ var addressCmd = &cobra.Command{
 
 		// Encode request into connection
 		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeBtAddress,
+			Type: types.ReqTypeBattLevel,
 		})
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error making request")
@@ -58,7 +58,7 @@ var addressCmd = &cobra.Command{
 		}
 
 		var res types.Response
-		// Decode line into response
+		// Deocde line into response
 		err = json.Unmarshal(line, &res)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error decoding JSON data")
@@ -68,21 +68,11 @@ var addressCmd = &cobra.Command{
 			log.Fatal().Msg(res.Message)
 		}
 
-		// Print returned value
-		fmt.Println(res.Value)
+		// Print returned percentage
+		fmt.Printf("%d%%\n", int(res.Value.(float64)))
 	},
 }
 
 func init() {
-	getCmd.AddCommand(addressCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// addressCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// addressCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	getCmd.AddCommand(batteryCmd)
 }

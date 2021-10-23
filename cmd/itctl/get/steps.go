@@ -16,7 +16,7 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package cmd
+package get
 
 import (
 	"bufio"
@@ -30,11 +30,10 @@ import (
 	"go.arsenm.dev/itd/internal/types"
 )
 
-// batteryCmd represents the batt command
-var batteryCmd = &cobra.Command{
-	Use:     "battery",
-	Aliases: []string{"batt"},
-	Short:   "Get battery level from InfiniTime",
+// steps.goCmd represents the steps.go command
+var stepsCmd = &cobra.Command{
+	Use:   "steps",
+	Short: "Get step count from InfiniTime",
 	Run: func(cmd *cobra.Command, args []string) {
 		// Connect to itd UNIX socket
 		conn, err := net.Dial("unix", viper.GetString("sockPath"))
@@ -45,7 +44,7 @@ var batteryCmd = &cobra.Command{
 
 		// Encode request into connection
 		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeBattLevel,
+			Type: types.ReqTypeStepCount,
 		})
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error making request")
@@ -58,7 +57,7 @@ var batteryCmd = &cobra.Command{
 		}
 
 		var res types.Response
-		// Deocde line into response
+		// Decode line into response
 		err = json.Unmarshal(line, &res)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error decoding JSON data")
@@ -68,11 +67,21 @@ var batteryCmd = &cobra.Command{
 			log.Fatal().Msg(res.Message)
 		}
 
-		// Print returned percentage
-		fmt.Printf("%d%%\n", int(res.Value.(float64)))
+		// Print returned BPM
+		fmt.Printf("%d Steps\n", int(res.Value.(float64)))
 	},
 }
 
 func init() {
-	getCmd.AddCommand(batteryCmd)
+	getCmd.AddCommand(stepsCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// steps.goCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// steps.goCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
