@@ -17,6 +17,22 @@ const (
 )
 
 const (
+	ResTypeHeartRate = iota
+	ResTypeBattLevel
+	ResTypeFwVersion
+	ResTypeDFUProgress
+	ResTypeBtAddress
+	ResTypeNotify
+	ResTypeSetTime
+	ResTypeWatchHeartRate
+	ResTypeWatchBattLevel
+	ResTypeMotion
+	ResTypeWatchMotion
+	ResTypeStepCount
+	ResTypeWatchStepCount
+)
+
+const (
 	UpgradeTypeArchive = iota
 	UpgradeTypeFiles
 )
@@ -27,6 +43,7 @@ type ReqDataFwUpgrade struct {
 }
 
 type Response struct {
+	Type    int
 	Value   interface{} `json:"value,omitempty"`
 	Message string      `json:"msg,omitempty"`
 	Error   bool        `json:"error"`
