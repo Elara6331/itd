@@ -136,6 +136,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 		case types.ReqTypeCancelHeartRate:
 			// Stop heart rate notifications
 			heartRateDone <- struct{}{}
+			json.NewEncoder(conn).Encode(types.Response{})
 		case types.ReqTypeBattLevel:
 			// Get battery level from watch
 			battLevel, err := dev.BatteryLevel()
@@ -174,6 +175,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 		case types.ReqTypeCancelBattLevel:
 			// Stop battery level notifications
 			battLevelDone <- struct{}{}
+			json.NewEncoder(conn).Encode(types.Response{})
 		case types.ReqTypeMotion:
 			// Get battery level from watch
 			motionVals, err := dev.Motion()
@@ -212,6 +214,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 		case types.ReqTypeCancelMotion:
 			// Stop motion notifications
 			motionDone <- struct{}{}
+			json.NewEncoder(conn).Encode(types.Response{})
 		case types.ReqTypeStepCount:
 			// Get battery level from watch
 			stepCount, err := dev.StepCount()
@@ -250,6 +253,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 		case types.ReqTypeCancelStepCount:
 			// Stop step count notifications
 			stepCountDone <- struct{}{}
+			json.NewEncoder(conn).Encode(types.Response{})
 		case types.ReqTypeFwVersion:
 			// Get firmware version from watch
 			version, err := dev.Version()
