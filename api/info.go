@@ -1,6 +1,8 @@
 package api
 
 import (
+	"reflect"
+
 	"github.com/mitchellh/mapstructure"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/internal/types"
@@ -43,16 +45,18 @@ func (c *Client) BatteryLevel() (uint8, error) {
 }
 
 // WatchBatteryLevel returns a channel which will contain
-// new battery level values as they update
-func (c *Client) WatchBatteryLevel() (<-chan uint8, error) {
+// new battery level values as they update. Do not use after
+// calling cancellation function
+func (c *Client) WatchBatteryLevel() (<-chan uint8, func(), error) {
 	c.battLevelCh = make(chan uint8, 2)
 	err := c.requestNoRes(types.Request{
 		Type: types.ReqTypeBattLevel,
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return c.battLevelCh, nil
+	cancel := c.cancelFn(types.ReqTypeCancelBattLevel, c.battLevelCh)
+	return c.battLevelCh, cancel, nil
 }
 
 // HeartRate gets the heart rate from the connected device
@@ -68,16 +72,31 @@ func (c *Client) HeartRate() (uint8, error) {
 }
 
 // WatchHeartRate returns a channel which will contain
-// new heart rate values as they update
-func (c *Client) WatchHeartRate() (<-chan uint8, error) {
+// new heart rate values as they update. Do not use after
+// calling cancellation function
+func (c *Client) WatchHeartRate() (<-chan uint8, func(), error) {
 	c.heartRateCh = make(chan uint8, 2)
 	err := c.requestNoRes(types.Request{
 		Type: types.ReqTypeWatchHeartRate,
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return c.heartRateCh, nil
+	cancel := c.cancelFn(types.ReqTypeCancelHeartRate, c.heartRateCh)
+	return c.heartRateCh, cancel, nil
+}
+
+// cancelFn generates a cancellation function for the given
+// request type and channel
+func (c *Client) cancelFn(reqType int, ch interface{}) func() {
+	return func() {
+		reflectCh := reflect.ValueOf(ch)
+		reflectCh.Close()
+		reflectCh.Set(reflect.Zero(reflectCh.Type()))
+		c.requestNoRes(types.Request{
+			Type: reqType,
+		})
+	}
 }
 
 // StepCount gets the step count from the connected device
@@ -93,16 +112,18 @@ func (c *Client) StepCount() (uint32, error) {
 }
 
 // WatchStepCount returns a channel which will contain
-// new step count values as they update
-func (c *Client) WatchStepCount() (<-chan uint32, error) {
+// new step count values as they update. Do not use after
+// calling cancellation function
+func (c *Client) WatchStepCount() (<-chan uint32, func(), error) {
 	c.stepCountCh = make(chan uint32, 2)
 	err := c.requestNoRes(types.Request{
 		Type: types.ReqTypeWatchStepCount,
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return c.stepCountCh, nil
+	cancel := c.cancelFn(types.ReqTypeCancelStepCount, c.stepCountCh)
+	return c.stepCountCh, cancel, nil
 }
 
 // Motion gets the motion values from the connected device
@@ -122,14 +143,16 @@ func (c *Client) Motion() (infinitime.MotionValues, error) {
 }
 
 // WatchMotion returns a channel which will contain
-// new motion values as they update
-func (c *Client) WatchMotion() (<-chan infinitime.MotionValues, error) {
+// new motion values as they update. Do not use after
+// calling cancellation function
+func (c *Client) WatchMotion() (<-chan infinitime.MotionValues, func(), error) {
 	c.motionCh = make(chan infinitime.MotionValues, 2)
 	err := c.requestNoRes(types.Request{
 		Type: types.ReqTypeWatchMotion,
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return c.motionCh, nil
+	cancel := c.cancelFn(types.ReqTypeCancelMotion, c.motionCh)
+	return c.motionCh, cancel, nil
 }
