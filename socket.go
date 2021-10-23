@@ -81,6 +81,11 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 		return
 	}
 
+	heartRateDone := make(chan struct{})
+	battLevelDone := make(chan struct{})
+	stepCountDone := make(chan struct{})
+	motionDone := make(chan struct{})
+
 	// Create new scanner on connection
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
@@ -106,19 +111,31 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				Value: heartRate,
 			})
 		case types.ReqTypeWatchHeartRate:
-			heartRateCh, err := dev.WatchHeartRate()
+			heartRateCh, cancel, err := dev.WatchHeartRate()
 			if err != nil {
 				connErr(conn, err, "Error getting heart rate channel")
 				break
 			}
 			go func() {
+				// For every heart rate value
 				for heartRate := range heartRateCh {
-					json.NewEncoder(conn).Encode(types.Response{
-						Type:  types.ResTypeWatchHeartRate,
-						Value: heartRate,
-					})
+					select {
+					case <-heartRateDone:
+						// Stop notifications if done signal received
+						cancel()
+						return
+					default:
+						// Encode response to connection if no done signal received
+						json.NewEncoder(conn).Encode(types.Response{
+							Type:  types.ResTypeWatchHeartRate,
+							Value: heartRate,
+						})
+					}
 				}
 			}()
+		case types.ReqTypeCancelHeartRate:
+			// Stop heart rate notifications
+			heartRateDone <- struct{}{}
 		case types.ReqTypeBattLevel:
 			// Get battery level from watch
 			battLevel, err := dev.BatteryLevel()
@@ -132,19 +149,31 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				Value: battLevel,
 			})
 		case types.ReqTypeWatchBattLevel:
-			battLevelCh, err := dev.WatchBatteryLevel()
+			battLevelCh, cancel, err := dev.WatchBatteryLevel()
 			if err != nil {
 				connErr(conn, err, "Error getting battery level channel")
 				break
 			}
 			go func() {
+				// For every battery level value
 				for battLevel := range battLevelCh {
-					json.NewEncoder(conn).Encode(types.Response{
-						Type:  types.ResTypeWatchBattLevel,
-						Value: battLevel,
-					})
+					select {
+					case <-battLevelDone:
+						// Stop notifications if done signal received
+						cancel()
+						return
+					default:
+						// Encode response to connection if no done signal received
+						json.NewEncoder(conn).Encode(types.Response{
+							Type:  types.ResTypeWatchBattLevel,
+							Value: battLevel,
+						})
+					}
 				}
 			}()
+		case types.ReqTypeCancelBattLevel:
+			// Stop battery level notifications
+			battLevelDone <- struct{}{}
 		case types.ReqTypeMotion:
 			// Get battery level from watch
 			motionVals, err := dev.Motion()
@@ -158,19 +187,31 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				Value: motionVals,
 			})
 		case types.ReqTypeWatchMotion:
-			motionValCh, _, err := dev.WatchMotion()
+			motionValCh, cancel, err := dev.WatchMotion()
 			if err != nil {
 				connErr(conn, err, "Error getting heart rate channel")
 				break
 			}
 			go func() {
+				// For every motion event
 				for motionVals := range motionValCh {
-					json.NewEncoder(conn).Encode(types.Response{
-						Type:  types.ResTypeWatchMotion,
-						Value: motionVals,
-					})
+					select {
+					case <-motionDone:
+						// Stop notifications if done signal received
+						cancel()
+						return
+					default:
+						// Encode response to connection if no done signal received
+						json.NewEncoder(conn).Encode(types.Response{
+							Type:  types.ResTypeWatchMotion,
+							Value: motionVals,
+						})
+					}
 				}
 			}()
+		case types.ReqTypeCancelMotion:
+			// Stop motion notifications
+			motionDone <- struct{}{}
 		case types.ReqTypeStepCount:
 			// Get battery level from watch
 			stepCount, err := dev.StepCount()
@@ -184,19 +225,31 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				Value: stepCount,
 			})
 		case types.ReqTypeWatchStepCount:
-			stepCountCh, _, err := dev.WatchStepCount()
+			stepCountCh, cancel, err := dev.WatchStepCount()
 			if err != nil {
 				connErr(conn, err, "Error getting heart rate channel")
 				break
 			}
 			go func() {
+				// For every step count value
 				for stepCount := range stepCountCh {
-					json.NewEncoder(conn).Encode(types.Response{
-						Type:  types.ResTypeWatchStepCount,
-						Value: stepCount,
-					})
+					select {
+					case <-stepCountDone:
+						// Stop notifications if done signal received
+						cancel()
+						return
+					default:
+						// Encode response to connection if no done signal received
+						json.NewEncoder(conn).Encode(types.Response{
+							Type:  types.ResTypeWatchStepCount,
+							Value: stepCount,
+						})
+					}
 				}
 			}()
+		case types.ReqTypeCancelStepCount:
+			// Stop step count notifications
+			stepCountDone <- struct{}{}
 		case types.ReqTypeFwVersion:
 			// Get firmware version from watch
 			version, err := dev.Version()
