@@ -417,6 +417,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 						Value: event,
 					})
 				}
+				firmwareUpdating = false
 			}()
 
 			// Set firmwareUpdating
