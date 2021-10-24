@@ -1,17 +1,14 @@
 package main
 
 import (
-	"encoding/json"
-	"net"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"go.arsenm.dev/itd/internal/types"
+	"go.arsenm.dev/itd/api"
 )
 
-func notifyTab(parent fyne.Window) *fyne.Container {
+func notifyTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	// Create new entry for notification title
 	titleEntry := widget.NewEntry()
 	titleEntry.SetPlaceHolder("Title")
@@ -22,20 +19,11 @@ func notifyTab(parent fyne.Window) *fyne.Container {
 
 	// Create new button to send notification
 	sendBtn := widget.NewButton("Send", func() {
-		// Dial itd UNIX socket
-		conn, err := net.Dial("unix", SockPath)
+		err := client.Notify(titleEntry.Text, bodyEntry.Text)
 		if err != nil {
-			guiErr(err, "Error dialing socket", false, parent)
+			guiErr(err, "Error sending notification", false, parent)
 			return
 		}
-		// Encode notify request on connection
-		json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeNotify,
-			Data: types.ReqDataNotify{
-				Title: titleEntry.Text,
-				Body:  bodyEntry.Text,
-			},
-		})
 	})
 
 	// Return new container containing all elements

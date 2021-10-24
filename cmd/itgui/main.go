@@ -1,31 +1,42 @@
 package main
 
 import (
-	"net"
+	"fmt"
 
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"go.arsenm.dev/itd/api"
 )
 
-var SockPath = "/tmp/itd/socket"
+var onClose []func()
 
 func main() {
 	// Create new app
 	a := app.New()
 	// Create new window with title "itgui"
 	window := a.NewWindow("itgui")
+	window.SetOnClosed(func() {
+		for _, closeFn := range onClose {
+			closeFn()
+		}
+	})
 
-	_, err := net.Dial("unix", SockPath)
+	fmt.Println(1)
+	client, err := api.New(api.DefaultAddr)
 	if err != nil {
-		guiErr(err, "Error dialing itd socket", true, window)
+		guiErr(err, "Error connecting to itd", true, window)
 	}
+	onClose = append(onClose, func() {
+		client.Close()
+	})
+	fmt.Println(2)
 
 	// Create new app tabs container
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Info", infoTab(window)),
-		container.NewTabItem("Notify", notifyTab(window)),
-		container.NewTabItem("Set Time", timeTab(window)),
-		container.NewTabItem("Upgrade", upgradeTab(window)),
+		container.NewTabItem("Info", infoTab(window, client)),
+		container.NewTabItem("Notify", notifyTab(window, client)),
+		container.NewTabItem("Set Time", timeTab(window, client)),
+		container.NewTabItem("Upgrade", upgradeTab(window, client)),
 	)
 
 	// Set tabs as window content

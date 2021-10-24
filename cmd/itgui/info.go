@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"image/color"
-	"net"
 
 	"encoding/json"
 
@@ -13,10 +11,11 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
+	"go.arsenm.dev/itd/api"
 	"go.arsenm.dev/itd/internal/types"
 )
 
-func infoTab(parent fyne.Window) *fyne.Container {
+func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	infoLayout := container.NewVBox(
 		// Add rectangle for a bit of padding
 		canvas.NewRectangle(color.Transparent),
@@ -32,13 +31,18 @@ func infoTab(parent fyne.Window) *fyne.Container {
 	)
 	infoLayout.Add(heartRate)
 
-	// Watch for heart rate updates
-	go watch(types.ReqTypeWatchHeartRate, func(data interface{}) {
-		// Change text of heart rate label
-		heartRateLbl.Text = fmt.Sprintf("%d BPM", int(data.(float64)))
-		// Refresh label
-		heartRateLbl.Refresh()
-	}, parent)
+	fmt.Println(3)
+	heartRateCh, cancel, err := client.WatchHeartRate()
+	onClose = append(onClose, cancel)
+	go func() {
+		for heartRate := range heartRateCh {
+			// Change text of heart rate label
+			heartRateLbl.Text = fmt.Sprintf("%d BPM", heartRate)
+			// Refresh label
+			heartRateLbl.Refresh()
+		}
+	}()
+	fmt.Println(4)
 
 	// Create label for battery level
 	battLevelLbl := newText("0%", 24)
@@ -50,84 +54,48 @@ func infoTab(parent fyne.Window) *fyne.Container {
 	)
 	infoLayout.Add(battLevel)
 
-	// Watch for changes in battery level
-	go watch(types.ReqTypeWatchBattLevel, func(data interface{}) {
-		battLevelLbl.Text = fmt.Sprintf("%d%%", int(data.(float64)))
-		battLevelLbl.Refresh()
-	}, parent)
+	fmt.Println(5)
+	battLevelCh, cancel, err := client.WatchBatteryLevel()
+	onClose = append(onClose, cancel)
+	go func() {
+		for battLevel := range battLevelCh {
+			// Change text of battery level label
+			battLevelLbl.Text = fmt.Sprintf("%d%%", battLevel)
+			// Refresh label
+			battLevelLbl.Refresh()
+		}
+	}()
+	fmt.Println(6)
 
-	fwVerString, err := get(types.ReqTypeFwVersion)
+	fmt.Println(7)
+	fwVerString, err := client.Version()
 	if err != nil {
 		guiErr(err, "Error getting firmware string", true, parent)
 	}
+	fmt.Println(8)
 
 	fwVer := container.NewVBox(
 		newText("Firmware Version", 12),
-		newText(fwVerString.(string), 24),
+		newText(fwVerString, 24),
 		canvas.NewLine(theme.ShadowColor()),
 	)
 	infoLayout.Add(fwVer)
 
-	btAddrString, err := get(types.ReqTypeBtAddress)
+	fmt.Println(9)
+	btAddrString, err := client.Address()
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(10)
 
 	btAddr := container.NewVBox(
 		newText("Bluetooth Address", 12),
-		newText(btAddrString.(string), 24),
+		newText(btAddrString, 24),
 		canvas.NewLine(theme.ShadowColor()),
 	)
 	infoLayout.Add(btAddr)
 
 	return infoLayout
-}
-
-func watch(req int, onRecv func(data interface{}), parent fyne.Window) error {
-	conn, err := net.Dial("unix", SockPath)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-	err = json.NewEncoder(conn).Encode(types.Request{
-		Type: req,
-	})
-	if err != nil {
-		return err
-	}
-	scanner := bufio.NewScanner(conn)
-	for scanner.Scan() {
-		res, err := getResp(scanner.Bytes())
-		if err != nil {
-			guiErr(err, "Error getting response from connection", false, parent)
-			continue
-		}
-		onRecv(res.Value)
-	}
-	return nil
-}
-
-func get(req int) (interface{}, error) {
-	conn, err := net.Dial("unix", SockPath)
-	if err != nil {
-		return nil, err
-	}
-	defer conn.Close()
-	err = json.NewEncoder(conn).Encode(types.Request{
-		Type: req,
-	})
-	if err != nil {
-		return nil, err
-	}
-	line, _, err := bufio.NewReader(conn).ReadLine()
-	if err != nil {
-		return nil, err
-	}
-	res, err := getResp(line)
-	if err != nil {
-		return nil, err
-	}
-	return res.Value, nil
 }
 
 func getResp(line []byte) (*types.Response, error) {

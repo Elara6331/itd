@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
-	"net"
 	"path/filepath"
 
 	"fyne.io/fyne/v2"
@@ -13,11 +10,11 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
-	"github.com/mitchellh/mapstructure"
+	"go.arsenm.dev/itd/api"
 	"go.arsenm.dev/itd/internal/types"
 )
 
-func upgradeTab(parent fyne.Window) *fyne.Container {
+func upgradeTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	var (
 		archivePath  string
 		firmwarePath string
@@ -117,7 +114,7 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 		// Resize modal to 300x100
 		progressDlg.Resize(fyne.NewSize(300, 100))
 
-		var fwUpgType int
+		var fwUpgType api.UpgradeType
 		var files []string
 		// Get appropriate upgrade type and file paths
 		switch upgradeTypeSelect.Selected {
@@ -129,48 +126,18 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 			files = append(files, initPktPath, firmwarePath)
 		}
 
-		// Dial itd UNIX socket
-		conn, err := net.Dial("unix", SockPath)
+		progress, err := client.FirmwareUpgrade(fwUpgType, files...)
 		if err != nil {
-			guiErr(err, "Error dialing socket", false, parent)
+			guiErr(err, "Error initiating DFU", false, parent)
 			return
 		}
-		defer conn.Close()
-
-		// Encode firmware upgrade request to connection
-		json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeFwUpgrade,
-			Data: types.ReqDataFwUpgrade{
-				Type:  fwUpgType,
-				Files: files,
-			},
-		})
 
 		// Show progress dialog
 		progressDlg.Show()
 		// Hide progress dialog after completion
 		defer progressDlg.Hide()
 
-		scanner := bufio.NewScanner(conn)
-		for scanner.Scan() {
-			var res types.Response
-			// Decode scanned line into response struct
-			err = json.Unmarshal(scanner.Bytes(), &res)
-			if err != nil {
-				guiErr(err, "Error decoding response", false, parent)
-				return
-			}
-			if res.Error {
-				guiErr(err, "Error returned in response", false, parent)
-				return
-			}
-			var event types.DFUProgress
-			// Decode response data into progress struct
-			err = mapstructure.Decode(res.Value, &event)
-			if err != nil {
-				guiErr(err, "Error decoding response value", false, parent)
-				return
-			}
+		for event := range progress {
 			// Set label text to received / total B
 			progressLbl.SetText(fmt.Sprintf("%d / %d B", event.Received, event.Total))
 			// Set progress bar values
@@ -179,7 +146,7 @@ func upgradeTab(parent fyne.Window) *fyne.Container {
 			// Refresh progress bar
 			progressBar.Refresh()
 			// If transfer finished, break
-			if event.Received == event.Total {
+			if event.Sent == event.Total {
 				break
 			}
 		}

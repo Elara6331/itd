@@ -48,7 +48,7 @@ func (c *Client) BatteryLevel() (uint8, error) {
 func (c *Client) WatchBatteryLevel() (<-chan uint8, func(), error) {
 	c.battLevelCh = make(chan types.Response, 2)
 	err := c.requestNoRes(types.Request{
-		Type: types.ReqTypeBattLevel,
+		Type: types.ReqTypeWatchBattLevel,
 	})
 	if err != nil {
 		return nil, nil, err
