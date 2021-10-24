@@ -22,6 +22,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net"
 	"os"
 	"path/filepath"
@@ -126,7 +127,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode heart rate to connection
 			json.NewEncoder(conn).Encode(types.Response{
-				Type:  types.ResTypeHeartRate,
+				Type:  req.Type,
 				Value: heartRate,
 			})
 		case types.ReqTypeWatchHeartRate:
@@ -149,7 +150,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 					default:
 						// Encode response to connection if no done signal received
 						json.NewEncoder(conn).Encode(types.Response{
-							Type:  types.ResTypeWatchHeartRate,
+							Type:  req.Type,
 							ID:    reqID,
 							Value: heartRate,
 						})
@@ -165,7 +166,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode battery level to connection
 			json.NewEncoder(conn).Encode(types.Response{
-				Type:  types.ResTypeBattLevel,
+				Type:  req.Type,
 				Value: battLevel,
 			})
 		case types.ReqTypeWatchBattLevel:
@@ -188,7 +189,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 					default:
 						// Encode response to connection if no done signal received
 						json.NewEncoder(conn).Encode(types.Response{
-							Type:  types.ResTypeWatchBattLevel,
+							Type:  req.Type,
 							ID:    reqID,
 							Value: battLevel,
 						})
@@ -204,7 +205,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode battery level to connection
 			json.NewEncoder(conn).Encode(types.Response{
-				Type:  types.ResTypeMotion,
+				Type:  req.Type,
 				Value: motionVals,
 			})
 		case types.ReqTypeWatchMotion:
@@ -228,7 +229,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 					default:
 						// Encode response to connection if no done signal received
 						json.NewEncoder(conn).Encode(types.Response{
-							Type:  types.ResTypeWatchMotion,
+							Type:  req.Type,
 							ID:    reqID,
 							Value: motionVals,
 						})
@@ -244,7 +245,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode battery level to connection
 			json.NewEncoder(conn).Encode(types.Response{
-				Type:  types.ResTypeStepCount,
+				Type:  req.Type,
 				Value: stepCount,
 			})
 		case types.ReqTypeWatchStepCount:
@@ -267,7 +268,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 					default:
 						// Encode response to connection if no done signal received
 						json.NewEncoder(conn).Encode(types.Response{
-							Type:  types.ResTypeWatchStepCount,
+							Type:  req.Type,
 							ID:    reqID,
 							Value: stepCount,
 						})
@@ -283,13 +284,13 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Encode version to connection
 			json.NewEncoder(conn).Encode(types.Response{
-				Type:  types.ResTypeFwVersion,
+				Type:  req.Type,
 				Value: version,
 			})
 		case types.ReqTypeBtAddress:
 			// Encode bluetooth address to connection
 			json.NewEncoder(conn).Encode(types.Response{
-				Type:  types.ResTypeBtAddress,
+				Type:  req.Type,
 				Value: dev.Address(),
 			})
 		case types.ReqTypeNotify:
@@ -316,7 +317,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				break
 			}
 			// Encode empty types.Response to connection
-			json.NewEncoder(conn).Encode(types.Response{Type: types.ResTypeNotify})
+			json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
 		case types.ReqTypeSetTime:
 			// If no data, return error
 			if req.Data == nil {
@@ -348,7 +349,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				break
 			}
 			// Encode empty types.Response to connection
-			json.NewEncoder(conn).Encode(types.Response{Type: types.ResTypeSetTime})
+			json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
 		case types.ReqTypeFwUpgrade:
 			// If no data, return error
 			if req.Data == nil {
@@ -413,7 +414,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				for event := range progress {
 					// Encode event on connection
 					json.NewEncoder(conn).Encode(types.Response{
-						Type:  types.ResTypeDFUProgress,
+						Type:  req.Type,
 						Value: event,
 					})
 				}
@@ -441,7 +442,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			// Stop notifications
 			done.Done(reqID)
-			json.NewEncoder(conn).Encode(types.Response{Type: types.ResTypeCancel})
+			json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
 		}
 	}
 }
@@ -454,7 +455,7 @@ func connErr(conn net.Conn, err error, msg string) {
 		res = types.Response{Message: fmt.Sprintf("%s: %s", msg, err)}
 	} else {
 		log.Error().Msg(msg)
-		res = types.Response{Message: msg}
+		res = types.Response{Message: msg, Type: math.MaxInt}
 	}
 	res.Error = true
 
