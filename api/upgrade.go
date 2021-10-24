@@ -31,7 +31,18 @@ func (c *Client) FirmwareUpgrade(upgType UpgradeType, files ...string) (<-chan D
 		return nil, err
 	}
 
-	c.dfuProgressCh = make(chan DFUProgress, 5)
+	c.dfuProgressCh = make(chan types.Response, 5)
 
-	return c.dfuProgressCh, nil
+	out := make(chan DFUProgress, 5)
+	go func() {
+		for res := range c.dfuProgressCh {
+			progress, err := decodeDFUProgress(res.Value)
+			if err != nil {
+				continue
+			}
+			out <- progress
+		}
+	}()
+
+	return out, nil
 }

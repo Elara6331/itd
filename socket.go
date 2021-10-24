@@ -27,6 +27,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -34,6 +35,29 @@ import (
 	"go.arsenm.dev/itd/internal/types"
 	"go.arsenm.dev/itd/translit"
 )
+
+type DoneMap map[string]chan struct{}
+
+func (dm DoneMap) Exists(key string) bool {
+	_, ok := dm[key]
+	return ok
+}
+
+func (dm DoneMap) Done(key string) {
+	ch := dm[key]
+	ch <- struct{}{}
+}
+
+func (dm DoneMap) Create(key string) {
+	dm[key] = make(chan struct{}, 1)
+}
+
+func (dm DoneMap) Remove(key string) {
+	close(dm[key])
+	delete(dm, key)
+}
+
+var done = DoneMap{}
 
 func startSocket(dev *infinitime.Device) error {
 	// Make socket directory if non-existant
@@ -81,11 +105,6 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 		return
 	}
 
-	heartRateDone := make(chan struct{})
-	battLevelDone := make(chan struct{})
-	stepCountDone := make(chan struct{})
-	motionDone := make(chan struct{})
-
 	// Create new scanner on connection
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
@@ -116,27 +135,27 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				connErr(conn, err, "Error getting heart rate channel")
 				break
 			}
+			reqID := uuid.New().String()
 			go func() {
+				done.Create(reqID)
 				// For every heart rate value
 				for heartRate := range heartRateCh {
 					select {
-					case <-heartRateDone:
+					case <-done[reqID]:
 						// Stop notifications if done signal received
 						cancel()
+						done.Remove(reqID)
 						return
 					default:
 						// Encode response to connection if no done signal received
 						json.NewEncoder(conn).Encode(types.Response{
 							Type:  types.ResTypeWatchHeartRate,
+							ID:    reqID,
 							Value: heartRate,
 						})
 					}
 				}
 			}()
-		case types.ReqTypeCancelHeartRate:
-			// Stop heart rate notifications
-			heartRateDone <- struct{}{}
-			json.NewEncoder(conn).Encode(types.Response{})
 		case types.ReqTypeBattLevel:
 			// Get battery level from watch
 			battLevel, err := dev.BatteryLevel()
@@ -155,27 +174,27 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				connErr(conn, err, "Error getting battery level channel")
 				break
 			}
+			reqID := uuid.New().String()
 			go func() {
+				done.Create(reqID)
 				// For every battery level value
 				for battLevel := range battLevelCh {
 					select {
-					case <-battLevelDone:
+					case <-done[reqID]:
 						// Stop notifications if done signal received
 						cancel()
+						done.Remove(reqID)
 						return
 					default:
 						// Encode response to connection if no done signal received
 						json.NewEncoder(conn).Encode(types.Response{
 							Type:  types.ResTypeWatchBattLevel,
+							ID:    reqID,
 							Value: battLevel,
 						})
 					}
 				}
 			}()
-		case types.ReqTypeCancelBattLevel:
-			// Stop battery level notifications
-			battLevelDone <- struct{}{}
-			json.NewEncoder(conn).Encode(types.Response{})
 		case types.ReqTypeMotion:
 			// Get battery level from watch
 			motionVals, err := dev.Motion()
@@ -194,27 +213,28 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				connErr(conn, err, "Error getting heart rate channel")
 				break
 			}
+			reqID := uuid.New().String()
 			go func() {
+				done.Create(reqID)
 				// For every motion event
 				for motionVals := range motionValCh {
 					select {
-					case <-motionDone:
+					case <-done[reqID]:
 						// Stop notifications if done signal received
 						cancel()
+						done.Remove(reqID)
+
 						return
 					default:
 						// Encode response to connection if no done signal received
 						json.NewEncoder(conn).Encode(types.Response{
 							Type:  types.ResTypeWatchMotion,
+							ID:    reqID,
 							Value: motionVals,
 						})
 					}
 				}
 			}()
-		case types.ReqTypeCancelMotion:
-			// Stop motion notifications
-			motionDone <- struct{}{}
-			json.NewEncoder(conn).Encode(types.Response{})
 		case types.ReqTypeStepCount:
 			// Get battery level from watch
 			stepCount, err := dev.StepCount()
@@ -233,27 +253,27 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				connErr(conn, err, "Error getting heart rate channel")
 				break
 			}
+			reqID := uuid.New().String()
 			go func() {
+				done.Create(reqID)
 				// For every step count value
 				for stepCount := range stepCountCh {
 					select {
-					case <-stepCountDone:
+					case <-done[reqID]:
 						// Stop notifications if done signal received
 						cancel()
+						done.Remove(reqID)
 						return
 					default:
 						// Encode response to connection if no done signal received
 						json.NewEncoder(conn).Encode(types.Response{
 							Type:  types.ResTypeWatchStepCount,
+							ID:    reqID,
 							Value: stepCount,
 						})
 					}
 				}
 			}()
-		case types.ReqTypeCancelStepCount:
-			// Stop step count notifications
-			stepCountDone <- struct{}{}
-			json.NewEncoder(conn).Encode(types.Response{})
 		case types.ReqTypeFwVersion:
 			// Get firmware version from watch
 			version, err := dev.Version()
@@ -409,6 +429,18 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				break
 			}
 			firmwareUpdating = false
+		case types.ReqTypeCancel:
+			if req.Data == nil {
+				connErr(conn, nil, "No data provided. Cancel request requires request ID string as data.")
+				continue
+			}
+			reqID, ok := req.Data.(string)
+			if !ok {
+				connErr(conn, nil, "Invalid data. Cancel request required request ID string as data.")
+			}
+			// Stop notifications
+			done.Done(reqID)
+			json.NewEncoder(conn).Encode(types.Response{Type: types.ResTypeCancel})
 		}
 	}
 }

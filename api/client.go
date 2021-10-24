@@ -18,11 +18,11 @@ const DefaultAddr = "/tmp/itd/socket"
 type Client struct {
 	conn          net.Conn
 	respCh        chan types.Response
-	heartRateCh   chan uint8
-	battLevelCh   chan uint8
-	stepCountCh   chan uint32
-	motionCh      chan infinitime.MotionValues
-	dfuProgressCh chan DFUProgress
+	heartRateCh   chan types.Response
+	battLevelCh   chan types.Response
+	stepCountCh   chan types.Response
+	motionCh      chan types.Response
+	dfuProgressCh chan types.Response
 }
 
 // New creates a new client and sets it up
@@ -91,27 +91,43 @@ func (c *Client) requestNoRes(req types.Request) error {
 func (c *Client) handleResp(res types.Response) error {
 	switch res.Type {
 	case types.ResTypeWatchHeartRate:
-		c.heartRateCh <- uint8(res.Value.(float64))
+		c.heartRateCh <- res
 	case types.ResTypeWatchBattLevel:
-		c.battLevelCh <- uint8(res.Value.(float64))
+		c.battLevelCh <- res
 	case types.ResTypeWatchStepCount:
-		c.stepCountCh <- uint32(res.Value.(float64))
+		c.stepCountCh <- res
 	case types.ResTypeWatchMotion:
-		out := infinitime.MotionValues{}
-		err := mapstructure.Decode(res.Value, &out)
-		if err != nil {
-			return err
-		}
-		c.motionCh <- out
+		c.motionCh <- res
 	case types.ResTypeDFUProgress:
-		out := DFUProgress{}
-		err := mapstructure.Decode(res.Value, &out)
-		if err != nil {
-			return err
-		}
-		c.dfuProgressCh <- out
+		c.dfuProgressCh <- res
 	default:
 		c.respCh <- res
 	}
 	return nil
+}
+
+func decodeUint8(val interface{}) uint8 {
+	return uint8(val.(float64))
+}
+
+func decodeUint32(val interface{}) uint32 {
+	return uint32(val.(float64))
+}
+
+func decodeMotion(val interface{}) (infinitime.MotionValues, error) {
+	out := infinitime.MotionValues{}
+	err := mapstructure.Decode(val, &out)
+	if err != nil {
+		return out, err
+	}
+	return out, nil
+}
+
+func decodeDFUProgress(val interface{}) (DFUProgress, error) {
+	out := DFUProgress{}
+	err := mapstructure.Decode(val, &out)
+	if err != nil {
+		return out, err
+	}
+	return out, nil
 }
