@@ -19,15 +19,12 @@
 package get
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
-	"net"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go.arsenm.dev/itd/internal/types"
+	"go.arsenm.dev/itd/api"
 )
 
 // batteryCmd represents the batt command
@@ -36,40 +33,15 @@ var batteryCmd = &cobra.Command{
 	Aliases: []string{"batt"},
 	Short:   "Get battery level from InfiniTime",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Connect to itd UNIX socket
-		conn, err := net.Dial("unix", viper.GetString("sockPath"))
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error dialing socket. Is itd running?")
-		}
-		defer conn.Close()
+		client := viper.Get("client").(*api.Client)
 
-		// Encode request into connection
-		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeBattLevel,
-		})
+		battLevel, err := client.BatteryLevel()
 		if err != nil {
-			log.Fatal().Err(err).Msg("Error making request")
-		}
-
-		// Read one line from connection
-		line, _, err := bufio.NewReader(conn).ReadLine()
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error reading line from connection")
-		}
-
-		var res types.Response
-		// Deocde line into response
-		err = json.Unmarshal(line, &res)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error decoding JSON data")
-		}
-
-		if res.Error {
-			log.Fatal().Msg(res.Message)
+			log.Fatal().Err(err).Msg("Error getting battery level")
 		}
 
 		// Print returned percentage
-		fmt.Printf("%d%%\n", int(res.Value.(float64)))
+		fmt.Printf("%d%%\n", battLevel)
 	},
 }
 

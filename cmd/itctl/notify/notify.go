@@ -19,15 +19,11 @@
 package notify
 
 import (
-	"bufio"
-	"encoding/json"
-	"net"
-
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.arsenm.dev/itd/api"
 	"go.arsenm.dev/itd/cmd/itctl/root"
-	"go.arsenm.dev/itd/internal/types"
 )
 
 // notifyCmd represents the notify command
@@ -41,40 +37,11 @@ var notifyCmd = &cobra.Command{
 			log.Fatal().Msg("Command notify requires two arguments")
 		}
 
-		// Connect to itd UNIX socket
-		conn, err := net.Dial("unix", viper.GetString("sockPath"))
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error dialing socket. Is itd running?")
-		}
-		defer conn.Close()
+		client := viper.Get("client").(*api.Client)
 
-		// Encode request into connection
-		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeNotify,
-			Data: types.ReqDataNotify{
-				Title: args[0],
-				Body:  args[1],
-			},
-		})
+		err := client.Notify(args[0], args[1])
 		if err != nil {
-			log.Fatal().Err(err).Msg("Error making request")
-		}
-
-		// Read one line from connection
-		line, _, err := bufio.NewReader(conn).ReadLine()
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error reading line from connection")
-		}
-
-		var res types.Response
-		// Decode line into response
-		err = json.Unmarshal(line, &res)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error decoding JSON data")
-		}
-
-		if res.Error {
-			log.Fatal().Msg(res.Message)
+			log.Fatal().Err(err).Msg("Error sending notification")
 		}
 	},
 }

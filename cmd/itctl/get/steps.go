@@ -19,15 +19,12 @@
 package get
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
-	"net"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go.arsenm.dev/itd/internal/types"
+	"go.arsenm.dev/itd/api"
 )
 
 // steps.goCmd represents the steps.go command
@@ -35,40 +32,15 @@ var stepsCmd = &cobra.Command{
 	Use:   "steps",
 	Short: "Get step count from InfiniTime",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Connect to itd UNIX socket
-		conn, err := net.Dial("unix", viper.GetString("sockPath"))
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error dialing socket. Is itd running?")
-		}
-		defer conn.Close()
+		client := viper.Get("client").(*api.Client)
 
-		// Encode request into connection
-		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeStepCount,
-		})
+		stepCount, err := client.StepCount()
 		if err != nil {
-			log.Fatal().Err(err).Msg("Error making request")
-		}
-
-		// Read one line from connection
-		line, _, err := bufio.NewReader(conn).ReadLine()
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error reading line from connection")
-		}
-
-		var res types.Response
-		// Decode line into response
-		err = json.Unmarshal(line, &res)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error decoding JSON data")
-		}
-
-		if res.Error {
-			log.Fatal().Msg(res.Message)
+			log.Fatal().Err(err).Msg("Error getting step count")
 		}
 
 		// Print returned BPM
-		fmt.Printf("%d Steps\n", int(res.Value.(float64)))
+		fmt.Printf("%d Steps\n", stepCount)
 	},
 }
 
