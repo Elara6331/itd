@@ -18,23 +18,6 @@ const (
 )
 
 const (
-	ResTypeHeartRate = iota
-	ResTypeBattLevel
-	ResTypeFwVersion
-	ResTypeDFUProgress
-	ResTypeBtAddress
-	ResTypeNotify
-	ResTypeSetTime
-	ResTypeWatchHeartRate
-	ResTypeWatchBattLevel
-	ResTypeMotion
-	ResTypeWatchMotion
-	ResTypeStepCount
-	ResTypeWatchStepCount
-	ResTypeCancel
-)
-
-const (
 	UpgradeTypeArchive = iota
 	UpgradeTypeFiles
 )
