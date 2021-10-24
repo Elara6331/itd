@@ -90,15 +90,15 @@ func (c *Client) requestNoRes(req types.Request) error {
 // handleResp handles the received response as needed
 func (c *Client) handleResp(res types.Response) error {
 	switch res.Type {
-	case types.ResTypeWatchHeartRate:
+	case types.ReqTypeWatchHeartRate:
 		c.heartRateCh <- res
-	case types.ResTypeWatchBattLevel:
+	case types.ReqTypeWatchBattLevel:
 		c.battLevelCh <- res
-	case types.ResTypeWatchStepCount:
+	case types.ReqTypeWatchStepCount:
 		c.stepCountCh <- res
-	case types.ResTypeWatchMotion:
+	case types.ReqTypeWatchMotion:
 		c.motionCh <- res
-	case types.ResTypeDFUProgress:
+	case types.ReqTypeFwUpgrade:
 		c.dfuProgressCh <- res
 	default:
 		c.respCh <- res
