@@ -443,6 +443,8 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			// Stop notifications
 			done.Done(reqID)
 			json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
+		default:
+			connErr(conn, req.Type, nil, fmt.Sprintf("Unknown request type %d", req.Type))
 		}
 	}
 }
