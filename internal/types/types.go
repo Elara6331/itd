@@ -65,6 +65,7 @@ type ReqDataNotify struct {
 type DFUProgress struct {
 	Received int64 `mapstructure:"recvd"`
 	Total    int64 `mapstructure:"total"`
+	Sent     int64 `mapstructure:"sent"`
 }
 
 type MotionValues struct {
