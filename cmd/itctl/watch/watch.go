@@ -16,26 +16,19 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package watch
 
 import (
-	_ "go.arsenm.dev/itd/cmd/itctl/firmware"
-	_ "go.arsenm.dev/itd/cmd/itctl/get"
-	_ "go.arsenm.dev/itd/cmd/itctl/notify"
+	"github.com/spf13/cobra"
 	"go.arsenm.dev/itd/cmd/itctl/root"
-	_ "go.arsenm.dev/itd/cmd/itctl/set"
-	_ "go.arsenm.dev/itd/cmd/itctl/watch"
-
-	"os"
-
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
-func init() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+// watchCmd represents the watch command
+var watchCmd = &cobra.Command{
+	Use:   "watch",
+	Short: "Watch values from InfiniTime for changes",
 }
 
-func main() {
-	root.Execute()
+func init() {
+	root.RootCmd.AddCommand(watchCmd)
 }
