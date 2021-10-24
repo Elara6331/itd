@@ -19,15 +19,12 @@
 package get
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
-	"net"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go.arsenm.dev/itd/internal/types"
+	"go.arsenm.dev/itd/api"
 )
 
 // addressCmd represents the address command
@@ -36,40 +33,14 @@ var addressCmd = &cobra.Command{
 	Aliases: []string{"addr"},
 	Short:   "Get InfiniTime's bluetooth address",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Connect to itd UNIX socket
-		conn, err := net.Dial("unix", viper.GetString("sockPath"))
+		client := viper.Get("client").(*api.Client)
+		
+		address, err := client.Address()
 		if err != nil {
-			log.Fatal().Err(err).Msg("Error dialing socket. Is itd running?")
-		}
-		defer conn.Close()
-
-		// Encode request into connection
-		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeBtAddress,
-		})
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error making request")
+			log.Fatal().Err(err).Msg("Error getting bluetooth address")
 		}
 
-		// Read one line from connection
-		line, _, err := bufio.NewReader(conn).ReadLine()
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error reading line from connection")
-		}
-
-		var res types.Response
-		// Decode line into response
-		err = json.Unmarshal(line, &res)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error decoding JSON data")
-		}
-
-		if res.Error {
-			log.Fatal().Msg(res.Message)
-		}
-
-		// Print returned value
-		fmt.Println(res.Value)
+		fmt.Println(address)
 	},
 }
 

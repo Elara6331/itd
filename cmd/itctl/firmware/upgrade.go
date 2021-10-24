@@ -19,15 +19,11 @@
 package firmware
 
 import (
-	"bufio"
-	"encoding/json"
-	"net"
-
 	"github.com/cheggaaa/pb/v3"
-	"github.com/mitchellh/mapstructure"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.arsenm.dev/itd/api"
 	"go.arsenm.dev/itd/internal/types"
 )
 
@@ -36,47 +32,34 @@ type DFUProgress struct {
 	Total    int64 `mapstructure:"total"`
 }
 
-
 // upgradeCmd represents the upgrade command
 var upgradeCmd = &cobra.Command{
 	Use:     "upgrade",
 	Short:   "Upgrade InfiniTime firmware using files or archive",
 	Aliases: []string{"upg"},
 	Run: func(cmd *cobra.Command, args []string) {
-		// Connect to itd UNIX socket
-		conn, err := net.Dial("unix", viper.GetString("sockPath"))
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error dialing socket. Is itd running?")
-		}
-		defer conn.Close()
+		client := viper.Get("client").(*api.Client)
 
-		var data types.ReqDataFwUpgrade
+		var upgType api.UpgradeType
+		var files []string
 		// Get relevant data struct
 		if viper.GetString("archive") != "" {
 			// Get archive data struct
-			data = types.ReqDataFwUpgrade{
-				Type:  types.UpgradeTypeArchive,
-				Files: []string{viper.GetString("archive")},
-			}
+			upgType = types.UpgradeTypeArchive
+			files = []string{viper.GetString("archive")}
 		} else if viper.GetString("initPkt") != "" && viper.GetString("firmware") != "" {
 			// Get files data struct
-			data = types.ReqDataFwUpgrade{
-				Type:  types.UpgradeTypeFiles,
-				Files: []string{viper.GetString("initPkt"), viper.GetString("firmware")},
-			}
+			upgType = types.UpgradeTypeFiles
+			files = []string{viper.GetString("initPkt"), viper.GetString("firmware")}
 		} else {
 			cmd.Usage()
 			log.Warn().Msg("Upgrade command requires either archive or init packet and firmware.")
 			return
 		}
 
-		// Encode response into connection
-		err = json.NewEncoder(conn).Encode(types.Request{
-			Type: types.ReqTypeFwUpgrade,
-			Data: data,
-		})
+		progress, err := client.FirmwareUpgrade(upgType, files...)
 		if err != nil {
-			log.Fatal().Err(err).Msg("Error making request")
+			log.Fatal().Err(err).Msg("Error initiating DFU")
 		}
 
 		// Create progress bar template
@@ -84,23 +67,7 @@ var upgradeCmd = &cobra.Command{
 		// Start full bar at 0 total
 		bar := pb.ProgressBarTemplate(barTmpl).Start(0)
 		// Create new scanner of connection
-		scanner := bufio.NewScanner(conn)
-		for scanner.Scan() {
-			var res types.Response
-			// Decode scanned line into response struct
-			err = json.Unmarshal(scanner.Bytes(), &res)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Error decoding JSON response")
-			}
-			if res.Error {
-				log.Fatal().Msg(res.Message)
-			}
-			var event DFUProgress
-			// Decode response data into progress struct
-			err = mapstructure.Decode(res.Value, &event)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Error decoding response data")
-			}
+		for event := range progress {
 			// Set total bytes in progress bar
 			bar.SetTotal(event.Total)
 			// Set amount of bytes received in progress bar
@@ -112,9 +79,6 @@ var upgradeCmd = &cobra.Command{
 		}
 		// Finish progress bar
 		bar.Finish()
-		if scanner.Err() != nil {
-			log.Fatal().Err(scanner.Err()).Msg("Error while scanning output")
-		}
 	},
 }
 
