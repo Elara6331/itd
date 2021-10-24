@@ -73,7 +73,7 @@ var upgradeCmd = &cobra.Command{
 			// Set amount of bytes received in progress bar
 			bar.SetCurrent(event.Received)
 			// If transfer finished, break
-			if event.Received == event.Total {
+			if event.Sent == event.Total {
 				break
 			}
 		}
