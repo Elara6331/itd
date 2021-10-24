@@ -9,15 +9,12 @@ const (
 	ReqTypeNotify
 	ReqTypeSetTime
 	ReqTypeWatchHeartRate
-	ReqTypeCancelHeartRate
 	ReqTypeWatchBattLevel
-	ReqTypeCancelBattLevel
 	ReqTypeMotion
 	ReqTypeWatchMotion
-	ReqTypeCancelMotion
 	ReqTypeStepCount
 	ReqTypeWatchStepCount
-	ReqTypeCancelStepCount
+	ReqTypeCancel
 )
 
 const (
@@ -29,15 +26,12 @@ const (
 	ResTypeNotify
 	ResTypeSetTime
 	ResTypeWatchHeartRate
-	ResTypeCancelHeartRate
 	ResTypeWatchBattLevel
-	ResTypeCancelBattLevel
 	ResTypeMotion
 	ResTypeWatchMotion
-	ResTypeCancelMotion
 	ResTypeStepCount
 	ResTypeWatchStepCount
-	ResTypeCancelStepCount
+	ResTypeCancel
 )
 
 const (
@@ -54,6 +48,7 @@ type Response struct {
 	Type    int         `json:"type"`
 	Value   interface{} `json:"value,omitempty"`
 	Message string      `json:"msg,omitempty"`
+	ID      string      `json:"id,omitempty"`
 	Error   bool        `json:"error"`
 }
 
