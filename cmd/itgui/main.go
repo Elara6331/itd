@@ -30,6 +30,7 @@ func main() {
 	// Create new app tabs container
 	tabs := container.NewAppTabs(
 		container.NewTabItem("Info", infoTab(window, client)),
+		container.NewTabItem("Motion", motionTab(window, client)),
 		container.NewTabItem("Notify", notifyTab(window, client)),
 		container.NewTabItem("Set Time", timeTab(window, client)),
 		container.NewTabItem("Upgrade", upgradeTab(window, client)),
