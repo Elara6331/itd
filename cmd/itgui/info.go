@@ -1,18 +1,14 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"image/color"
-
-	"encoding/json"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"go.arsenm.dev/itd/api"
-	"go.arsenm.dev/itd/internal/types"
 )
 
 func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
@@ -24,15 +20,17 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	// Create label for heart rate
 	heartRateLbl := newText("0 BPM", 24)
 	// Creae container to store heart rate section
-	heartRate := container.NewVBox(
+	heartRateSect := container.NewVBox(
 		newText("Heart Rate", 12),
 		heartRateLbl,
 		canvas.NewLine(theme.ShadowColor()),
 	)
-	infoLayout.Add(heartRate)
+	infoLayout.Add(heartRateSect)
 
-	fmt.Println(3)
 	heartRateCh, cancel, err := client.WatchHeartRate()
+	if err != nil {
+		guiErr(err, "Error getting heart rate channel", true, parent)
+	}
 	onClose = append(onClose, cancel)
 	go func() {
 		for heartRate := range heartRateCh {
@@ -42,7 +40,30 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 			heartRateLbl.Refresh()
 		}
 	}()
-	fmt.Println(4)
+
+	// Create label for heart rate
+	stepCountLbl := newText("0 Steps", 24)
+	// Creae container to store heart rate section
+	stepCountSect := container.NewVBox(
+		newText("Step Count", 12),
+		stepCountLbl,
+		canvas.NewLine(theme.ShadowColor()),
+	)
+	infoLayout.Add(stepCountSect)
+
+	stepCountCh, cancel, err := client.WatchStepCount()
+	if err != nil {
+		guiErr(err, "Error getting step count channel", true, parent)
+	}
+	onClose = append(onClose, cancel)
+	go func() {
+		for stepCount := range stepCountCh {
+			// Change text of heart rate label
+			stepCountLbl.Text = fmt.Sprintf("%d Steps", stepCount)
+			// Refresh label
+			stepCountLbl.Refresh()
+		}
+	}()
 
 	// Create label for battery level
 	battLevelLbl := newText("0%", 24)
@@ -54,8 +75,10 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	)
 	infoLayout.Add(battLevel)
 
-	fmt.Println(5)
 	battLevelCh, cancel, err := client.WatchBatteryLevel()
+	if err != nil {
+		guiErr(err, "Error getting battery level channel", true, parent)
+	}
 	onClose = append(onClose, cancel)
 	go func() {
 		for battLevel := range battLevelCh {
@@ -65,14 +88,11 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 			battLevelLbl.Refresh()
 		}
 	}()
-	fmt.Println(6)
 
-	fmt.Println(7)
 	fwVerString, err := client.Version()
 	if err != nil {
 		guiErr(err, "Error getting firmware string", true, parent)
 	}
-	fmt.Println(8)
 
 	fwVer := container.NewVBox(
 		newText("Firmware Version", 12),
@@ -81,12 +101,10 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	)
 	infoLayout.Add(fwVer)
 
-	fmt.Println(9)
 	btAddrString, err := client.Address()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(10)
 
 	btAddr := container.NewVBox(
 		newText("Bluetooth Address", 12),
@@ -96,18 +114,6 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	infoLayout.Add(btAddr)
 
 	return infoLayout
-}
-
-func getResp(line []byte) (*types.Response, error) {
-	var res types.Response
-	err := json.Unmarshal(line, &res)
-	if err != nil {
-		return nil, err
-	}
-	if res.Error {
-		return nil, errors.New(res.Message)
-	}
-	return &res, nil
 }
 
 func newText(t string, size float32) *canvas.Text {

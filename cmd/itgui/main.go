@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"go.arsenm.dev/itd/api"
@@ -21,7 +19,6 @@ func main() {
 		}
 	})
 
-	fmt.Println(1)
 	client, err := api.New(api.DefaultAddr)
 	if err != nil {
 		guiErr(err, "Error connecting to itd", true, window)
@@ -29,7 +26,6 @@ func main() {
 	onClose = append(onClose, func() {
 		client.Close()
 	})
-	fmt.Println(2)
 
 	// Create new app tabs container
 	tabs := container.NewAppTabs(
