@@ -8,6 +8,10 @@ cfg.version = 2
 [conn]
     reconnect = true
 
+[conn.whitelist]
+    enabled = false
+    devices = []
+
 [on.connect]
     notify = true
 
