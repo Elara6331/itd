@@ -39,6 +39,8 @@ func main() {
 	// Connect to InfiniTime with default options
 	dev, err := infinitime.Connect(&infinitime.Options{
 		AttemptReconnect: viper.GetBool("conn.reconnect"),
+		WhitelistEnabled: viper.GetBool("conn.whitelist.enabled"),
+		Whitelist:        viper.GetStringSlice("conn.whitelist.devices"),
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Error connecting to InfiniTime")
