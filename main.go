@@ -29,10 +29,6 @@ import (
 var firmwareUpdating = false
 
 func main() {
-	if viper.GetInt("cfg.version") != 2 {
-		log.Fatal().Msg("Please update your config to the newest format, only v2 configs supported.")
-	}
-
 	// Cleanly exit after function
 	defer infinitime.Exit()
 

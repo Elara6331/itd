@@ -1,7 +1,3 @@
-# This is temporary, it is to show a notice
-# to people still using the old config
-cfg.version = 2
-
 [socket]
     path = "/tmp/itd/socket"
 
