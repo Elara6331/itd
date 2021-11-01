@@ -29,6 +29,7 @@ import (
 var firmwareUpdating = false
 
 func main() {
+	infinitime.Init()
 	// Cleanly exit after function
 	defer infinitime.Exit()
 
