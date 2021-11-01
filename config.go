@@ -28,16 +28,20 @@ func init() {
 }
 
 func setCfgDefaults() {
-	viper.SetDefault("cfg.version", 2)
-
 	viper.SetDefault("socket.path", "/tmp/itd/socket")
 
 	viper.SetDefault("conn.reconnect", true)
+
+	viper.SetDefault("conn.whitelist.enabled", false)
+	viper.SetDefault("conn.whitelist.devices", []string{})
 
 	viper.SetDefault("on.connect.notify", true)
 
 	viper.SetDefault("on.reconnect.notify", true)
 	viper.SetDefault("on.reconnect.setTime", true)
+
+	viper.SetDefault("notifs.translit.use", []string{"eASCII"})
+	viper.SetDefault("notifs.translit.custom", []string{})
 
 	viper.SetDefault("notifs.ignore.sender", []string{})
 	viper.SetDefault("notifs.ignore.summary", []string{"InfiniTime"})
