@@ -134,8 +134,6 @@ func upgradeTab(parent fyne.Window, client *api.Client) *fyne.Container {
 
 		// Show progress dialog
 		progressDlg.Show()
-		// Hide progress dialog after completion
-		defer progressDlg.Hide()
 
 		for event := range progress {
 			// Set label text to received / total B
@@ -150,6 +148,24 @@ func upgradeTab(parent fyne.Window, client *api.Client) *fyne.Container {
 				break
 			}
 		}
+
+		// Hide progress dialog after completion
+		progressDlg.Hide()
+
+		// Reset screen to default
+		upgradeTypeSelect.SetSelectedIndex(0)
+		firmwareBtn.SetText("Select firmware (.bin)")
+		initPktBtn.SetText("Select init packet (.dat)")
+		archiveBtn.SetText("Select archive (.zip)")
+		firmwarePath = ""
+		initPktPath = ""
+		archivePath = ""
+
+		dialog.NewInformation(
+			"Upgrade Complete",
+			"The firmware was transferred successfully.\nRemember to validate the firmware in InfiniTime settings.",
+			parent,
+		).Show()
 	})
 
 	// Return container containing all elements
