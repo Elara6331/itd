@@ -19,6 +19,9 @@
 package firmware
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/cheggaaa/pb/v3"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -38,6 +41,8 @@ var upgradeCmd = &cobra.Command{
 	Short:   "Upgrade InfiniTime firmware using files or archive",
 	Aliases: []string{"upg"},
 	Run: func(cmd *cobra.Command, args []string) {
+		start := time.Now()
+
 		client := viper.Get("client").(*api.Client)
 
 		var upgType api.UpgradeType
@@ -79,6 +84,9 @@ var upgradeCmd = &cobra.Command{
 		}
 		// Finish progress bar
 		bar.Finish()
+
+		fmt.Printf("Transferred %d B in %s.\n", bar.Total(), time.Since(start))
+		fmt.Println("Remember to validate the new firmware in the InfiniTime settings.")
 	},
 }
 
