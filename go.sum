@@ -287,8 +287,8 @@ github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742/go.mod h1:bx2lN
 github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3RllmbCylyMrvgv0=
 github.com/mozillazg/go-pinyin v0.18.0 h1:hQompXO23/0ohH8YNjvfsAITnCQImCiR/Fny8EhIeW0=
 github.com/mozillazg/go-pinyin v0.18.0/go.mod h1:iR4EnMMRXkfpFVV5FMi4FNB6wGq9NV6uDWbUuPhP4Yc=
-github.com/muka/go-bluetooth v0.0.0-20211023182635-c49e7c952f19 h1:xN9pngudDI32wVUMfwP8nCkXiib2ogLKQ7i2dPvTQ5U=
-github.com/muka/go-bluetooth v0.0.0-20211023182635-c49e7c952f19/go.mod h1:dMCjicU6vRBk34dqOmIZm0aod6gUwZXOXzBROqGous0=
+github.com/muka/go-bluetooth v0.0.0-20211122080231-b99792bbe62a h1:KxRXeSWoBM5FCPAnSUYxt1qwEzmoH/K7upb4fiSDwdc=
+github.com/muka/go-bluetooth v0.0.0-20211122080231-b99792bbe62a/go.mod h1:dMCjicU6vRBk34dqOmIZm0aod6gUwZXOXzBROqGous0=
 github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646/go.mod h1:jpp1/29i3P1S/RLdc7JQKbRpFeM1dOBd8T9ki5s+AY8=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e h1:fD57ERR4JtEqsWbfPhv4DMiApHyliiK5xCTNVSPiaAs=
 github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e/go.mod h1:zD1mROLANZcx1PVRCS0qkT7pwLkGfwJo4zjcN/Tysno=
@@ -367,8 +367,8 @@ github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.3.8/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.4.1 h1:/vn0k+RBvwlxEmP5E7SZMqNxPhfMVFEJiykr15/0XKM=
 github.com/yuin/goldmark v1.4.1/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
-go.arsenm.dev/infinitime v0.0.0-20211101182010-504a64da9347 h1:TjJA7Ip6GTTTbum8jaG1pbt4c8bLjSgpWKPh/bnBjys=
-go.arsenm.dev/infinitime v0.0.0-20211101182010-504a64da9347/go.mod h1:Mms24yW2g5VZaG6zuHrlZKD1qqKag0cC0CB6FgJDYTc=
+go.arsenm.dev/infinitime v0.0.0-20211122091416-ec43bad46652 h1:2Z09crdXIs+aMy1xwuD6w2kml+EObfmzgCBaOxoZIv0=
+go.arsenm.dev/infinitime v0.0.0-20211122091416-ec43bad46652/go.mod h1:kNBKxQfqeLUfi13GM6tB1kSvLm8HlZ7PM47AYeJQIiw=
 go.etcd.io/etcd/api/v3 v3.5.0/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.0/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=
 go.etcd.io/etcd/client/v2 v2.305.0/go.mod h1:h9puh54ZTgAKtEbut2oe9P4L/oqKCVB6xsXlzd7alYQ=
