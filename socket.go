@@ -22,6 +22,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -99,6 +100,11 @@ func startSocket(dev *infinitime.Device) error {
 
 func handleConnection(conn net.Conn, dev *infinitime.Device) {
 	defer conn.Close()
+
+	fs, err := dev.FS()
+	if err != nil {
+		connErr(conn, 0, nil, "Error getting device filesystem")
+	}
 
 	// Create new scanner on connection
 	scanner := bufio.NewScanner(conn)
@@ -431,6 +437,109 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 				break
 			}
 			firmwareUpdating = false
+		case types.ReqTypeFS:
+			// If no data, return error
+			if req.Data == nil {
+				connErr(conn, req.Type, nil, "Data required for firmware upgrade request")
+				break
+			}
+			var reqData types.ReqDataFS
+			// Decode data map to firmware upgrade request data
+			err = mapstructure.Decode(req.Data, &reqData)
+			if err != nil {
+				connErr(conn, req.Type, err, "Error decoding request data")
+				break
+			}
+			switch reqData.Type {
+			case types.FSTypeDelete:
+				for _, file := range reqData.Files {
+					err := fs.Remove(file)
+					if err != nil {
+						connErr(conn, req.Type, err, "Error removing file")
+						break
+					}
+				}
+			case types.FSTypeMove:
+				if len(reqData.Files) != 2 {
+					connErr(conn, req.Type, nil, "Move FS command requires an old path and new path in the files list")
+					break
+				}
+				err := fs.Rename(reqData.Files[0], reqData.Files[1])
+				if err != nil {
+					connErr(conn, req.Type, err, "Error moving file")
+					break
+				}
+			case types.FSTypeMkdir:
+				for _, file := range reqData.Files {
+					err := fs.Mkdir(file)
+					if err != nil {
+						connErr(conn, req.Type, err, "Error creating directory")
+						break
+					}
+				}
+			case types.FSTypeList:
+				if len(reqData.Files) != 1 {
+					connErr(conn, req.Type, nil, "List FS command requires a path to list in the files list")
+					break
+				}
+				entries, err := fs.ReadDir(reqData.Files[0])
+				if err != nil {
+					connErr(conn, req.Type, err, "Error reading directory")
+					break
+				}
+				var out []types.FileInfo
+				for _, entry := range entries {
+					info, err := entry.Info()
+					if err != nil {
+						connErr(conn, req.Type, err, "Error getting file info")
+						break
+					}
+					out = append(out, types.FileInfo{
+						Name:  info.Name(),
+						Size:  info.Size(),
+						IsDir: info.IsDir(),
+					})
+				}
+				json.NewEncoder(conn).Encode(types.Response{
+					Type:  req.Type,
+					Value: out,
+				})
+			case types.FSTypeWrite:
+				if len(reqData.Files) != 1 {
+					connErr(conn, req.Type, nil, "Write FS command requires a path to the file to write")
+					break
+				}
+				file, err := fs.Create(reqData.Files[0], uint32(len(reqData.Data)))
+				if err != nil {
+					connErr(conn, req.Type, err, "Error creating file")
+					break
+				}
+				_, err = file.WriteString(reqData.Data)
+				if err != nil {
+					connErr(conn, req.Type, err, "Error writing to file")
+					break
+				}
+				json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
+			case types.FSTypeRead:
+				if len(reqData.Files) != 1 {
+					connErr(conn, req.Type, nil, "Read FS command requires a path to the file to read")
+					break
+				}
+				file, err := fs.Open(reqData.Files[0])
+				if err != nil {
+					connErr(conn, req.Type, err, "Error opening file")
+					break
+				}
+				data, err := io.ReadAll(file)
+				if err != nil {
+					connErr(conn, req.Type, err, "Error reading from file")
+					break
+				}
+				json.NewEncoder(conn).Encode(types.Response{
+					Type:  req.Type,
+					Value: string(data),
+				})
+			}
 		case types.ReqTypeCancel:
 			if req.Data == nil {
 				connErr(conn, req.Type, nil, "No data provided. Cancel request requires request ID string as data.")
