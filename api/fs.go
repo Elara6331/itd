@@ -19,12 +19,12 @@ func (c *Client) Rename(old, new string) error {
 	return nil
 }
 
-func (c *Client) Remove(path string) error {
+func (c *Client) Remove(paths ...string) error {
 	_, err := c.request(types.Request{
 		Type: types.ReqTypeFS,
 		Data: types.ReqDataFS{
 			Type:  types.FSTypeDelete,
-			Files: []string{path},
+			Files: paths,
 		},
 	})
 	if err != nil {
@@ -33,12 +33,12 @@ func (c *Client) Remove(path string) error {
 	return nil
 }
 
-func (c *Client) Mkdir(path string) error {
+func (c *Client) Mkdir(paths ...string) error {
 	_, err := c.request(types.Request{
 		Type: types.ReqTypeFS,
 		Data: types.ReqDataFS{
 			Type:  types.FSTypeMkdir,
-			Files: []string{path},
+			Files: paths,
 		},
 	})
 	if err != nil {
@@ -86,7 +86,7 @@ func (c *Client) WriteFile(path, data string) error {
 		Data: types.ReqDataFS{
 			Type:  types.FSTypeRead,
 			Files: []string{path},
-			Data: data,
+			Data:  data,
 		},
 	})
 	if err != nil {
