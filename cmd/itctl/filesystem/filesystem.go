@@ -16,27 +16,20 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package filesystem
 
 import (
-	_ "go.arsenm.dev/itd/cmd/itctl/firmware"
-	_ "go.arsenm.dev/itd/cmd/itctl/get"
-	_ "go.arsenm.dev/itd/cmd/itctl/notify"
+	"github.com/spf13/cobra"
 	"go.arsenm.dev/itd/cmd/itctl/root"
-	_ "go.arsenm.dev/itd/cmd/itctl/set"
-	_ "go.arsenm.dev/itd/cmd/itctl/watch"
-	_ "go.arsenm.dev/itd/cmd/itctl/filesystem"
-
-	"os"
-
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
-func init() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+// filesystemCmd represents the get command
+var filesystemCmd = &cobra.Command{
+	Use:   "filesystem",
+	Aliases: []string{"fs"},
+	Short: "Perform filesystem operations on the PineTime",
 }
 
-func main() {
-	root.Execute()
+func init() {
+	root.RootCmd.AddCommand(filesystemCmd)
 }

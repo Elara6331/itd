@@ -16,27 +16,35 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package filesystem
 
 import (
-	_ "go.arsenm.dev/itd/cmd/itctl/firmware"
-	_ "go.arsenm.dev/itd/cmd/itctl/get"
-	_ "go.arsenm.dev/itd/cmd/itctl/notify"
-	"go.arsenm.dev/itd/cmd/itctl/root"
-	_ "go.arsenm.dev/itd/cmd/itctl/set"
-	_ "go.arsenm.dev/itd/cmd/itctl/watch"
-	_ "go.arsenm.dev/itd/cmd/itctl/filesystem"
-
-	"os"
-
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"go.arsenm.dev/itd/api"
 )
 
-func init() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+// heartCmd represents the heart command
+var moveCmd = &cobra.Command{
+	Use:     "move <old> <new>",
+	Aliases: []string{"mv"},
+	Short:   "Move a file or directory",
+	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) != 2 {
+			cmd.Usage()
+			log.Fatal().Msg("Command move requires two arguments")
+		}
+
+		client := viper.Get("client").(*api.Client)
+
+		err := client.Rename(args[0], args[1])
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error moving file or directory")
+		}
+	},
 }
 
-func main() {
-	root.Execute()
+func init() {
+	filesystemCmd.AddCommand(moveCmd)
 }
