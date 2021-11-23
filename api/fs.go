@@ -86,6 +86,7 @@ func (c *Client) WriteFile(path, data string) error {
 		Data: types.ReqDataFS{
 			Type:  types.FSTypeRead,
 			Files: []string{path},
+			Data: data,
 		},
 	})
 	if err != nil {
