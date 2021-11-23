@@ -15,12 +15,28 @@ const (
 	ReqTypeStepCount
 	ReqTypeWatchStepCount
 	ReqTypeCancel
+	ReqTypeFS
 )
 
 const (
 	UpgradeTypeArchive = iota
 	UpgradeTypeFiles
 )
+
+const (
+	FSTypeWrite = iota
+	FSTypeRead
+	FSTypeMove
+	FSTypeDelete
+	FSTypeList
+	FSTypeMkdir
+)
+
+type ReqDataFS struct {
+	Type  int `json:"type"`
+	Files []string `json:"files"`
+	Data  string `json:"data,omitempty"`
+}
 
 type ReqDataFwUpgrade struct {
 	Type  int
@@ -55,4 +71,11 @@ type MotionValues struct {
 	X int16
 	Y int16
 	Z int16
+}
+
+type FileInfo struct {
+	Name string `json:"name"`
+	Size int64 `json:"size"`
+	IsDir bool `json:"isDir"`
+	
 }
