@@ -84,7 +84,7 @@ func (c *Client) WriteFile(path, data string) error {
 	_, err := c.request(types.Request{
 		Type: types.ReqTypeFS,
 		Data: types.ReqDataFS{
-			Type:  types.FSTypeRead,
+			Type:  types.FSTypeWrite,
 			Files: []string{path},
 			Data:  data,
 		},

@@ -16,27 +16,41 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package filesystem
 
 import (
-	_ "go.arsenm.dev/itd/cmd/itctl/firmware"
-	_ "go.arsenm.dev/itd/cmd/itctl/get"
-	_ "go.arsenm.dev/itd/cmd/itctl/notify"
-	"go.arsenm.dev/itd/cmd/itctl/root"
-	_ "go.arsenm.dev/itd/cmd/itctl/set"
-	_ "go.arsenm.dev/itd/cmd/itctl/watch"
-	_ "go.arsenm.dev/itd/cmd/itctl/filesystem"
+	"fmt"
 
-	"os"
-
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"go.arsenm.dev/itd/api"
 )
 
-func init() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+// listCmd represents the heart command
+var listCmd = &cobra.Command{
+	Use:     "list [path]",
+	Aliases: []string{"ls"},
+	Short:   "List a directory",
+	Run: func(cmd *cobra.Command, args []string) {
+		dirPath := "/"
+		if len(args) > 0 {
+			dirPath = args[0]
+		}
+
+		client := viper.Get("client").(*api.Client)
+
+		listing, err := client.ReadDir(dirPath)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error getting directory listing")
+		}
+
+		for _, entry := range listing {
+			fmt.Println(entry)
+		}
+	},
 }
 
-func main() {
-	root.Execute()
+func init() {
+	filesystemCmd.AddCommand(listCmd)
 }
