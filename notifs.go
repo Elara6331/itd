@@ -30,15 +30,7 @@ import (
 
 func initNotifRelay(dev *infinitime.Device) error {
 	// Connect to dbus session bus
-	bus, err := dbus.SessionBusPrivate()
-	if err != nil {
-		return err
-	}
-	err = bus.Auth(nil)
-	if err != nil {
-		return err
-	}
-	err = bus.Hello()
+	bus, err := newSessionBusConn()
 	if err != nil {
 		return err
 	}
