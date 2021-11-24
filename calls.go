@@ -27,11 +27,11 @@ func initCallNotifs(dev *infinitime.Device) error {
 		return err
 	}
 
-	c := make(chan *dbus.Message, 10)
-	monitorConn.Eavesdrop(c)
+	callCh := make(chan *dbus.Message, 10)
+	monitorConn.Eavesdrop(callCh)
 	go func() {
-		for x := range c {
-			callPath := x.Body[0].(dbus.ObjectPath)
+		for event := range callCh {
+			callPath := event.Body[0].(dbus.ObjectPath)
 			callObj := conn.Object("org.freedesktop.ModemManager1", callPath)
 
 			phoneNum, err := getPhoneNum(conn, callObj)
