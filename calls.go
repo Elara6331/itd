@@ -7,9 +7,6 @@ import (
 )
 
 func initCallNotifs(dev *infinitime.Device) error {
-	// Define rule to filter dbus messages
-	//rule := "type='signal',sender='org.freedesktop.ModemManager1',interface='org.freedesktop.ModemManager1.Modem.Voice',member='CallAdded'"
-
 	// Connect to dbus session monitorConn
 	monitorConn, err := newSystemBusConn()
 	if err != nil {
