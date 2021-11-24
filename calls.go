@@ -40,7 +40,6 @@ func initCallNotifs(dev *infinitime.Device) error {
 	if err != nil {
 		return err
 	}
-	conn.Names()
 
 	// Create channel to receive calls
 	callCh := make(chan *dbus.Message, 5)
