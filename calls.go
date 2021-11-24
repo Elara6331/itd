@@ -7,14 +7,26 @@ import (
 )
 
 func initCallNotifs(dev *infinitime.Device) error {
-	// Connect to system bus. This connection is for monitoring.
-	monitorConn, err := newSystemBusConn()
+	// Connect to system bus. This connection is for method calls.
+	conn, err := newSystemBusConn()
 	if err != nil {
 		return err
 	}
 
-	// Connect to system bus. This connection is for method calls.
-	conn, err := newSystemBusConn()
+	// Check if modem manager interface exists
+	exists, err := modemManagerExists(conn)
+	if err != nil {
+		return err
+	}
+
+	// If it does not exist, stop function
+	if !exists {
+		conn.Close()
+		return nil
+	}
+
+	// Connect to system bus. This connection is for monitoring.
+	monitorConn, err := newSystemBusConn()
 	if err != nil {
 		return err
 	}
@@ -28,6 +40,7 @@ func initCallNotifs(dev *infinitime.Device) error {
 	if err != nil {
 		return err
 	}
+	conn.Names()
 
 	// Create channel to receive calls
 	callCh := make(chan *dbus.Message, 5)
@@ -45,7 +58,8 @@ func initCallNotifs(dev *infinitime.Device) error {
 			// Get phone number from call object using method call connection
 			phoneNum, err := getPhoneNum(conn, callObj)
 			if err != nil {
-				log.Fatal().Err(err).Send()
+				log.Error().Err(err).Msg("Error getting phone number")
+				continue
 			}
 
 			// Send call notification to InfiniTime
@@ -77,7 +91,18 @@ func initCallNotifs(dev *infinitime.Device) error {
 			}()
 		}
 	}()
+
+	log.Info().Msg("Relaying calls to InfiniTime")
 	return nil
+}
+
+func modemManagerExists(conn *dbus.Conn) (bool, error) {
+	var names []string
+	err := conn.BusObject().Call("org.freedesktop.DBus.ListNames", 0).Store(&names)
+	if err != nil {
+		return false, err
+	}
+	return strSlcContains(names, "org.freedesktop.ModemManager1"), nil
 }
 
 // getPhoneNum gets a phone number from a call object using a DBus connection
