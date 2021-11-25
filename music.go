@@ -26,45 +26,22 @@ import (
 )
 
 func initMusicCtrl(dev *infinitime.Device) error {
-	// On player status change, set status
-	err := player.Status(func(newStatus bool) {
-		if !firmwareUpdating {
-			dev.Music.SetStatus(newStatus)
-		}
-	})
-	if err != nil {
-		return err
-	}
+	player.Init()
 
-	// On player title change, set track
-	err = player.Metadata("title", func(newTitle string) {
+	player.OnChange(func(ct player.ChangeType, val string) {
 		if !firmwareUpdating {
-			dev.Music.SetTrack(newTitle)
+			switch ct {
+			case player.ChangeTypeStatus:
+				dev.Music.SetStatus(val == "Playing")
+			case player.ChangeTypeTitle:
+				dev.Music.SetTrack(val)
+			case player.ChangeTypeAlbum:
+				dev.Music.SetAlbum(val)
+			case player.ChangeTypeArtist:
+				dev.Music.SetArtist(val)
+			}
 		}
 	})
-	if err != nil {
-		return err
-	}
-
-	// On player album change, set album
-	err = player.Metadata("album", func(newAlbum string) {
-		if !firmwareUpdating {
-			dev.Music.SetAlbum(newAlbum)
-		}
-	})
-	if err != nil {
-		return err
-	}
-
-	// On player artist change, set artist
-	err = player.Metadata("artist", func(newArtist string) {
-		if !firmwareUpdating {
-			dev.Music.SetArtist(newArtist)
-		}
-	})
-	if err != nil {
-		return err
-	}
 
 	// Watch for music events
 	musicEvtCh, err := dev.Music.WatchEvents()
