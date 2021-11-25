@@ -177,7 +177,7 @@ To cross compile, simply set the go environment variables. For example, for Pine
 make GOOS=linux GOARCH=arm64
 ```
 
-This will compile `itd` and `itctl` for Linux aarch64 which is what runs on the PinePhone. This daemon only runs on Linux due to the library's dependencies (`dbus`, `bluez`, and `playerctl` specifically).
+This will compile `itd` and `itctl` for Linux aarch64 which is what runs on the PinePhone. This daemon only runs on Linux due to the library's dependencies (`dbus`, and `bluez` specifically).
 
 ---
 
