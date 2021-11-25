@@ -1,6 +1,8 @@
 package main
 
 import (
+	"sync"
+
 	"github.com/godbus/dbus/v5"
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
@@ -46,13 +48,16 @@ func initCallNotifs(dev *infinitime.Device) error {
 	// Notify channel upon received message
 	monitorConn.Eavesdrop(callCh)
 
+	var respHandlerOnce sync.Once
+	var callObj dbus.BusObject
+
 	go func() {
 		// For every message received
 		for event := range callCh {
 			// Get path to call object
 			callPath := event.Body[0].(dbus.ObjectPath)
 			// Get call object
-			callObj := conn.Object("org.freedesktop.ModemManager1", callPath)
+			callObj = conn.Object("org.freedesktop.ModemManager1", callPath)
 
 			// Get phone number from call object using method call connection
 			phoneNum, err := getPhoneNum(conn, callObj)
@@ -67,27 +72,28 @@ func initCallNotifs(dev *infinitime.Device) error {
 				continue
 			}
 
-			go func() {
+			go respHandlerOnce.Do(func() {
 				// Wait for PineTime response
-				res := <-resCh
-				switch res {
-				case infinitime.CallStatusAccepted:
-					// Attempt to accept call
-					err = acceptCall(conn, callObj)
-					if err != nil {
-						log.Warn().Err(err).Msg("Error accepting call")
+				for res := range resCh {
+					switch res {
+					case infinitime.CallStatusAccepted:
+						// Attempt to accept call
+						err = acceptCall(conn, callObj)
+						if err != nil {
+							log.Warn().Err(err).Msg("Error accepting call")
+						}
+					case infinitime.CallStatusDeclined:
+						// Attempt to decline call
+						err = declineCall(conn, callObj)
+						if err != nil {
+							log.Warn().Err(err).Msg("Error declining call")
+						}
+					case infinitime.CallStatusMuted:
+						// Warn about unimplemented muting
+						log.Warn().Msg("Muting calls is not implemented")
 					}
-				case infinitime.CallStatusDeclined:
-					// Attempt to decline call
-					err = declineCall(conn, callObj)
-					if err != nil {
-						log.Warn().Err(err).Msg("Error declining call")
-					}
-				case infinitime.CallStatusMuted:
-					// Warn about unimplemented muting
-					log.Warn().Msg("Muting calls is not implemented")
 				}
-			}()
+			})
 		}
 	}()
 
