@@ -46,9 +46,11 @@ var readCmd = &cobra.Command{
 			log.Fatal().Err(err).Msg("Error moving file or directory")
 		}
 
+		var suffix string
 		var out *os.File
 		if args[1] == "-" {
 			out = os.Stdout
+			suffix = "\n"
 		} else {
 			out, err = os.Create(args[1])
 			if err != nil {
@@ -60,6 +62,8 @@ var readCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error writing to local file")
 		}
+		out.WriteString(suffix)
+		
 		log.Info().Msgf("Read %d bytes in %s", n, time.Since(start))
 	},
 }
