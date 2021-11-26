@@ -26,7 +26,11 @@ import (
 	"go.arsenm.dev/infinitime"
 )
 
-var firmwareUpdating = false
+var (
+	firmwareUpdating = false
+	// The FS must be updated when the watch is reconnected
+	updateFS = false
+)
 
 func main() {
 	infinitime.Init()
@@ -61,6 +65,8 @@ func main() {
 				log.Error().Err(err).Msg("Error sending notification to InfiniTime")
 			}
 		}
+
+		updateFS = true
 	})
 
 	// Get firmware version

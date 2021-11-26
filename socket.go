@@ -107,6 +107,20 @@ func startSocket(dev *infinitime.Device) error {
 func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 	defer conn.Close()
 
+	// If an FS update is required (reconnect ocurred)
+	if updateFS {
+		// Get new FS
+		newFS, err := dev.FS()
+		if err != nil {
+			fs = nil
+			log.Warn().Err(err).Msg("Error updating BLE filesystem")
+		}
+		// Set FS pointer to new FS
+		*fs = *newFS
+		// Reset updateFS
+		updateFS = false
+	}
+
 	// Create new scanner on connection
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
