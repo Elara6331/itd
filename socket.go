@@ -33,6 +33,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"go.arsenm.dev/infinitime"
+	"go.arsenm.dev/infinitime/blefs"
 	"go.arsenm.dev/itd/internal/types"
 	"go.arsenm.dev/itd/translit"
 )
@@ -79,6 +80,11 @@ func startSocket(dev *infinitime.Device) error {
 		return err
 	}
 
+	fs, err := dev.FS()
+	if err != nil {
+		log.Warn().Err(err).Msg("Error getting BLE filesystem")
+	}
+
 	go func() {
 		for {
 			// Accept socket connection
@@ -88,7 +94,7 @@ func startSocket(dev *infinitime.Device) error {
 			}
 
 			// Concurrently handle connection
-			go handleConnection(conn, dev)
+			go handleConnection(conn, dev, fs)
 		}
 	}()
 
@@ -98,13 +104,8 @@ func startSocket(dev *infinitime.Device) error {
 	return nil
 }
 
-func handleConnection(conn net.Conn, dev *infinitime.Device) {
+func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 	defer conn.Close()
-
-	fs, err := dev.FS()
-	if err != nil {
-		connErr(conn, 0, nil, "Error getting device filesystem")
-	}
 
 	// Create new scanner on connection
 	scanner := bufio.NewScanner(conn)
@@ -438,6 +439,10 @@ func handleConnection(conn net.Conn, dev *infinitime.Device) {
 			}
 			firmwareUpdating = false
 		case types.ReqTypeFS:
+			if fs == nil {
+				connErr(conn, req.Type, nil, "BLE filesystem is not available")
+				break
+			}
 			// If no data, return error
 			if req.Data == nil {
 				connErr(conn, req.Type, nil, "Data required for firmware upgrade request")
