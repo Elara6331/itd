@@ -464,6 +464,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 						break
 					}
 				}
+				json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
 			case types.FSTypeMove:
 				if len(reqData.Files) != 2 {
 					connErr(conn, req.Type, nil, "Move FS command requires an old path and new path in the files list")
@@ -474,6 +475,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 					connErr(conn, req.Type, err, "Error moving file")
 					break
 				}
+				json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
 			case types.FSTypeMkdir:
 				for _, file := range reqData.Files {
 					err := fs.Mkdir(file)
@@ -482,6 +484,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 						break
 					}
 				}
+				json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
 			case types.FSTypeList:
 				if len(reqData.Files) != 1 {
 					connErr(conn, req.Type, nil, "List FS command requires a path to list in the files list")
