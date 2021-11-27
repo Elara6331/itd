@@ -459,7 +459,7 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 			}
 			// If no data, return error
 			if req.Data == nil {
-				connErr(conn, req.Type, nil, "Data required for firmware upgrade request")
+				connErr(conn, req.Type, nil, "Data required for filesystem operations")
 				break
 			}
 			var reqData types.ReqDataFS
@@ -471,6 +471,10 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 			}
 			switch reqData.Type {
 			case types.FSTypeDelete:
+				if len(reqData.Files) == 0 {
+					connErr(conn, req.Type, nil, "Remove FS command requires at least one file")
+					break
+				}
 				for _, file := range reqData.Files {
 					err := fs.Remove(file)
 					if err != nil {
@@ -491,6 +495,10 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 				}
 				json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
 			case types.FSTypeMkdir:
+				if len(reqData.Files) == 0 {
+					connErr(conn, req.Type, nil, "Mkdir FS command requires at least one file")
+					break
+				}
 				for _, file := range reqData.Files {
 					err := fs.Mkdir(file)
 					if err != nil {
