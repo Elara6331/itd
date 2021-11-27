@@ -25,7 +25,7 @@ import (
 	"go.arsenm.dev/itd/api"
 )
 
-// heartCmd represents the heart command
+// removeCmd represents the remove command
 var removeCmd = &cobra.Command{
 	Use:   "remove <path...>",
 	Aliases: []string{"rm"},

@@ -29,7 +29,7 @@ import (
 	"go.arsenm.dev/itd/api"
 )
 
-// heartCmd represents the heart command
+// writeCmd represents the write command
 var writeCmd = &cobra.Command{
 	Use:   `write <local path | "-"> <remote path>`,
 	Short: "Write a file to InfiniTime",

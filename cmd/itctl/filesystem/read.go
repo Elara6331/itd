@@ -28,7 +28,7 @@ import (
 	"go.arsenm.dev/itd/api"
 )
 
-// heartCmd represents the heart command
+// readCmd represents the read command
 var readCmd = &cobra.Command{
 	Use:   `read <remote path> <local path | "-">`,
 	Short: "Read a file from InfiniTime",

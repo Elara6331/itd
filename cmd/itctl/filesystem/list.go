@@ -27,7 +27,7 @@ import (
 	"go.arsenm.dev/itd/api"
 )
 
-// listCmd represents the heart command
+// listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:     "list [path]",
 	Aliases: []string{"ls"},
