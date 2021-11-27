@@ -25,7 +25,7 @@ import (
 	"go.arsenm.dev/itd/api"
 )
 
-// heartCmd represents the heart command
+// mkdirCmd represents the mkdir command
 var mkdirCmd = &cobra.Command{
 	Use:   "mkdir <path...>",
 	Short: "Create a new directory",

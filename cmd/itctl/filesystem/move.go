@@ -25,7 +25,7 @@ import (
 	"go.arsenm.dev/itd/api"
 )
 
-// heartCmd represents the heart command
+// moveCmd represents the move command
 var moveCmd = &cobra.Command{
 	Use:     "move <old> <new>",
 	Aliases: []string{"mv"},

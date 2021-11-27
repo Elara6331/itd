@@ -23,7 +23,7 @@ import (
 	"go.arsenm.dev/itd/cmd/itctl/root"
 )
 
-// filesystemCmd represents the get command
+// filesystemCmd represents the filesystem command
 var filesystemCmd = &cobra.Command{
 	Use:   "filesystem",
 	Aliases: []string{"fs"},
