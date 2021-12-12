@@ -535,39 +535,56 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 					Value: out,
 				})
 			case types.FSTypeWrite:
-				if len(reqData.Files) != 1 {
+				if len(reqData.Files) != 2 {
 					connErr(conn, req.Type, nil, "Write FS command requires a path to the file to write")
 					break
 				}
-				file, err := fs.Create(reqData.Files[0], uint32(len(reqData.Data)))
+
+				localFile, err := os.Open(reqData.Files[1])
 				if err != nil {
-					connErr(conn, req.Type, err, "Error creating file")
+					connErr(conn, req.Type, err, "Error opening local file")
 					break
 				}
-				_, err = file.WriteString(reqData.Data)
+				defer localFile.Close()
+
+				localInfo, err := localFile.Stat()
 				if err != nil {
-					connErr(conn, req.Type, err, "Error writing to file")
+					connErr(conn, req.Type, err, "Error getting local file information")
 					break
 				}
+
+				remoteFile, err := fs.Create(reqData.Files[0], uint32(localInfo.Size()))
+				if err != nil {
+					connErr(conn, req.Type, err, "Error creating remote file")
+					break
+				}
+				defer remoteFile.Close()
+
+				io.Copy(remoteFile, localFile)
+
 				json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
 			case types.FSTypeRead:
-				if len(reqData.Files) != 1 {
+				fmt.Println(scanner.Text(), reqData)
+				if len(reqData.Files) != 2 {
 					connErr(conn, req.Type, nil, "Read FS command requires a path to the file to read")
 					break
 				}
-				file, err := fs.Open(reqData.Files[0])
+				localFile, err := os.Create(reqData.Files[0])
 				if err != nil {
-					connErr(conn, req.Type, err, "Error opening file")
+					connErr(conn, req.Type, err, "Error creating local file")
 					break
 				}
-				data, err := io.ReadAll(file)
+
+				remoteFile, err := fs.Open(reqData.Files[1])
 				if err != nil {
-					connErr(conn, req.Type, err, "Error reading from file")
+					connErr(conn, req.Type, err, "Error opening remote file")
 					break
 				}
+
+				io.Copy(localFile, remoteFile)
+
 				json.NewEncoder(conn).Encode(types.Response{
-					Type:  req.Type,
-					Value: string(data),
+					Type: req.Type,
 				})
 			}
 		case types.ReqTypeCancel:

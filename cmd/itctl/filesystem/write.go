@@ -20,8 +20,8 @@ package filesystem
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
-	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -39,31 +39,31 @@ var writeCmd = &cobra.Command{
 			log.Fatal().Msg("Command write requires two arguments")
 		}
 
-		start := time.Now()
-		client := viper.Get("client").(*api.Client)
-
-		var in *os.File
+		var tmpFile *os.File
+		var path string
+		var err error
 		if args[0] == "-" {
-			in = os.Stdin
-		} else {
-			fl, err := os.Open(args[0])
+			tmpFile, err = ioutil.TempFile("/tmp", "itctl.*")
 			if err != nil {
-				log.Fatal().Err(err).Msg("Error opening local file")
+				log.Fatal().Err(err).Msg("Error creating temporary file")
 			}
-			in = fl
+			path = tmpFile.Name()
+		} else {
+			path = args[0]
 		}
 
-		data, err := io.ReadAll(in)
+		client := viper.Get("client").(*api.Client)
+
+		if args[0] == "-" {
+			io.Copy(tmpFile, os.Stdin)
+			defer tmpFile.Close()
+			defer os.Remove(path)
+		}
+
+		err = client.WriteFile(path, args[1])
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error moving file or directory")
 		}
-
-		err = client.WriteFile(args[1], string(data))
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error writing to remote file")
-		}
-
-		log.Info().Msgf("Wrote %d bytes in %s", len(data), time.Since(start))
 	},
 }
 

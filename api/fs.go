@@ -66,27 +66,26 @@ func (c *Client) ReadDir(path string) ([]types.FileInfo, error) {
 	return out, nil
 }
 
-func (c *Client) ReadFile(path string) (string, error) {
-	res, err := c.request(types.Request{
+func (c *Client) ReadFile(localPath, remotePath string) error {
+	_, err := c.request(types.Request{
 		Type: types.ReqTypeFS,
 		Data: types.ReqDataFS{
 			Type:  types.FSTypeRead,
-			Files: []string{path},
+			Files: []string{localPath, remotePath},
 		},
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
-	return res.Value.(string), nil
+	return nil
 }
 
-func (c *Client) WriteFile(path, data string) error {
+func (c *Client) WriteFile(localPath, remotePath string) error {
 	_, err := c.request(types.Request{
 		Type: types.ReqTypeFS,
 		Data: types.ReqDataFS{
 			Type:  types.FSTypeWrite,
-			Files: []string{path},
-			Data:  data,
+			Files: []string{remotePath, localPath},
 		},
 	})
 	if err != nil {
