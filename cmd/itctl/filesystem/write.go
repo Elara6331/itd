@@ -22,6 +22,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -49,7 +50,10 @@ var writeCmd = &cobra.Command{
 			}
 			path = tmpFile.Name()
 		} else {
-			path = args[0]
+			path, err = filepath.Abs(args[0])
+			if err != nil {
+				log.Fatal().Err(err).Msg("Error making absolute directory")
+			}
 		}
 
 		client := viper.Get("client").(*api.Client)
