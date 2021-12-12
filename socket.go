@@ -564,7 +564,6 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 
 				json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
 			case types.FSTypeRead:
-				fmt.Println(scanner.Text(), reqData)
 				if len(reqData.Files) != 2 {
 					connErr(conn, req.Type, nil, "Read FS command requires a path to the file to read")
 					break
