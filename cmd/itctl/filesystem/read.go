@@ -19,8 +19,9 @@
 package filesystem
 
 import (
+	"io"
+	"io/ioutil"
 	"os"
-	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -38,33 +39,32 @@ var readCmd = &cobra.Command{
 			log.Fatal().Msg("Command read requires two arguments")
 		}
 
-		start := time.Now()
+		var tmpFile *os.File
+		var path string
+		var err error
+		if args[1] == "-" {
+			tmpFile, err = ioutil.TempFile("/tmp", "itctl.*")
+			if err != nil {
+				log.Fatal().Err(err).Msg("Error creating temporary file")
+			}
+			path = tmpFile.Name()
+		} else {
+			path = args[1]
+		}
+
 		client := viper.Get("client").(*api.Client)
 
-		data, err := client.ReadFile(args[0])
+		err = client.ReadFile(path, args[0])
 		if err != nil {
-			log.Fatal().Err(err).Msg("Error moving file or directory")
+			log.Fatal().Err(err).Msg("Error reading remote file")
 		}
 
-		var suffix string
-		var out *os.File
 		if args[1] == "-" {
-			out = os.Stdout
-			suffix = "\n"
-		} else {
-			out, err = os.Create(args[1])
-			if err != nil {
-				log.Fatal().Err(err).Msg("Error opening local file")
-			}
+			io.Copy(os.Stdout, tmpFile)
+			os.Stdout.WriteString("\n")
+			tmpFile.Close()
+			os.Remove(path)
 		}
-
-		n, err := out.WriteString(data)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Error writing to local file")
-		}
-		out.WriteString(suffix)
-		
-		log.Info().Msgf("Read %d bytes in %s", n, time.Since(start))
 	},
 }
 
