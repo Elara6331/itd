@@ -23,7 +23,7 @@ require (
 	github.com/srwiley/oksvg v0.0.0-20211120171407-1837d6608d8c // indirect
 	github.com/srwiley/rasterx v0.0.0-20210519020934-456a8d69b780 // indirect
 	github.com/yuin/goldmark v1.4.4 // indirect
-	go.arsenm.dev/infinitime v0.0.0-20211212212540-382b1d9556cf
+	go.arsenm.dev/infinitime v0.0.0-20211213175634-9250d26fdc8c
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
 	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
 	golang.org/x/sys v0.0.0-20211210111614-af8b64212486 // indirect

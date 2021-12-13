@@ -582,6 +582,8 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 					}
 				}()
 
+				json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
+
 				io.Copy(remoteFile, localFile)
 
 				json.NewEncoder(conn).Encode(types.Response{
@@ -603,12 +605,14 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 					connErr(conn, req.Type, err, "Error creating local file")
 					break
 				}
+				defer localFile.Close()
 
 				remoteFile, err := fs.Open(reqData.Files[1])
 				if err != nil {
 					connErr(conn, req.Type, err, "Error opening remote file")
 					break
 				}
+				defer remoteFile.Close()
 
 				go func() {
 					// For every progress event
@@ -626,8 +630,9 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 					}
 				}()
 
+				json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
+
 				io.Copy(localFile, remoteFile)
-				localFile.Sync()
 
 				json.NewEncoder(conn).Encode(types.Response{
 					Type: req.Type,
