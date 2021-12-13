@@ -26,6 +26,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -457,11 +458,13 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 				connErr(conn, req.Type, nil, "BLE filesystem is not available")
 				break
 			}
+
 			// If no data, return error
 			if req.Data == nil {
 				connErr(conn, req.Type, nil, "Data required for filesystem operations")
 				break
 			}
+
 			var reqData types.ReqDataFS
 			// Decode data map to firmware upgrade request data
 			err = mapstructure.Decode(req.Data, &reqData)
@@ -469,6 +472,10 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 				connErr(conn, req.Type, err, "Error decoding request data")
 				break
 			}
+
+			// Clean input filepaths
+			reqData.Files = cleanPaths(reqData.Files)
+
 			switch reqData.Type {
 			case types.FSTypeDelete:
 				if len(reqData.Files) == 0 {
@@ -560,9 +567,32 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 				}
 				defer remoteFile.Close()
 
+				go func() {
+					// For every progress event
+					for sent := range remoteFile.Progress() {
+						// Encode event on connection
+						json.NewEncoder(conn).Encode(types.Response{
+							Type: req.Type,
+							Value: types.FSTransferProgress{
+								Type:  types.FSTypeWrite,
+								Total: remoteFile.Size(),
+								Sent:  sent,
+							},
+						})
+					}
+				}()
+
 				io.Copy(remoteFile, localFile)
 
-				json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
+				json.NewEncoder(conn).Encode(types.Response{
+					Type: req.Type,
+					Value: types.FSTransferProgress{
+						Type:  types.FSTypeWrite,
+						Total: remoteFile.Size(),
+						Sent:  remoteFile.Size(),
+						Done:  true,
+					},
+				})
 			case types.FSTypeRead:
 				if len(reqData.Files) != 2 {
 					connErr(conn, req.Type, nil, "Read FS command requires a path to the file to read")
@@ -580,10 +610,33 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 					break
 				}
 
+				go func() {
+					// For every progress event
+					for rcvd := range remoteFile.Progress() {
+						fmt.Println(rcvd)
+						// Encode event on connection
+						json.NewEncoder(conn).Encode(types.Response{
+							Type: req.Type,
+							Value: types.FSTransferProgress{
+								Type:  types.FSTypeRead,
+								Total: remoteFile.Size(),
+								Sent:  rcvd,
+							},
+						})
+					}
+				}()
+
 				io.Copy(localFile, remoteFile)
+				localFile.Sync()
 
 				json.NewEncoder(conn).Encode(types.Response{
 					Type: req.Type,
+					Value: types.FSTransferProgress{
+						Type:  types.FSTypeRead,
+						Total: remoteFile.Size(),
+						Sent:  remoteFile.Size(),
+						Done:  true,
+					},
 				})
 			}
 		case types.ReqTypeCancel:
@@ -618,4 +671,14 @@ func connErr(conn net.Conn, resType int, err error, msg string) {
 
 	// Encode error to connection
 	json.NewEncoder(conn).Encode(res)
+}
+
+// cleanPaths runs strings.TrimSpace and filepath.Clean
+// on all inputs, and returns the updated slice
+func cleanPaths(paths []string) []string {
+	for index, path := range paths {
+		newPath := strings.TrimSpace(path)
+		paths[index] = filepath.Clean(newPath)
+	}
+	return paths
 }

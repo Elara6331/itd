@@ -66,22 +66,28 @@ func (c *Client) ReadDir(path string) ([]types.FileInfo, error) {
 	return out, nil
 }
 
-func (c *Client) ReadFile(localPath, remotePath string) error {
-	_, err := c.request(types.Request{
+func (c *Client) ReadFile(localPath, remotePath string) (<-chan types.FSTransferProgress, error) {
+	c.readProgressCh = make(chan types.FSTransferProgress, 5)
+
+	err := c.requestNoRes(types.Request{
 		Type: types.ReqTypeFS,
 		Data: types.ReqDataFS{
 			Type:  types.FSTypeRead,
 			Files: []string{localPath, remotePath},
 		},
 	})
+
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	return c.readProgressCh, nil
 }
 
-func (c *Client) WriteFile(localPath, remotePath string) error {
-	_, err := c.request(types.Request{
+func (c *Client) WriteFile(localPath, remotePath string) (<-chan types.FSTransferProgress, error) {
+	c.writeProgressCh = make(chan types.FSTransferProgress, 5)
+
+	err := c.requestNoRes(types.Request{
 		Type: types.ReqTypeFS,
 		Data: types.ReqDataFS{
 			Type:  types.FSTypeWrite,
@@ -89,7 +95,8 @@ func (c *Client) WriteFile(localPath, remotePath string) error {
 		},
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	return c.writeProgressCh, nil
 }

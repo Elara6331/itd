@@ -72,6 +72,13 @@ type DFUProgress struct {
 	Sent     int64 `mapstructure:"sent"`
 }
 
+type FSTransferProgress struct {
+	Type  int    `json:"type" mapstructure:"type"`
+	Total uint32 `json:"total" mapstructure:"total"`
+	Sent  uint32 `json:"sent" mapstructure:"sent"`
+	Done  bool   `json:"done" mapstructure:"done"`
+}
+
 type MotionValues struct {
 	X int16
 	Y int16
