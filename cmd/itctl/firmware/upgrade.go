@@ -20,6 +20,7 @@ package firmware
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/cheggaaa/pb/v3"
@@ -62,7 +63,7 @@ var upgradeCmd = &cobra.Command{
 			return
 		}
 
-		progress, err := client.FirmwareUpgrade(upgType, files...)
+		progress, err := client.FirmwareUpgrade(upgType, abs(files)...)
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error initiating DFU")
 		}
@@ -88,6 +89,17 @@ var upgradeCmd = &cobra.Command{
 		fmt.Printf("Transferred %d B in %s.\n", bar.Total(), time.Since(start))
 		fmt.Println("Remember to validate the new firmware in the InfiniTime settings.")
 	},
+}
+
+func abs(paths []string) []string {
+	for index, path := range paths {
+		newPath, err := filepath.Abs(path)
+		if err != nil {
+			continue
+		}
+		paths[index] = newPath
+	}
+	return paths
 }
 
 func init() {
