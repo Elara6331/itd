@@ -24,6 +24,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cheggaaa/pb/v3"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -58,16 +59,33 @@ var readCmd = &cobra.Command{
 
 		client := viper.Get("client").(*api.Client)
 
-		err = client.ReadFile(path, args[0])
+		progress, err := client.ReadFile(path, args[0])
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error reading remote file")
+		}
+
+		// Create progress bar template
+		barTmpl := `{{counters . }} B {{bar . "|" "-" (cycle .) " " "|"}} {{percent . }} {{rtime . "%s"}}`
+		// Start full bar at 0 total
+		bar := pb.ProgressBarTemplate(barTmpl).Start(0)
+		// Get progress events
+		for event := range progress {
+			// Set total bytes in progress bar
+			bar.SetTotal(int64(event.Total))
+			// Set amount of bytes sent in progress bar
+			bar.SetCurrent(int64(event.Sent))
+			// If transfer finished, break
+			if event.Done {
+				bar.Finish()
+				break
+			}
 		}
 
 		if args[1] == "-" {
 			io.Copy(os.Stdout, tmpFile)
 			os.Stdout.WriteString("\n")
+			os.Stdout.Sync()
 			tmpFile.Close()
-			os.Remove(path)
 		}
 	},
 }

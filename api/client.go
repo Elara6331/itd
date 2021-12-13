@@ -16,13 +16,15 @@ const DefaultAddr = "/tmp/itd/socket"
 
 // Client is the socket API client
 type Client struct {
-	conn          net.Conn
-	respCh        chan types.Response
-	heartRateCh   chan types.Response
-	battLevelCh   chan types.Response
-	stepCountCh   chan types.Response
-	motionCh      chan types.Response
-	dfuProgressCh chan types.Response
+	conn            net.Conn
+	respCh          chan types.Response
+	heartRateCh     chan types.Response
+	battLevelCh     chan types.Response
+	stepCountCh     chan types.Response
+	motionCh        chan types.Response
+	dfuProgressCh   chan types.Response
+	readProgressCh  chan types.FSTransferProgress
+	writeProgressCh chan types.FSTransferProgress
 }
 
 // New creates a new client and sets it up
@@ -100,6 +102,24 @@ func (c *Client) handleResp(res types.Response) error {
 		c.motionCh <- res
 	case types.ReqTypeFwUpgrade:
 		c.dfuProgressCh <- res
+	case types.ReqTypeFS:
+		if res.Value == nil {
+			c.respCh <- res
+			break
+		}
+		var progress types.FSTransferProgress
+		if err := mapstructure.Decode(res.Value, &progress); err != nil {
+			c.respCh <- res
+			break
+		}
+		switch progress.Type {
+		case types.FSTypeRead:
+			c.readProgressCh <- progress
+		case types.FSTypeWrite:
+			c.writeProgressCh <- progress
+		default:
+			c.respCh <- res
+		}
 	default:
 		c.respCh <- res
 	}
