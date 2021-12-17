@@ -617,7 +617,6 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 				go func() {
 					// For every progress event
 					for rcvd := range remoteFile.Progress() {
-						fmt.Println(rcvd)
 						// Encode event on connection
 						json.NewEncoder(conn).Encode(types.Response{
 							Type: req.Type,
