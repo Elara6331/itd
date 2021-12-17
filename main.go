@@ -37,28 +37,6 @@ var (
 	updateFS = false
 )
 
-func onReqPasskey() (uint32, error) {
-	var out uint32
-	if isatty.IsTerminal(os.Stdin.Fd()) {
-		fmt.Print("Passkey: ")
-		_, err := fmt.Scanln(&out)
-		if err != nil {
-			return 0, err
-		}
-	} else {
-		passkey, ok, err := dlgs.Entry("Pairing", "Enter the passkey displayed on your watch.", "")
-		if err != nil {
-			return 0, err
-		}
-		if !ok {
-			return 0, nil
-		}
-		passkeyInt, err := strconv.Atoi(passkey)
-		return uint32(passkeyInt), err
-	}
-	return out, nil
-}
-
 func main() {
 	infinitime.Init()
 	// Cleanly exit after function
@@ -130,7 +108,7 @@ func main() {
 	// Start control socket
 	err = initCallNotifs(dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Error starting socket")
+		log.Error().Err(err).Msg("Error initializing call notifications")
 	}
 
 	// Initialize notification relay
@@ -147,4 +125,26 @@ func main() {
 
 	// Block forever
 	select {}
+}
+
+func onReqPasskey() (uint32, error) {
+	var out uint32
+	if isatty.IsTerminal(os.Stdin.Fd()) {
+		fmt.Print("Passkey: ")
+		_, err := fmt.Scanln(&out)
+		if err != nil {
+			return 0, err
+		}
+	} else {
+		passkey, ok, err := dlgs.Entry("Pairing", "Enter the passkey displayed on your watch.", "")
+		if err != nil {
+			return 0, err
+		}
+		if !ok {
+			return 0, nil
+		}
+		passkeyInt, err := strconv.Atoi(passkey)
+		return uint32(passkeyInt), err
+	}
+	return out, nil
 }
