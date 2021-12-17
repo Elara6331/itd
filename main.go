@@ -19,8 +19,13 @@
 package main
 
 import (
+	"fmt"
+	"os"
+	"strconv"
 	"time"
 
+	"github.com/gen2brain/dlgs"
+	"github.com/mattn/go-isatty"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"go.arsenm.dev/infinitime"
@@ -32,6 +37,28 @@ var (
 	updateFS = false
 )
 
+func onReqPasskey() (uint32, error) {
+	var out uint32
+	if isatty.IsTerminal(os.Stdin.Fd()) {
+		fmt.Print("Passkey: ")
+		_, err := fmt.Scanln(&out)
+		if err != nil {
+			return 0, err
+		}
+	} else {
+		passkey, ok, err := dlgs.Entry("Pairing", "Enter the passkey displayed on your watch.", "")
+		if err != nil {
+			return 0, err
+		}
+		if !ok {
+			return 0, nil
+		}
+		passkeyInt, err := strconv.Atoi(passkey)
+		return uint32(passkeyInt), err
+	}
+	return out, nil
+}
+
 func main() {
 	infinitime.Init()
 	// Cleanly exit after function
@@ -42,9 +69,10 @@ func main() {
 		AttemptReconnect: viper.GetBool("conn.reconnect"),
 		WhitelistEnabled: viper.GetBool("conn.whitelist.enabled"),
 		Whitelist:        viper.GetStringSlice("conn.whitelist.devices"),
+		OnReqPasskey:     onReqPasskey,
 	})
 	if err != nil {
-		log.Error().Err(err).Msg("Error connecting to InfiniTime")
+		log.Fatal().Err(err).Msg("Error connecting to InfiniTime")
 	}
 
 	// When InfiniTime reconnects
