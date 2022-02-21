@@ -14,6 +14,7 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20211204153444-caad923f49f4 // indirect
 	github.com/godbus/dbus/v5 v5.0.6
 	github.com/google/uuid v1.3.0
+	github.com/knadh/koanf v1.4.0
 	github.com/mattn/go-isatty v0.0.14
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mitchellh/mapstructure v1.4.3
