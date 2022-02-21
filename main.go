@@ -27,9 +27,12 @@ import (
 	"github.com/gen2brain/dlgs"
 	"github.com/mattn/go-isatty"
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
 	"go.arsenm.dev/infinitime"
+	"github.com/knadh/koanf"
 )
+
+var k = koanf.New(".")
+
 
 var (
 	firmwareUpdating = false
@@ -44,9 +47,9 @@ func main() {
 
 	// Create infinitime options struct
 	opts := &infinitime.Options{
-		AttemptReconnect: viper.GetBool("conn.reconnect"),
-		WhitelistEnabled: viper.GetBool("conn.whitelist.enabled"),
-		Whitelist:        viper.GetStringSlice("conn.whitelist.devices"),
+		AttemptReconnect: k.Bool("conn.reconnect"),
+		WhitelistEnabled: k.Bool("conn.whitelist.enabled"),
+		Whitelist:        k.Strings("conn.whitelist.devices"),
 		OnReqPasskey:     onReqPasskey,
 	}
 
@@ -58,7 +61,7 @@ func main() {
 
 	// When InfiniTime reconnects
 	opts.OnReconnect = func() {
-		if viper.GetBool("on.reconnect.setTime") {
+		if k.Bool("on.reconnect.setTime") {
 			// Set time to current time
 			err = dev.SetTime(time.Now())
 			if err != nil {
@@ -67,7 +70,7 @@ func main() {
 		}
 
 		// If config specifies to notify on reconnect
-		if viper.GetBool("on.reconnect.notify") {
+		if k.Bool("on.reconnect.notify") {
 			// Send notification to InfiniTime
 			err = dev.Notify("itd", "Successfully reconnected")
 			if err != nil {
@@ -88,7 +91,7 @@ func main() {
 	log.Info().Str("version", ver).Msg("Connected to InfiniTime")
 
 	// If config specifies to notify on connect
-	if viper.GetBool("on.connect.notify") {
+	if k.Bool("on.connect.notify") {
 		// Send notification to InfiniTime
 		err = dev.Notify("itd", "Successfully connected")
 		if err != nil {

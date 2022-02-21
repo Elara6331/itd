@@ -32,7 +32,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/infinitime/blefs"
 	"go.arsenm.dev/itd/internal/types"
@@ -64,19 +63,19 @@ var done = DoneMap{}
 
 func startSocket(dev *infinitime.Device) error {
 	// Make socket directory if non-existant
-	err := os.MkdirAll(filepath.Dir(viper.GetString("socket.path")), 0755)
+	err := os.MkdirAll(filepath.Dir(k.String("socket.path")), 0755)
 	if err != nil {
 		return err
 	}
 
 	// Remove old socket if it exists
-	err = os.RemoveAll(viper.GetString("socket.path"))
+	err = os.RemoveAll(k.String("socket.path"))
 	if err != nil {
 		return err
 	}
 
 	// Listen on socket path
-	ln, err := net.Listen("unix", viper.GetString("socket.path"))
+	ln, err := net.Listen("unix", k.String("socket.path"))
 	if err != nil {
 		return err
 	}
@@ -100,7 +99,7 @@ func startSocket(dev *infinitime.Device) error {
 	}()
 
 	// Log socket start
-	log.Info().Str("path", viper.GetString("socket.path")).Msg("Started control socket")
+	log.Info().Str("path", k.String("socket.path")).Msg("Started control socket")
 
 	return nil
 }
@@ -328,8 +327,8 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 				connErr(conn, req.Type, err, "Error decoding request data")
 				break
 			}
-			maps := viper.GetStringSlice("notifs.translit.use")
-			translit.Transliterators["custom"] = translit.Map(viper.GetStringSlice("notifs.translit.custom"))
+			maps := k.Strings("notifs.translit.use")
+			translit.Transliterators["custom"] = translit.Map(k.Strings("notifs.translit.custom"))
 			title := translit.Transliterate(reqData.Title, maps...)
 			body := translit.Transliterate(reqData.Body, maps...)
 			// Send notification to watch

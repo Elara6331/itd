@@ -23,7 +23,6 @@ import (
 
 	"github.com/godbus/dbus/v5"
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/translit"
 )
@@ -72,8 +71,8 @@ func initNotifRelay(dev *infinitime.Device) error {
 				continue
 			}
 
-			maps := viper.GetStringSlice("notifs.translit.use")
-			translit.Transliterators["custom"] = translit.Map(viper.GetStringSlice("notifs.translit.custom"))
+			maps := k.Strings("notifs.translit.use")
+			translit.Transliterators["custom"] = translit.Map(k.Strings("notifs.translit.custom"))
 			sender = translit.Transliterate(sender, maps...)
 			summary = translit.Transliterate(summary, maps...)
 			body = translit.Transliterate(body, maps...)
@@ -97,9 +96,9 @@ func initNotifRelay(dev *infinitime.Device) error {
 
 // ignored checks whether any fields were ignored in the config
 func ignored(sender, summary, body string) bool {
-	ignoreSender := viper.GetStringSlice("notifs.ignore.sender")
-	ignoreSummary := viper.GetStringSlice("notifs.ignore.summary")
-	ignoreBody := viper.GetStringSlice("notifs.ignore.body")
+	ignoreSender := k.Strings("notifs.ignore.sender")
+	ignoreSummary := k.Strings("notifs.ignore.summary")
+	ignoreBody := k.Strings("notifs.ignore.body")
 	return strSlcContains(ignoreSender, sender) ||
 		strSlcContains(ignoreSummary, summary) ||
 		strSlcContains(ignoreBody, body)

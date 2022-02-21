@@ -20,7 +20,6 @@ package main
 
 import (
 	"github.com/rs/zerolog/log"
-	"github.com/spf13/viper"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/infinitime/pkg/player"
 )
@@ -62,9 +61,9 @@ func initMusicCtrl(dev *infinitime.Device) error {
 			case infinitime.MusicEventPrev:
 				player.Prev()
 			case infinitime.MusicEventVolUp:
-				player.VolUp(viper.GetUint("music.vol.interval"))
+				player.VolUp(uint(k.Int("music.vol.interval")))
 			case infinitime.MusicEventVolDown:
-				player.VolDown(viper.GetUint("music.vol.interval"))
+				player.VolDown(uint(k.Int("music.vol.interval")))
 			}
 		}
 	}()
