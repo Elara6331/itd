@@ -42,24 +42,27 @@ func main() {
 	// Cleanly exit after function
 	defer infinitime.Exit()
 
-	// Connect to InfiniTime with default options
-	dev, err := infinitime.Connect(&infinitime.Options{
+	// Create infinitime options struct
+	opts := &infinitime.Options{
 		AttemptReconnect: viper.GetBool("conn.reconnect"),
 		WhitelistEnabled: viper.GetBool("conn.whitelist.enabled"),
 		Whitelist:        viper.GetStringSlice("conn.whitelist.devices"),
 		OnReqPasskey:     onReqPasskey,
-	})
+	}
+
+	// Connect to InfiniTime with default options
+	dev, err := infinitime.Connect(opts)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error connecting to InfiniTime")
 	}
 
 	// When InfiniTime reconnects
-	dev.OnReconnect(func() {
+	opts.OnReconnect = func() {
 		if viper.GetBool("on.reconnect.setTime") {
 			// Set time to current time
 			err = dev.SetTime(time.Now())
 			if err != nil {
-				log.Error().Err(err).Msg("Error setting current time on connected InfiniTime")
+				return
 			}
 		}
 
@@ -68,12 +71,12 @@ func main() {
 			// Send notification to InfiniTime
 			err = dev.Notify("itd", "Successfully reconnected")
 			if err != nil {
-				log.Error().Err(err).Msg("Error sending notification to InfiniTime")
+				return
 			}
 		}
 
 		updateFS = true
-	})
+	}
 
 	// Get firmware version
 	ver, err := dev.Version()
