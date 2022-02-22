@@ -27,4 +27,5 @@
     vol.interval = 5
 
 [weather]
+    enabled = true
     location = "Los Angeles, CA"

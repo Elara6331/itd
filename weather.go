@@ -61,6 +61,10 @@ type OSMData []struct {
 var sendWeatherCh = make(chan struct{}, 1)
 
 func initWeather(dev *infinitime.Device) error {
+	if !k.Bool("weather.enabled") {
+		return nil
+	}
+
 	// Get location based on string in config
 	lat, lon, err := getLocation(k.String("weather.location"))
 	if err != nil {
