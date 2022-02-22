@@ -26,3 +26,5 @@
 [music]
     vol.interval = 5
 
+[weather]
+    location = "Los Angeles, CA"
