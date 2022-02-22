@@ -129,7 +129,11 @@ func main() {
 		log.Error().Err(err).Msg("Error initializing notification relay")
 	}
 
-	initWeather(dev)
+	// Initializa weather
+	err = initWeather(dev)
+	if err != nil {
+		log.Error().Err(err).Msg("Error initializing weather")
+	}
 
 	// Start control socket
 	err = startSocket(dev)
