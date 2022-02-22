@@ -20,6 +20,7 @@ package main
 
 import (
 	_ "embed"
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -44,6 +45,15 @@ var (
 )
 
 func main() {
+	showVer := flag.Bool("version", false, "Show version number and exit")
+	flag.Parse()
+	// If version requested, print and exit
+	if *showVer {
+		fmt.Println(version)
+		return
+	}
+
+	// Initialize infinitime library
 	infinitime.Init()
 	// Cleanly exit after function
 	defer infinitime.Exit()
