@@ -19,20 +19,23 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/gen2brain/dlgs"
+	"github.com/knadh/koanf"
 	"github.com/mattn/go-isatty"
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
-	"github.com/knadh/koanf"
 )
 
 var k = koanf.New(".")
 
+//go:embed version.txt
+var version string
 
 var (
 	firmwareUpdating = false
@@ -78,7 +81,10 @@ func main() {
 			}
 		}
 
+		// FS must be updated on reconnect
 		updateFS = true
+		// Resend weather on reconnect
+		sendWeatherCh <- struct{}{}
 	}
 
 	// Get firmware version
@@ -122,6 +128,8 @@ func main() {
 	if err != nil {
 		log.Error().Err(err).Msg("Error initializing notification relay")
 	}
+
+	initWeather(dev)
 
 	// Start control socket
 	err = startSocket(dev)

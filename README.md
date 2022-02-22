@@ -186,3 +186,11 @@ This will compile `itd` and `itctl` for Linux aarch64 which is what runs on the 
 This daemon places a config file at `/etc/itd.toml`. This is the global config. `itd` will also look for a config at `~/.config/itd.toml`.
 
 Most of the time, the daemon does not need to be restarted for config changes to take effect.
+
+---
+
+### Attribution
+
+Location data from OpenStreetMap Nominatim, &copy; [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors
+
+Weather data from the [Norwegian Meteorological Institute](https://www.met.no/en)

@@ -3,13 +3,14 @@ BIN_PREFIX = $(DESTDIR)$(PREFIX)/bin
 SERVICE_PREFIX = $(DESTDIR)$(PREFIX)/lib/systemd/user
 CFG_PREFIX = $(DESTDIR)/etc
 
-all:
+all: version
 	go build $(GOFLAGS)
 	go build ./cmd/itctl $(GOFLAGS)
 
 clean:
 	rm -f itctl
 	rm -f itd
+	printf "unknown" > version.txt
 
 install:
 	install -Dm755 ./itd $(BIN_PREFIX)/itd
@@ -23,4 +24,7 @@ uninstall:
 	rm $(SERVICE_PREFIX)/itd.service
 	rm $(CFG_PREFIX)/itd.toml
 
-.PHONY: all clean install uninstall
+version:
+	printf "r%s.%s" "$(shell git rev-list --count HEAD)" "$(shell git rev-parse --short HEAD)" > version.txt
+
+.PHONY: all clean install uninstall version
