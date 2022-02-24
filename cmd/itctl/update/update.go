@@ -16,28 +16,20 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package update
 
 import (
-	_ "go.arsenm.dev/itd/cmd/itctl/firmware"
-	_ "go.arsenm.dev/itd/cmd/itctl/get"
-	_ "go.arsenm.dev/itd/cmd/itctl/notify"
+	"github.com/spf13/cobra"
 	"go.arsenm.dev/itd/cmd/itctl/root"
-	_ "go.arsenm.dev/itd/cmd/itctl/set"
-	_ "go.arsenm.dev/itd/cmd/itctl/watch"
-	_ "go.arsenm.dev/itd/cmd/itctl/filesystem"
-	_ "go.arsenm.dev/itd/cmd/itctl/update"
-
-	"os"
-
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
-func init() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+// updateCmd represents the update command
+var updateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Update information on InfiniTime",
+	Aliases: []string{"upd"},
 }
 
-func main() {
-	root.Execute()
+func init() {
+	root.RootCmd.AddCommand(updateCmd)
 }

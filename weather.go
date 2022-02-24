@@ -75,6 +75,7 @@ func initWeather(dev *infinitime.Device) error {
 
 	go func() {
 		for {
+			fmt.Println("weather update")
 			// Attempt to get weather
 			data, err := getWeather(lat, lon)
 			if err != nil {
@@ -165,12 +166,14 @@ func initWeather(dev *infinitime.Device) error {
 				log.Error().Err(err).Msg("Error adding pressure event")
 			}
 
+			// Reset timer to 1 hour
+			timer.Stop()
 			timer.Reset(time.Hour)
+
+			// Wait for timer to fire or manual update signal
 			select {
 			case <-timer.C:
-				timer.Stop()
 			case <-sendWeatherCh:
-				timer.Stop()
 			}
 		}
 	}()

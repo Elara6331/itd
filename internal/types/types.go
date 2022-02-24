@@ -21,6 +21,7 @@ const (
 	ReqTypeWatchStepCount
 	ReqTypeCancel
 	ReqTypeFS
+	ReqTypeWeatherUpdate
 )
 
 const (
