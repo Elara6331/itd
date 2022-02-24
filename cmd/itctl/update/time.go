@@ -16,28 +16,29 @@
  *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package main
+package update
 
 import (
-	_ "go.arsenm.dev/itd/cmd/itctl/firmware"
-	_ "go.arsenm.dev/itd/cmd/itctl/get"
-	_ "go.arsenm.dev/itd/cmd/itctl/notify"
-	"go.arsenm.dev/itd/cmd/itctl/root"
-	_ "go.arsenm.dev/itd/cmd/itctl/set"
-	_ "go.arsenm.dev/itd/cmd/itctl/watch"
-	_ "go.arsenm.dev/itd/cmd/itctl/filesystem"
-	_ "go.arsenm.dev/itd/cmd/itctl/update"
-
-	"os"
-
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"go.arsenm.dev/itd/api"
 )
 
-func init() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+// weatherCmd represents the time command
+var weatherCmd = &cobra.Command{
+	Use:   `weather`,
+	Short: "Force an immediate update of weather data",
+	Run: func(cmd *cobra.Command, args []string) {
+		client := viper.Get("client").(*api.Client)
+
+		err := client.UpdateWeather()
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error updating weather")
+		}
+	},
 }
 
-func main() {
-	root.Execute()
+func init() {
+	updateCmd.AddCommand(weatherCmd)
 }

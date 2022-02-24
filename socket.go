@@ -642,6 +642,10 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 					},
 				})
 			}
+		case types.ReqTypeWeatherUpdate:
+			// Send weather update signal
+			sendWeatherCh <- struct{}{}
+			json.NewEncoder(conn).Encode(types.Response{Type: req.Type})
 		case types.ReqTypeCancel:
 			if req.Data == nil {
 				connErr(conn, req.Type, nil, "No data provided. Cancel request requires request ID string as data.")
