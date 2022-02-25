@@ -1,43 +1,202 @@
-/*
- *	itd uses bluetooth low energy to communicate with InfiniTime devices
- *	Copyright (C) 2021 Arsen Musayelyan
- *
- *	This program is free software: you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published by
- *	the Free Software Foundation, either version 3 of the License, or
- *	(at your option) any later version.
- *
- *	This program is distributed in the hope that it will be useful,
- *	but WITHOUT ANY WARRANTY; without even the implied warranty of
- *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *	GNU General Public License for more details.
- *
- *	You should have received a copy of the GNU General Public License
- *	along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package main
 
 import (
-	_ "go.arsenm.dev/itd/cmd/itctl/firmware"
-	_ "go.arsenm.dev/itd/cmd/itctl/get"
-	_ "go.arsenm.dev/itd/cmd/itctl/notify"
-	"go.arsenm.dev/itd/cmd/itctl/root"
-	_ "go.arsenm.dev/itd/cmd/itctl/set"
-	_ "go.arsenm.dev/itd/cmd/itctl/watch"
-	_ "go.arsenm.dev/itd/cmd/itctl/filesystem"
-	_ "go.arsenm.dev/itd/cmd/itctl/update"
-
 	"os"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/urfave/cli/v2"
+	"go.arsenm.dev/itd/api"
 )
 
-func init() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-}
+var client *api.Client
 
 func main() {
-	root.Execute()
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
+	app := cli.App{
+		Name: "itctl",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "socket-path",
+				Aliases: []string{"s"},
+				Value:   api.DefaultAddr,
+				Usage:   "Path to itd socket",
+			},
+		},
+		Commands: []*cli.Command{
+			{
+				Name:    "filesystem",
+				Aliases: []string{"fs"},
+				Usage:   "Perform filesystem operations on the PineTime",
+				Subcommands: []*cli.Command{
+					{
+						Name:      "list",
+						ArgsUsage: "[dir]",
+						Aliases:   []string{"ls"},
+						Usage:     "List a directory",
+						Action:    fsList,
+					},
+					{
+						Name:      "mkdir",
+						ArgsUsage: "<paths...>",
+						Usage:     "Create new directories",
+						Action:    fsMkdir,
+					},
+					{
+						Name:      "move",
+						ArgsUsage: "<old> <new>",
+						Aliases:   []string{"mv"},
+						Usage:     "Move a file or directory",
+						Action:    fsMove,
+					},
+					{
+						Name:        "read",
+						ArgsUsage:   `<remote path> <local path>`,
+						Usage:       "Read a file from InfiniTime.",
+						Description: `Read is used to read files from InfiniTime's filesystem. A "-" can be used to signify stdout`,
+						Action:      fsRead,
+					},
+					{
+						Name:      "remove",
+						ArgsUsage: "<paths...>",
+						Aliases:   []string{"rm"},
+						Usage:     "Create a new directory",
+						Action:    fsRemove,
+					},
+					{
+						Name:        "write",
+						ArgsUsage:   `<local path> <remote path>`,
+						Usage:       "Write a file to InfiniTime",
+						Description: `Write is used to write files to InfiniTime's filesystem. A "-" can be used to signify stdin`,
+						Action:      fsWrite,
+					},
+				},
+			},
+			{
+				Name:    "firmware",
+				Aliases: []string{"fw"},
+				Usage:   "Manage InfiniTime firmware",
+				Subcommands: []*cli.Command{
+					{
+						Flags: []cli.Flag{
+							&cli.PathFlag{
+								Name:    "init-packet",
+								Aliases: []string{"i"},
+								Usage:   "Path to init packet (.dat file)",
+							},
+							&cli.PathFlag{
+								Name:    "firmware",
+								Aliases: []string{"f"},
+								Usage:   "Path to firmware image (.bin file)",
+							},
+							&cli.PathFlag{
+								Name:    "archive",
+								Aliases: []string{"a"},
+								Usage:   "Path to firmware archive (.zip file)",
+							},
+						},
+						Name:    "upgrade",
+						Aliases: []string{"upg"},
+						Usage:   "Upgrade InfiniTime firmware using files or archive",
+						Action:  fwUpgrade,
+					},
+					{
+						Name:    "version",
+						Aliases: []string{"ver"},
+						Usage:   "Get firmware version of InfiniTime",
+						Action:  fwVersion,
+					},
+				},
+			},
+			{
+				Name:  "get",
+				Usage: "Get information from InfiniTime",
+				Subcommands: []*cli.Command{
+					{
+						Name:    "address",
+						Aliases: []string{"addr"},
+						Usage:   "Get InfiniTime's bluetooth address",
+						Action:  getAddress,
+					},
+					{
+						Name:    "battery",
+						Aliases: []string{"batt"},
+						Usage:   "Get InfiniTime's battery percentage",
+						Action:  getBattery,
+					},
+					{
+						Name:   "heart",
+						Usage:  "Get heart rate from InfiniTime",
+						Action: getHeart,
+					},
+					{
+						Flags: []cli.Flag{
+							&cli.BoolFlag{Name: "shell"},
+						},
+						Name:   "motion",
+						Usage:  "Get motion values from InfiniTime",
+						Action: getMotion,
+					},
+					{
+						Name:   "steps",
+						Usage:  "Get step count from InfiniTime",
+						Action: getSteps,
+					},
+				},
+			},
+			{
+				Name:   "notify",
+				Usage:  "Send notification to InfiniTime",
+				Action: notify,
+			},
+			{
+				Name:  "set",
+				Usage: "Set information on InfiniTime",
+				Subcommands: []*cli.Command{
+					{
+						Name:      "time",
+						ArgsUsage: `<ISO8601|"now">`,
+						Usage:     "Set InfiniTime's clock to specified time",
+						Action:    setTime,
+					},
+				},
+			},
+			{
+				Name:    "update",
+				Usage:   "Update information on InfiniTime",
+				Aliases: []string{"upd"},
+				Subcommands: []*cli.Command{
+					{
+						Name:   "weather",
+						Usage:  "Force an immediate update of weather data",
+						Action: updateWeather,
+					},
+				},
+			},
+		},
+		Before: func(c *cli.Context) error {
+			newClient, err := api.New(c.String("socket-path"))
+			if err != nil {
+				return err
+			}
+			client = newClient
+			return nil
+		},
+		After: func(*cli.Context) error {
+			return client.Close()
+		},
+		ExitErrHandler: func(c *cli.Context, err error) {
+			cli.ShowCommandHelp(c, c.Command.Name)
+			if err != nil {
+				log.Fatal().Msgf("%v", err)
+			}
+			os.Exit(0)
+		},
+	}
+
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Error while running app")
+	}
 }
