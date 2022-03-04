@@ -200,8 +200,8 @@ github.com/yuin/goldmark v1.3.8/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.4.0/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.4.4 h1:zNWRjYUW32G9KirMXYHQHVNFkXvMI7LpgNW2AgYAoIs=
 github.com/yuin/goldmark v1.4.4/go.mod h1:rmuwmfZ0+bvzB24eSC//bk1R1Zp3hM0OXYv/G2LIilg=
-go.arsenm.dev/infinitime v0.0.0-20220221104620-e82981e3fc4b h1:hIpTU6TVpn4X3P/AZnG3LHFzB02jKn2ZSZADHlAB0qI=
-go.arsenm.dev/infinitime v0.0.0-20220221104620-e82981e3fc4b/go.mod h1:Prvwx7Y2y8HsNRA1tPptduW9jzuw/JffmocvoHcDbYo=
+go.arsenm.dev/infinitime v0.0.0-20220304200437-7026da3f6f14 h1:VCUKDxm7S+AS1wgP/eKsbvnvG2y/vMddZU3Ib8fAoOI=
+go.arsenm.dev/infinitime v0.0.0-20220304200437-7026da3f6f14/go.mod h1:Prvwx7Y2y8HsNRA1tPptduW9jzuw/JffmocvoHcDbYo=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=

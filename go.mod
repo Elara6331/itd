@@ -28,7 +28,7 @@ require (
 	github.com/srwiley/rasterx v0.0.0-20210519020934-456a8d69b780 // indirect
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/yuin/goldmark v1.4.4 // indirect
-	go.arsenm.dev/infinitime v0.0.0-20220221104620-e82981e3fc4b
+	go.arsenm.dev/infinitime v0.0.0-20220304200437-7026da3f6f14
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
 	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
 	golang.org/x/text v0.3.7
