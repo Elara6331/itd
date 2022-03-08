@@ -112,13 +112,13 @@ func handleConnection(conn net.Conn, dev *infinitime.Device, fs *blefs.FS) {
 		// Get new FS
 		newFS, err := dev.FS()
 		if err != nil {
-			fs = nil
 			log.Warn().Err(err).Msg("Error updating BLE filesystem")
+		} else {
+			// Set FS pointer to new FS
+			*fs = *newFS
+			// Reset updateFS
+			updateFS = false
 		}
-		// Set FS pointer to new FS
-		*fs = *newFS
-		// Reset updateFS
-		updateFS = false
 	}
 
 	// Create new scanner on connection
