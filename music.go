@@ -22,22 +22,27 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/infinitime/pkg/player"
+	"go.arsenm.dev/itd/translit"
 )
 
 func initMusicCtrl(dev *infinitime.Device) error {
 	player.Init()
 
+	maps := k.Strings("notifs.translit.use")
+	translit.Transliterators["custom"] = translit.Map(k.Strings("notifs.translit.custom"))
+
 	player.OnChange(func(ct player.ChangeType, val string) {
+		newVal := translit.Transliterate(val, maps...)
 		if !firmwareUpdating {
 			switch ct {
 			case player.ChangeTypeStatus:
 				dev.Music.SetStatus(val == "Playing")
 			case player.ChangeTypeTitle:
-				dev.Music.SetTrack(val)
+				dev.Music.SetTrack(newVal)
 			case player.ChangeTypeAlbum:
-				dev.Music.SetAlbum(val)
+				dev.Music.SetAlbum(newVal)
 			case player.ChangeTypeArtist:
-				dev.Music.SetArtist(val)
+				dev.Music.SetArtist(newVal)
 			}
 		}
 	})
