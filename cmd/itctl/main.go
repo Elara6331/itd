@@ -61,7 +61,7 @@ func main() {
 						Name:      "remove",
 						ArgsUsage: "<paths...>",
 						Aliases:   []string{"rm"},
-						Usage:     "Create a new directory",
+						Usage:     "Remove a file from InfiniTime",
 						Action:    fsRemove,
 					},
 					{
