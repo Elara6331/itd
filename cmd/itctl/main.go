@@ -186,13 +186,6 @@ func main() {
 		After: func(*cli.Context) error {
 			return client.Close()
 		},
-		ExitErrHandler: func(c *cli.Context, err error) {
-			cli.ShowCommandHelp(c, c.Command.Name)
-			if err != nil {
-				log.Fatal().Msgf("%v", err)
-			}
-			os.Exit(0)
-		},
 	}
 
 	err := app.Run(os.Args)
