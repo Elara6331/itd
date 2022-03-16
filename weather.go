@@ -75,7 +75,6 @@ func initWeather(dev *infinitime.Device) error {
 
 	go func() {
 		for {
-			fmt.Println("weather update")
 			// Attempt to get weather
 			data, err := getWeather(lat, lon)
 			if err != nil {
