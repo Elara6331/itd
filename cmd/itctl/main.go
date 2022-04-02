@@ -184,7 +184,10 @@ func main() {
 			return nil
 		},
 		After: func(*cli.Context) error {
-			return client.Close()
+			if client != nil {
+				client.Close()
+			}
+			return nil
 		},
 	}
 
