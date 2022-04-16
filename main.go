@@ -29,6 +29,7 @@ import (
 	"github.com/gen2brain/dlgs"
 	"github.com/knadh/koanf"
 	"github.com/mattn/go-isatty"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
 )
@@ -64,6 +65,8 @@ func main() {
 		WhitelistEnabled: k.Bool("conn.whitelist.enabled"),
 		Whitelist:        k.Strings("conn.whitelist.devices"),
 		OnReqPasskey:     onReqPasskey,
+		Logger:           log.Logger,
+		LogLevel:         zerolog.WarnLevel,
 	}
 
 	// Connect to InfiniTime with default options
