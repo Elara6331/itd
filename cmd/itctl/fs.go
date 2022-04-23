@@ -76,7 +76,7 @@ func fsRead(c *cli.Context) error {
 		}
 	}
 
-	progress, err := client.ReadFile(path, c.Args().Get(0))
+	progress, err := client.Download(path, c.Args().Get(0))
 	if err != nil {
 		return err
 	}
@@ -91,12 +91,8 @@ func fsRead(c *cli.Context) error {
 		bar.SetTotal(int64(event.Total))
 		// Set amount of bytes sent in progress bar
 		bar.SetCurrent(int64(event.Sent))
-		// If transfer finished, break
-		if event.Done {
-			bar.Finish()
-			break
-		}
 	}
+	bar.Finish()
 
 	if c.Args().Get(1) == "-" {
 		io.Copy(os.Stdout, tmpFile)
@@ -148,7 +144,7 @@ func fsWrite(c *cli.Context) error {
 		defer os.Remove(path)
 	}
 
-	progress, err := client.WriteFile(path, c.Args().Get(1))
+	progress, err := client.Upload(c.Args().Get(1), path)
 	if err != nil {
 		return err
 	}
@@ -163,11 +159,6 @@ func fsWrite(c *cli.Context) error {
 		bar.SetTotal(int64(event.Total))
 		// Set amount of bytes sent in progress bar
 		bar.SetCurrent(int64(event.Sent))
-		// If transfer finished, break
-		if event.Done {
-			bar.Finish()
-			break
-		}
 	}
 
 	return nil
