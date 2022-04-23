@@ -37,8 +37,9 @@ import (
 	"go.arsenm.dev/itd/api"
 )
 
-// This type signifies an unneeded valie.
+// This type signifies an unneeded value.
 // A struct{} is used as it takes no space in memory.
+// This exists for readability purposes
 type none = struct{}
 
 var (
@@ -100,14 +101,20 @@ func startSocket(dev *infinitime.Device) error {
 		dev: dev,
 		srv: srv,
 	}
-	srv.Register(itdAPI, "")
+	err = srv.Register(itdAPI, "")
+	if err != nil {
+		return err
+	}
 
 	fsAPI := &FS{
 		dev: dev,
 		fs:  fs,
 		srv: srv,
 	}
-	srv.Register(fsAPI, "")
+	err = srv.Register(fsAPI, "")
+	if err != nil {
+		return err
+	}
 
 	go srv.ServeListener("unix", ln)
 
@@ -150,6 +157,7 @@ func (i *ITD) WatchHeartRate(ctx context.Context, _ none, out *string) error {
 			default:
 				data, err := msgpack.Marshal(heartRate)
 				if err != nil {
+					log.Error().Err(err).Msg("Error encoding heart rate")
 					continue
 				}
 
@@ -191,6 +199,7 @@ func (i *ITD) WatchBatteryLevel(ctx context.Context, _ none, out *string) error 
 			default:
 				data, err := msgpack.Marshal(battLevel)
 				if err != nil {
+					log.Error().Err(err).Msg("Error encoding battery level")
 					continue
 				}
 
@@ -232,6 +241,7 @@ func (i *ITD) WatchMotion(ctx context.Context, _ none, out *string) error {
 			default:
 				data, err := msgpack.Marshal(motionVals)
 				if err != nil {
+					log.Error().Err(err).Msg("Error encoding motion values")
 					continue
 				}
 
@@ -273,6 +283,7 @@ func (i *ITD) WatchStepCount(ctx context.Context, _ none, out *string) error {
 			default:
 				data, err := msgpack.Marshal(stepCount)
 				if err != nil {
+					log.Error().Err(err).Msg("Error encoding step count")
 					continue
 				}
 
@@ -361,6 +372,7 @@ func (i *ITD) FirmwareUpgrade(ctx context.Context, reqData api.FwUpgradeData, ou
 		for event := range i.dev.DFU.Progress() {
 			data, err := msgpack.Marshal(event)
 			if err != nil {
+				log.Error().Err(err).Msg("Error encoding DFU progress event")
 				continue
 			}
 
@@ -378,6 +390,7 @@ func (i *ITD) FirmwareUpgrade(ctx context.Context, reqData api.FwUpgradeData, ou
 		// Start DFU
 		err := i.dev.DFU.Start()
 		if err != nil {
+			log.Error().Err(err).Msg("Error while upgrading firmware")
 			firmwareUpdating = false
 			return
 		}
@@ -478,6 +491,7 @@ func (fs *FS) Upload(ctx context.Context, paths [2]string, out *string) error {
 				Sent:  sent,
 			})
 			if err != nil {
+				log.Error().Err(err).Msg("Error encoding filesystem transfer progress event")
 				continue
 			}
 
@@ -521,6 +535,7 @@ func (fs *FS) Download(ctx context.Context, paths [2]string, out *string) error 
 				Sent:  rcvd,
 			})
 			if err != nil {
+				log.Error().Err(err).Msg("Error encoding filesystem transfer progress event")
 				continue
 			}
 
