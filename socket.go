@@ -111,20 +111,6 @@ func startSocket(dev *infinitime.Device) error {
 
 	go srv.ServeListener("unix", ln)
 
-	/*
-		go func() {
-			for {
-				// Accept socket connection
-				conn, err := ln.Accept()
-				if err != nil {
-					log.Error().Err(err).Msg("Error accepting connection")
-				}
-
-				// Concurrently handle connection
-				go handleConnection(conn, dev, fs)
-			}
-		}()*/
-
 	// Log socket start
 	log.Info().Str("path", k.String("socket.path")).Msg("Started control socket")
 
