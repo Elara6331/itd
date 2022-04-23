@@ -55,7 +55,7 @@ Since the PineTime does not have enough space to store all unicode glyphs, it on
 - Lithuanian
 - Estonian
 - Icelandic
-- Czeck
+- Czech
 - French
 - Armenian
 - Korean

@@ -301,7 +301,7 @@ var Transliterators = map[string]Transliterator{
 		"Ð", "D",
 		"ð", "d",
 	},
-	"Czeck": Map{
+	"Czech": Map{
 		"ř", "r",
 		"ě", "e",
 		"ý", "y",
