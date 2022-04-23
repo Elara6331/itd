@@ -1,14 +1,17 @@
 package api
 
-import "go.arsenm.dev/itd/internal/types"
+import (
+	"context"
+)
 
-func (c *Client) Notify(title string, body string) error {
-	_, err := c.request(types.Request{
-		Type: types.ReqTypeNotify,
-		Data: types.ReqDataNotify{
+func (c *Client) Notify(title, body string) error {
+	return c.itdClient.Call(
+		context.Background(),
+		"Notify",
+		NotifyData{
 			Title: title,
 			Body: body,
 		},
-	})
-	return err
+		nil,
+	)
 }

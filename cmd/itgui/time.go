@@ -49,7 +49,7 @@ func timeTab(parent fyne.Window, client *api.Client) *fyne.Container {
 func setTime(client *api.Client, current bool, t ...time.Time) error {
 	var err error
 	if current {
-		err = client.SetTimeNow()
+		err = client.SetTime(time.Now())
 	} else {
 		err = client.SetTime(t[0])
 	}

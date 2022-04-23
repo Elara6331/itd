@@ -8,7 +8,6 @@ import (
 	"github.com/cheggaaa/pb/v3"
 	"github.com/urfave/cli/v2"
 	"go.arsenm.dev/itd/api"
-	"go.arsenm.dev/itd/internal/types"
 )
 
 func fwUpgrade(c *cli.Context) error {
@@ -19,11 +18,11 @@ func fwUpgrade(c *cli.Context) error {
 	// Get relevant data struct
 	if c.String("archive") != "" {
 		// Get archive data struct
-		upgType = types.UpgradeTypeArchive
+		upgType = api.UpgradeTypeArchive
 		files = []string{c.String("archive")}
 	} else if c.String("init-packet") != "" && c.String("firmware") != "" {
 		// Get files data struct
-		upgType = types.UpgradeTypeFiles
+		upgType = api.UpgradeTypeFiles
 		files = []string{c.String("init-packet"), c.String("firmware")}
 	} else {
 		return cli.Exit("Upgrade command requires either archive or init packet and firmware.", 1)
@@ -43,9 +42,9 @@ func fwUpgrade(c *cli.Context) error {
 		// Set total bytes in progress bar
 		bar.SetTotal(event.Total)
 		// Set amount of bytes received in progress bar
-		bar.SetCurrent(event.Received)
+		bar.SetCurrent(int64(event.Received))
 		// If transfer finished, break
-		if event.Sent == event.Total {
+		if int64(event.Sent) == event.Total {
 			break
 		}
 	}

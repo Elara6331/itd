@@ -1,102 +1,101 @@
 package api
 
 import (
-	"github.com/mitchellh/mapstructure"
-	"go.arsenm.dev/itd/internal/types"
+	"context"
+	"time"
 )
 
-func (c *Client) Rename(old, new string) error {
-	_, err := c.request(types.Request{
-		Type: types.ReqTypeFS,
-		Data: types.ReqDataFS{
-			Type:  types.FSTypeMove,
-			Files: []string{old, new},
-		},
-	})
-	if err != nil {
-		return err
-	}
-	return nil
+func (c *Client) Remove(paths ...string) error {
+	return c.fsClient.Call(
+		context.Background(),
+		"Remove",
+		paths,
+		nil,
+	)
 }
 
-func (c *Client) Remove(paths ...string) error {
-	_, err := c.request(types.Request{
-		Type: types.ReqTypeFS,
-		Data: types.ReqDataFS{
-			Type:  types.FSTypeDelete,
-			Files: paths,
-		},
-	})
-	if err != nil {
-		return err
-	}
-	return nil
+func (c *Client) Rename(old, new string) error {
+	return c.fsClient.Call(
+		context.Background(),
+		"Remove",
+		[2]string{old, new},
+		nil,
+	)
 }
 
 func (c *Client) Mkdir(paths ...string) error {
-	_, err := c.request(types.Request{
-		Type: types.ReqTypeFS,
-		Data: types.ReqDataFS{
-			Type:  types.FSTypeMkdir,
-			Files: paths,
-		},
-	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.fsClient.Call(
+		context.Background(),
+		"Mkdir",
+		paths,
+		nil,
+	)
 }
 
-func (c *Client) ReadDir(path string) ([]types.FileInfo, error) {
-	res, err := c.request(types.Request{
-		Type: types.ReqTypeFS,
-		Data: types.ReqDataFS{
-			Type:  types.FSTypeList,
-			Files: []string{path},
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	var out []types.FileInfo
-	err = mapstructure.Decode(res.Value, &out)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+func (c *Client) ReadDir(dir string) (out []FileInfo, err error) {
+	err = c.fsClient.Call(
+		context.Background(),
+		"ReadDir",
+		dir,
+		&out,
+	)
+	return
 }
 
-func (c *Client) ReadFile(localPath, remotePath string) (<-chan types.FSTransferProgress, error) {
-	c.readProgressCh = make(chan types.FSTransferProgress, 5)
-
-	_, err := c.request(types.Request{
-		Type: types.ReqTypeFS,
-		Data: types.ReqDataFS{
-			Type:  types.FSTypeRead,
-			Files: []string{localPath, remotePath},
-		},
-	})
-
+func (c *Client) Upload(dst, src string) (chan FSTransferProgress, error) {
+	var id string
+	err := c.fsClient.Call(
+		context.Background(),
+		"Upload",
+		[2]string{dst, src},
+		&id,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.readProgressCh, nil
+	progressCh := make(chan FSTransferProgress, 5)
+	go func() {
+		srvValCh, ok := c.srvVals[id]
+		for !ok {
+			time.Sleep(100 * time.Millisecond)
+			srvValCh, ok = c.srvVals[id]
+		}
+
+		for val := range srvValCh {
+			progressCh <- val.(FSTransferProgress)
+		}
+		close(progressCh)
+	}()
+
+	return progressCh, nil
 }
 
-func (c *Client) WriteFile(localPath, remotePath string) (<-chan types.FSTransferProgress, error) {
-	c.writeProgressCh = make(chan types.FSTransferProgress, 5)
-
-	_, err := c.request(types.Request{
-		Type: types.ReqTypeFS,
-		Data: types.ReqDataFS{
-			Type:  types.FSTypeWrite,
-			Files: []string{remotePath, localPath},
-		},
-	})
+func (c *Client) Download(dst, src string) (chan FSTransferProgress, error) {
+	var id string
+	err := c.fsClient.Call(
+		context.Background(),
+		"Download",
+		[2]string{dst, src},
+		&id,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.writeProgressCh, nil
+	progressCh := make(chan FSTransferProgress, 5)
+	go func() {
+		srvValCh, ok := c.srvVals[id]
+		for !ok {
+			time.Sleep(100 * time.Millisecond)
+			srvValCh, ok = c.srvVals[id]
+		}
+
+		for val := range srvValCh {
+			progressCh <- val.(FSTransferProgress)
+		}
+		close(progressCh)
+	}()
+
+	return progressCh, nil
 }

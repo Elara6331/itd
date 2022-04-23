@@ -11,7 +11,6 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 	"go.arsenm.dev/itd/api"
-	"go.arsenm.dev/itd/internal/types"
 )
 
 func upgradeTab(parent fyne.Window, client *api.Client) *fyne.Container {
@@ -119,10 +118,10 @@ func upgradeTab(parent fyne.Window, client *api.Client) *fyne.Container {
 		// Get appropriate upgrade type and file paths
 		switch upgradeTypeSelect.Selected {
 		case "Archive":
-			fwUpgType = types.UpgradeTypeArchive
+			fwUpgType = api.UpgradeTypeArchive
 			files = append(files, archivePath)
 		case "Files":
-			fwUpgType = types.UpgradeTypeFiles
+			fwUpgType = api.UpgradeTypeFiles
 			files = append(files, initPktPath, firmwarePath)
 		}
 
@@ -144,7 +143,7 @@ func upgradeTab(parent fyne.Window, client *api.Client) *fyne.Container {
 			// Refresh progress bar
 			progressBar.Refresh()
 			// If transfer finished, break
-			if event.Sent == event.Total {
+			if int64(event.Sent) == event.Total {
 				break
 			}
 		}
