@@ -54,6 +54,11 @@ func main() {
 		return
 	}
 
+	level, err := zerolog.ParseLevel(k.String("logging.level"))
+	if err != nil || level == zerolog.NoLevel {
+		level = zerolog.InfoLevel
+	}
+
 	// Initialize infinitime library
 	infinitime.Init()
 	// Cleanly exit after function
@@ -66,7 +71,7 @@ func main() {
 		Whitelist:        k.Strings("conn.whitelist.devices"),
 		OnReqPasskey:     onReqPasskey,
 		Logger:           log.Logger,
-		LogLevel:         zerolog.WarnLevel,
+		LogLevel:         level,
 	}
 
 	// Connect to InfiniTime with default options
