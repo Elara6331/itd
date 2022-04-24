@@ -636,42 +636,53 @@ func getMsgSender(ctx context.Context, srv *server.Server) (MessageSender, bool)
 
 }
 
+// The MessageSender interface sends messages to the client
 type MessageSender interface {
 	SendMessage(servicePath, serviceMethod string, metadata map[string]string, data []byte) error
 }
 
+// rpcMsgSender sends messages using RPCX, for clients that support it
 type rpcMsgSender struct {
 	srv  *server.Server
 	conn net.Conn
 }
 
+// SendMessage uses the server to send an RPCX message back to the client
 func (r *rpcMsgSender) SendMessage(servicePath, serviceMethod string, metadata map[string]string, data []byte) error {
-
 	return r.srv.SendMessage(r.conn, servicePath, serviceMethod, metadata, data)
 }
 
+// httpMsgSender sends messages to the given return URL, for clients that provide it
 type httpMsgSender struct {
 	url string
 }
 
+// SendMessage uses HTTP to send a message back to the client
 func (h *httpMsgSender) SendMessage(servicePath, serviceMethod string, metadata map[string]string, data []byte) error {
+	// Create new POST request with provided URL
 	req, err := http.NewRequest(http.MethodPost, h.url, bytes.NewReader(data))
 	if err != nil {
 		return err
 	}
 
+	// Set service path and method headers
 	req.Header.Set("X-RPCX-ServicePath", servicePath)
 	req.Header.Set("X-RPCX-ServiceMethod", serviceMethod)
 
+	// Create new URL query values
 	query := url.Values{}
+	// Transfer values from metadata to query
 	for k, v := range metadata {
 		query.Set(k, v)
 	}
+	// Set metadata header by encoding query values
 	req.Header.Set("X-RPCX-Meta", query.Encode())
 
+	// Perform request
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
+	// Close body
 	return res.Body.Close()
 }
