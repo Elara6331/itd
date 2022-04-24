@@ -2,6 +2,8 @@ package main
 
 import (
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -174,6 +176,49 @@ func main() {
 					},
 				},
 			},
+			{
+				Name:  "watch",
+				Usage: "Watch a value for changes",
+				Subcommands: []*cli.Command{
+					{
+						Flags: []cli.Flag{
+							&cli.BoolFlag{Name: "json"},
+							&cli.BoolFlag{Name: "shell"},
+						},
+						Name:   "heart",
+						Usage:  "Watch heart rate value for changes",
+						Action: watchHeart,
+					},
+					{
+						Flags: []cli.Flag{
+							&cli.BoolFlag{Name: "json"},
+							&cli.BoolFlag{Name: "shell"},
+						},
+						Name:   "steps",
+						Usage:  "Watch step count value for changes",
+						Action: watchStepCount,
+					},
+					{
+						Flags: []cli.Flag{
+							&cli.BoolFlag{Name: "json"},
+							&cli.BoolFlag{Name: "shell"},
+						},
+						Name:   "motion",
+						Usage:  "Watch motion coordinates for changes",
+						Action: watchMotion,
+					},
+					{
+						Flags: []cli.Flag{
+							&cli.BoolFlag{Name: "json"},
+							&cli.BoolFlag{Name: "shell"},
+						},
+						Name:    "battery",
+						Aliases: []string{"batt"},
+						Usage:   "Watch battery level value for changes",
+						Action:  watchBattLevel,
+					},
+				},
+			},
 		},
 		Before: func(c *cli.Context) error {
 			newClient, err := api.New(c.String("socket-path"))
@@ -195,4 +240,18 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error while running app")
 	}
+}
+
+func catchSignal(fn func()) {
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(
+		sigCh,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
+	go func() {
+		<-sigCh
+		fn()
+		os.Exit(0)
+	}()
 }
