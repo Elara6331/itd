@@ -560,8 +560,8 @@ github.com/yuin/goldmark v1.4.0/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.4.1/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.4.4 h1:zNWRjYUW32G9KirMXYHQHVNFkXvMI7LpgNW2AgYAoIs=
 github.com/yuin/goldmark v1.4.4/go.mod h1:rmuwmfZ0+bvzB24eSC//bk1R1Zp3hM0OXYv/G2LIilg=
-go.arsenm.dev/infinitime v0.0.0-20220424014025-bebd1017c532 h1:HOFaxlEKacGw1nDs23qRv+FTX+PR+v4l1Sujfq5S3pc=
-go.arsenm.dev/infinitime v0.0.0-20220424014025-bebd1017c532/go.mod h1:1cBQ3fp6QlRbSqu9kEBAHsVThINj31FtqHIYVsQ7wgg=
+go.arsenm.dev/infinitime v0.0.0-20220424030849-6c3f1b14c948 h1:OX1SyEIFz4ae2z468lBQvRTNRvqLEwjfJ8lcssUH5+w=
+go.arsenm.dev/infinitime v0.0.0-20220424030849-6c3f1b14c948/go.mod h1:1cBQ3fp6QlRbSqu9kEBAHsVThINj31FtqHIYVsQ7wgg=
 go.opencensus.io v0.18.0/go.mod h1:vKdFvxhtzZ9onBp9VKHK8z/sRpBMnKAsufL7wlDrCOA=
 go.opentelemetry.io/otel v0.19.0/go.mod h1:j9bF567N9EfomkSidSfmMwIwIBuP37AMAIzVW85OxSg=
 go.opentelemetry.io/otel v1.6.3 h1:FLOfo8f9JzFVFVyU+MSRJc2HdEAXQgm7pIv2uFKRSZE=

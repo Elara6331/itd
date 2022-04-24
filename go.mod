@@ -15,7 +15,7 @@ require (
 	github.com/smallnest/rpcx v1.7.4
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/vmihailenco/msgpack/v5 v5.3.5
-	go.arsenm.dev/infinitime v0.0.0-20220424014025-bebd1017c532
+	go.arsenm.dev/infinitime v0.0.0-20220424030849-6c3f1b14c948
 	golang.org/x/text v0.3.7
 )
 

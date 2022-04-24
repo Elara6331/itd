@@ -29,3 +29,6 @@
 [weather]
     enabled = true
     location = "Los Angeles, CA"
+
+[logging]
+    level = "info"
