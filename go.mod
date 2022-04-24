@@ -11,11 +11,11 @@ require (
 	github.com/knadh/koanf v1.4.0
 	github.com/mattn/go-isatty v0.0.14
 	github.com/mozillazg/go-pinyin v0.19.0
-	github.com/rs/zerolog v1.26.0
+	github.com/rs/zerolog v1.26.1
 	github.com/smallnest/rpcx v1.7.4
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/vmihailenco/msgpack/v5 v5.3.5
-	go.arsenm.dev/infinitime v0.0.0-20220416112421-b7a50271bece
+	go.arsenm.dev/infinitime v0.0.0-20220424014025-bebd1017c532
 	golang.org/x/text v0.3.7
 )
 
