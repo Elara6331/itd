@@ -3,8 +3,8 @@ package api
 import (
 	"context"
 
-	"github.com/smallnest/rpcx/client"
-	"github.com/smallnest/rpcx/protocol"
+	"github.com/smallnest/rpcxlite/client"
+	"github.com/smallnest/rpcxlite/protocol"
 	"github.com/vmihailenco/msgpack/v5"
 	"go.arsenm.dev/infinitime"
 )

@@ -33,8 +33,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
-	"github.com/smallnest/rpcx/server"
-	"github.com/smallnest/rpcx/share"
+	"github.com/smallnest/rpcxlite/server"
+	"github.com/smallnest/rpcxlite/share"
 	"github.com/vmihailenco/msgpack/v5"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/infinitime/blefs"
@@ -121,7 +121,7 @@ func startSocket(dev *infinitime.Device) error {
 		return err
 	}
 
-	go srv.ServeListener("tcp", ln)
+	go srv.ServeListener("unix", ln)
 
 	// Log socket start
 	log.Info().Str("path", k.String("socket.path")).Msg("Started control socket")

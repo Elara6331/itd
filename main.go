@@ -26,6 +26,8 @@ import (
 	"strconv"
 	"time"
 
+	rpcxlog "github.com/smallnest/rpcxlite/log"
+
 	"github.com/gen2brain/dlgs"
 	"github.com/knadh/koanf"
 	"github.com/mattn/go-isatty"
@@ -33,6 +35,11 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
 )
+
+func init() {
+	// Disable rpcxlite logging
+	rpcxlog.SetDummyLogger()
+}
 
 var k = koanf.New(".")
 
