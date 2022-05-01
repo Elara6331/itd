@@ -20,7 +20,7 @@ func New(sockPath string) (*Client, error) {
 	}
 
 	out := &Client{
-		client: client.New(conn, codec.JSON),
+		client: client.New(conn, codec.Default),
 	}
 	return out, nil
 }

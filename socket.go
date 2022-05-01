@@ -112,7 +112,7 @@ func startSocket(dev *infinitime.Device) error {
 		return err
 	}
 
-	go srv.Serve(ln, codec.JSON)
+	go srv.Serve(ln, codec.Default)
 
 	// Log socket start
 	log.Info().Str("path", k.String("socket.path")).Msg("Started control socket")
