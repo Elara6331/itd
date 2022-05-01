@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,6 +16,13 @@ var client *api.Client
 
 func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+
+	ctx := context.Background()
+	ctx, _ = signal.NotifyContext(
+		ctx,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
 
 	app := cli.App{
 		Name: "itctl",
@@ -236,22 +244,8 @@ func main() {
 		},
 	}
 
-	err := app.Run(os.Args)
+	err := app.RunContext(ctx, os.Args)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error while running app")
 	}
-}
-
-func catchSignal(fn func()) {
-	sigCh := make(chan os.Signal, 1)
-	signal.Notify(
-		sigCh,
-		syscall.SIGINT,
-		syscall.SIGTERM,
-	)
-	go func() {
-		<-sigCh
-		fn()
-		os.Exit(0)
-	}()
 }

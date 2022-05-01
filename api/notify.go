@@ -1,16 +1,12 @@
 package api
 
-import (
-	"context"
-)
-
 func (c *Client) Notify(title, body string) error {
-	return c.itdClient.Call(
-		context.Background(),
+	return c.client.Call(
+		"ITD",
 		"Notify",
 		NotifyData{
 			Title: title,
-			Body: body,
+			Body:  body,
 		},
 		nil,
 	)
