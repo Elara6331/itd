@@ -46,29 +46,6 @@ var (
 	ErrDFUInvalidUpgType = errors.New("invalid upgrade type")
 )
 
-type DoneMap map[string]chan struct{}
-
-func (dm DoneMap) Exists(key string) bool {
-	_, ok := dm[key]
-	return ok
-}
-
-func (dm DoneMap) Done(key string) {
-	ch := dm[key]
-	ch <- struct{}{}
-}
-
-func (dm DoneMap) Create(key string) {
-	dm[key] = make(chan struct{}, 1)
-}
-
-func (dm DoneMap) Remove(key string) {
-	close(dm[key])
-	delete(dm, key)
-}
-
-var done = DoneMap{}
-
 func startSocket(dev *infinitime.Device) error {
 	// Make socket directory if non-existant
 	err := os.MkdirAll(filepath.Dir(k.String("socket.path")), 0755)
