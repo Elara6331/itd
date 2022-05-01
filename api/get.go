@@ -1,14 +1,12 @@
 package api
 
 import (
-	"context"
-
 	"go.arsenm.dev/infinitime"
 )
 
 func (c *Client) HeartRate() (out uint8, err error) {
-	err = c.itdClient.Call(
-		context.Background(),
+	err = c.client.Call(
+		"ITD",
 		"HeartRate",
 		nil,
 		&out,
@@ -17,8 +15,8 @@ func (c *Client) HeartRate() (out uint8, err error) {
 }
 
 func (c *Client) BatteryLevel() (out uint8, err error) {
-	err = c.itdClient.Call(
-		context.Background(),
+	err = c.client.Call(
+		"ITD",
 		"BatteryLevel",
 		nil,
 		&out,
@@ -27,8 +25,8 @@ func (c *Client) BatteryLevel() (out uint8, err error) {
 }
 
 func (c *Client) Motion() (out infinitime.MotionValues, err error) {
-	err = c.itdClient.Call(
-		context.Background(),
+	err = c.client.Call(
+		"ITD",
 		"Motion",
 		nil,
 		&out,
@@ -37,8 +35,8 @@ func (c *Client) Motion() (out infinitime.MotionValues, err error) {
 }
 
 func (c *Client) StepCount() (out uint32, err error) {
-	err = c.itdClient.Call(
-		context.Background(),
+	err = c.client.Call(
+		"ITD",
 		"StepCount",
 		nil,
 		&out,
@@ -47,8 +45,8 @@ func (c *Client) StepCount() (out uint32, err error) {
 }
 
 func (c *Client) Version() (out string, err error) {
-	err = c.itdClient.Call(
-		context.Background(),
+	err = c.client.Call(
+		"ITD",
 		"Version",
 		nil,
 		&out,
@@ -57,8 +55,8 @@ func (c *Client) Version() (out string, err error) {
 }
 
 func (c *Client) Address() (out string, err error) {
-	err = c.itdClient.Call(
-		context.Background(),
+	err = c.client.Call(
+		"ITD",
 		"Address",
 		nil,
 		&out,
