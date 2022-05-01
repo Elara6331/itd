@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
@@ -19,7 +21,7 @@ func notifyTab(parent fyne.Window, client *api.Client) *fyne.Container {
 
 	// Create new button to send notification
 	sendBtn := widget.NewButton("Send", func() {
-		err := client.Notify(titleEntry.Text, bodyEntry.Text)
+		err := client.Notify(context.Background(), titleEntry.Text, bodyEntry.Text)
 		if err != nil {
 			guiErr(err, "Error sending notification", false, parent)
 			return

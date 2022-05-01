@@ -8,7 +8,7 @@ func notify(c *cli.Context) error {
 		return cli.Exit("Command notify requires two arguments", 1)
 	}
 
-	err := client.Notify(c.Args().Get(0), c.Args().Get(1))
+	err := client.Notify(c.Context, c.Args().Get(0), c.Args().Get(1))
 	if err != nil {
 		return err
 	}

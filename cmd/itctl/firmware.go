@@ -28,7 +28,7 @@ func fwUpgrade(c *cli.Context) error {
 		return cli.Exit("Upgrade command requires either archive or init packet and firmware.", 1)
 	}
 
-	progress, err := client.FirmwareUpgrade(upgType, abs(files)...)
+	progress, err := client.FirmwareUpgrade(c.Context, upgType, abs(files)...)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func fwUpgrade(c *cli.Context) error {
 }
 
 func fwVersion(c *cli.Context) error {
-	version, err := client.Version()
+	version, err := client.Version(c.Context)
 	if err != nil {
 		return err
 	}

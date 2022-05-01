@@ -17,7 +17,7 @@ func fsList(c *cli.Context) error {
 		dirPath = c.Args().Get(0)
 	}
 
-	listing, err := client.ReadDir(dirPath)
+	listing, err := client.ReadDir(c.Context, dirPath)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func fsMkdir(c *cli.Context) error {
 		return cli.Exit("Command mkdir requires one or more arguments", 1)
 	}
 
-	err := client.Mkdir(c.Args().Slice()...)
+	err := client.Mkdir(c.Context, c.Args().Slice()...)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func fsMove(c *cli.Context) error {
 		return cli.Exit("Command move requires two arguments", 1)
 	}
 
-	err := client.Rename(c.Args().Get(0), c.Args().Get(1))
+	err := client.Rename(c.Context, c.Args().Get(0), c.Args().Get(1))
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func fsRead(c *cli.Context) error {
 		}
 	}
 
-	progress, err := client.Download(path, c.Args().Get(0))
+	progress, err := client.Download(c.Context, path, c.Args().Get(0))
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func fsRemove(c *cli.Context) error {
 		return cli.Exit("Command remove requires one or more arguments", 1)
 	}
 
-	err := client.Remove(c.Args().Slice()...)
+	err := client.Remove(c.Context, c.Args().Slice()...)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func fsWrite(c *cli.Context) error {
 		defer os.Remove(path)
 	}
 
-	progress, err := client.Upload(c.Args().Get(1), path)
+	progress, err := client.Upload(c.Context, c.Args().Get(1), path)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"image/color"
 	"strconv"
 
@@ -44,6 +45,10 @@ func motionTab(parent fyne.Window, client *api.Client) *fyne.Container {
 
 	// Create button to stop motion
 	stopBtn := widget.NewButton("Stop", nil)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	onClose = append(onClose, cancel)
+
 	// Create button to start motion
 	startBtn := widget.NewButton("Start", func() {
 		// if motion is started
@@ -54,7 +59,7 @@ func motionTab(parent fyne.Window, client *api.Client) *fyne.Container {
 		// Set motion started
 		started = true
 		// Watch motion values
-		motionCh, cancel, err := client.WatchMotion()
+		motionCh, err := client.WatchMotion(ctx)
 		if err != nil {
 			guiErr(err, "Error getting heart rate channel", true, parent)
 		}

@@ -1,7 +1,10 @@
 package api
 
-func (c *Client) Notify(title, body string) error {
+import "context"
+
+func (c *Client) Notify(ctx context.Context, title, body string) error {
 	return c.client.Call(
+		ctx,
 		"ITD",
 		"Notify",
 		NotifyData{

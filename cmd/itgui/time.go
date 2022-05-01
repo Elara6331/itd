@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -49,9 +50,9 @@ func timeTab(parent fyne.Window, client *api.Client) *fyne.Container {
 func setTime(client *api.Client, current bool, t ...time.Time) error {
 	var err error
 	if current {
-		err = client.SetTime(time.Now())
+		err = client.SetTime(context.Background(), time.Now())
 	} else {
-		err = client.SetTime(t[0])
+		err = client.SetTime(context.Background(), t[0])
 	}
 	if err != nil {
 		return err
