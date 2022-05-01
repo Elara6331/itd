@@ -13,12 +13,12 @@ func setTime(c *cli.Context) error {
 	}
 
 	if c.Args().Get(0) == "now" {
-		return client.SetTime(time.Now())
+		return client.SetTime(c.Context, time.Now())
 	} else {
 		parsed, err := time.Parse(time.RFC3339, c.Args().Get(0))
 		if err != nil {
 			return err
 		}
-		return client.SetTime(parsed)
+		return client.SetTime(c.Context, parsed)
 	}
 }

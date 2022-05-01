@@ -2,6 +2,8 @@ module go.arsenm.dev/itd
 
 go 1.17
 
+replace go.arsenm.dev/lrpc => /home/arsen/Code/lrpc
+
 require (
 	fyne.io/fyne/v2 v2.1.2
 	github.com/cheggaaa/pb/v3 v3.0.8
@@ -13,7 +15,7 @@ require (
 	github.com/rs/zerolog v1.26.1
 	github.com/urfave/cli/v2 v2.3.0
 	go.arsenm.dev/infinitime v0.0.0-20220424030849-6c3f1b14c948
-	go.arsenm.dev/lrpc v0.0.0-20220501205436-6df8cf53c6e6
+	go.arsenm.dev/lrpc v0.0.0-20220501221746-f1aa0f5c4f8f
 	golang.org/x/text v0.3.7
 )
 

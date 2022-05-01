@@ -9,7 +9,7 @@ import (
 )
 
 func getAddress(c *cli.Context) error {
-	address, err := client.Address()
+	address, err := client.Address(c.Context)
 	if err != nil {
 		return err
 	}
@@ -19,7 +19,7 @@ func getAddress(c *cli.Context) error {
 }
 
 func getBattery(c *cli.Context) error {
-	battLevel, err := client.BatteryLevel()
+	battLevel, err := client.BatteryLevel(c.Context)
 	if err != nil {
 		return err
 	}
@@ -30,7 +30,7 @@ func getBattery(c *cli.Context) error {
 }
 
 func getHeart(c *cli.Context) error {
-	heartRate, err := client.HeartRate()
+	heartRate, err := client.HeartRate(c.Context)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func getHeart(c *cli.Context) error {
 }
 
 func getMotion(c *cli.Context) error {
-	motionVals, err := client.Motion()
+	motionVals, err := client.Motion(c.Context)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func getMotion(c *cli.Context) error {
 }
 
 func getSteps(c *cli.Context) error {
-	stepCount, err := client.StepCount()
+	stepCount, err := client.StepCount(c.Context)
 	if err != nil {
 		return err
 	}

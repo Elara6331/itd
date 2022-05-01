@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 
@@ -125,7 +126,7 @@ func upgradeTab(parent fyne.Window, client *api.Client) *fyne.Container {
 			files = append(files, initPktPath, firmwarePath)
 		}
 
-		progress, err := client.FirmwareUpgrade(fwUpgType, files...)
+		progress, err := client.FirmwareUpgrade(context.Background(), fwUpgType, files...)
 		if err != nil {
 			guiErr(err, "Error initiating DFU", false, parent)
 			return

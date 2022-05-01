@@ -1,7 +1,10 @@
 package api
 
-func (c *Client) Remove(paths ...string) error {
+import "context"
+
+func (c *Client) Remove(ctx context.Context, paths ...string) error {
 	return c.client.Call(
+		ctx,
 		"FS",
 		"Remove",
 		paths,
@@ -9,8 +12,9 @@ func (c *Client) Remove(paths ...string) error {
 	)
 }
 
-func (c *Client) Rename(old, new string) error {
+func (c *Client) Rename(ctx context.Context, old, new string) error {
 	return c.client.Call(
+		ctx,
 		"FS",
 		"Rename",
 		[2]string{old, new},
@@ -18,8 +22,9 @@ func (c *Client) Rename(old, new string) error {
 	)
 }
 
-func (c *Client) Mkdir(paths ...string) error {
+func (c *Client) Mkdir(ctx context.Context, paths ...string) error {
 	return c.client.Call(
+		ctx,
 		"FS",
 		"Mkdir",
 		paths,
@@ -27,8 +32,9 @@ func (c *Client) Mkdir(paths ...string) error {
 	)
 }
 
-func (c *Client) ReadDir(dir string) (out []FileInfo, err error) {
+func (c *Client) ReadDir(ctx context.Context, dir string) (out []FileInfo, err error) {
 	err = c.client.Call(
+		ctx,
 		"FS",
 		"ReadDir",
 		dir,
@@ -37,9 +43,10 @@ func (c *Client) ReadDir(dir string) (out []FileInfo, err error) {
 	return
 }
 
-func (c *Client) Upload(dst, src string) (chan FSTransferProgress, error) {
+func (c *Client) Upload(ctx context.Context, dst, src string) (chan FSTransferProgress, error) {
 	progressCh := make(chan FSTransferProgress, 5)
 	err := c.client.Call(
+		ctx,
 		"FS",
 		"Upload",
 		[2]string{dst, src},
@@ -52,9 +59,10 @@ func (c *Client) Upload(dst, src string) (chan FSTransferProgress, error) {
 	return progressCh, nil
 }
 
-func (c *Client) Download(dst, src string) (chan FSTransferProgress, error) {
+func (c *Client) Download(ctx context.Context, dst, src string) (chan FSTransferProgress, error) {
 	progressCh := make(chan FSTransferProgress, 5)
 	err := c.client.Call(
+		ctx,
 		"FS",
 		"Download",
 		[2]string{dst, src},

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"image/color"
 
@@ -27,11 +28,13 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	)
 	infoLayout.Add(heartRateSect)
 
-	heartRateCh, cancel, err := client.WatchHeartRate()
+	ctx, cancel := context.WithCancel(context.Background())
+	onClose = append(onClose, cancel)
+
+	heartRateCh, err := client.WatchHeartRate(ctx)
 	if err != nil {
 		guiErr(err, "Error getting heart rate channel", true, parent)
 	}
-	onClose = append(onClose, cancel)
 	go func() {
 		for heartRate := range heartRateCh {
 			// Change text of heart rate label
@@ -51,11 +54,10 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	)
 	infoLayout.Add(stepCountSect)
 
-	stepCountCh, cancel, err := client.WatchStepCount()
+	stepCountCh, err := client.WatchStepCount(ctx)
 	if err != nil {
 		guiErr(err, "Error getting step count channel", true, parent)
 	}
-	onClose = append(onClose, cancel)
 	go func() {
 		for stepCount := range stepCountCh {
 			// Change text of heart rate label
@@ -75,11 +77,10 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	)
 	infoLayout.Add(battLevel)
 
-	battLevelCh, cancel, err := client.WatchBatteryLevel()
+	battLevelCh, err := client.WatchBatteryLevel(ctx)
 	if err != nil {
 		guiErr(err, "Error getting battery level channel", true, parent)
 	}
-	onClose = append(onClose, cancel)
 	go func() {
 		for battLevel := range battLevelCh {
 			// Change text of battery level label
@@ -89,7 +90,7 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 		}
 	}()
 
-	fwVerString, err := client.Version()
+	fwVerString, err := client.Version(context.Background())
 	if err != nil {
 		guiErr(err, "Error getting firmware string", true, parent)
 	}
@@ -101,7 +102,7 @@ func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
 	)
 	infoLayout.Add(fwVer)
 
-	btAddrString, err := client.Address()
+	btAddrString, err := client.Address(context.Background())
 	if err != nil {
 		panic(err)
 	}
