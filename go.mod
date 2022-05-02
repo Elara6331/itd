@@ -2,8 +2,6 @@ module go.arsenm.dev/itd
 
 go 1.17
 
-replace go.arsenm.dev/lrpc => /home/arsen/Code/lrpc
-
 require (
 	fyne.io/fyne/v2 v2.1.2
 	github.com/cheggaaa/pb/v3 v3.0.8
