@@ -34,7 +34,7 @@ The socket uses my [lrpc](https://gitea.arsenm.dev/Arsen6331/lrpc) library for r
 {"Receiver": "ITD", "Method": "Notify", "Arg": {"title": "title1", "body": "body1"}, "ID": "some-id-here"}
 ```
 
-It will return a msgpack response, the format of which can be found [here](https://gitea.arsenm.dev/Arsen6331/lrpc/src/branch/master/internal/types/types.go#L12). The response will have the same ID as was sent in the request in order to allow the client to keep track of which request the response belongs to.
+It will return a msgpack response, the format of which can be found [here](https://gitea.arsenm.dev/Arsen6331/lrpc/src/branch/master/internal/types/types.go#L30). The response will have the same ID as was sent in the request in order to allow the client to keep track of which request the response belongs to.
 
 ---
 
