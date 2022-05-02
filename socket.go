@@ -35,11 +35,6 @@ import (
 	"go.arsenm.dev/lrpc/server"
 )
 
-// This type signifies an unneeded value.
-// A struct{} is used as it takes no space in memory.
-// This exists for readability purposes
-type none = struct{}
-
 var (
 	ErrDFUInvalidFile    = errors.New("provided file is invalid for given upgrade type")
 	ErrDFUNotEnoughFiles = errors.New("not enough files provided for given upgrade type")
