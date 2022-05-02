@@ -13,7 +13,7 @@ require (
 	github.com/rs/zerolog v1.26.1
 	github.com/urfave/cli/v2 v2.3.0
 	go.arsenm.dev/infinitime v0.0.0-20220424030849-6c3f1b14c948
-	go.arsenm.dev/lrpc v0.0.0-20220502043916-bbc9774a96d2
+	go.arsenm.dev/lrpc v0.0.0-20220502232450-5e99a660073e
 	golang.org/x/text v0.3.7
 )
 
@@ -52,7 +52,7 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yuin/goldmark v1.4.1 // indirect
 	golang.org/x/image v0.0.0-20200430140353-33d19683fad8 // indirect
-	golang.org/x/net v0.0.0-20220407224826-aac1ed45d8e3 // indirect
+	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/sys v0.0.0-20220408201424-a24fb2fb8a0f // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
