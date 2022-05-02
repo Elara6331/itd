@@ -20,7 +20,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"os"
@@ -116,7 +115,6 @@ func (i *ITD) WatchHeartRate(ctx *server.Context) error {
 		for {
 			select {
 			case <-ctx.Done():
-				fmt.Println("ctx done")
 				// Stop notifications if done signal received
 				cancel()
 				return
