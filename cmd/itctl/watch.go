@@ -14,19 +14,22 @@ func watchHeart(c *cli.Context) error {
 		return err
 	}
 
-	for heartRate := range heartCh {
-		if c.Bool("json") {
-			json.NewEncoder(os.Stdout).Encode(
-				map[string]uint8{"heartRate": heartRate},
-			)
-		} else if c.Bool("shell") {
-			fmt.Printf("HEART_RATE=%d\n", heartRate)
-		} else {
-			fmt.Println(heartRate, "BPM")
+	for {
+		select {
+		case heartRate := <-heartCh:
+			if c.Bool("json") {
+				json.NewEncoder(os.Stdout).Encode(
+					map[string]uint8{"heartRate": heartRate},
+				)
+			} else if c.Bool("shell") {
+				fmt.Printf("HEART_RATE=%d\n", heartRate)
+			} else {
+				fmt.Println(heartRate, "BPM")
+			}
+		case <-c.Done():
+			return nil
 		}
 	}
-
-	return nil
 }
 
 func watchBattLevel(c *cli.Context) error {
@@ -35,19 +38,22 @@ func watchBattLevel(c *cli.Context) error {
 		return err
 	}
 
-	for battLevel := range battLevelCh {
-		if c.Bool("json") {
-			json.NewEncoder(os.Stdout).Encode(
-				map[string]uint8{"battLevel": battLevel},
-			)
-		} else if c.Bool("shell") {
-			fmt.Printf("BATTERY_LEVEL=%d\n", battLevel)
-		} else {
-			fmt.Printf("%d%%\n", battLevel)
+	for {
+		select {
+		case battLevel := <-battLevelCh:
+			if c.Bool("json") {
+				json.NewEncoder(os.Stdout).Encode(
+					map[string]uint8{"battLevel": battLevel},
+				)
+			} else if c.Bool("shell") {
+				fmt.Printf("BATTERY_LEVEL=%d\n", battLevel)
+			} else {
+				fmt.Printf("%d%%\n", battLevel)
+			}
+		case <-c.Done():
+			return nil
 		}
 	}
-
-	return nil
 }
 
 func watchStepCount(c *cli.Context) error {
@@ -56,19 +62,22 @@ func watchStepCount(c *cli.Context) error {
 		return err
 	}
 
-	for stepCount := range stepCountCh {
-		if c.Bool("json") {
-			json.NewEncoder(os.Stdout).Encode(
-				map[string]uint32{"stepCount": stepCount},
-			)
-		} else if c.Bool("shell") {
-			fmt.Printf("STEP_COUNT=%d\n", stepCount)
-		} else {
-			fmt.Println(stepCount, "Steps")
+	for {
+		select {
+		case stepCount := <-stepCountCh:
+			if c.Bool("json") {
+				json.NewEncoder(os.Stdout).Encode(
+					map[string]uint32{"stepCount": stepCount},
+				)
+			} else if c.Bool("shell") {
+				fmt.Printf("STEP_COUNT=%d\n", stepCount)
+			} else {
+				fmt.Println(stepCount, "Steps")
+			}
+		case <-c.Done():
+			return nil
 		}
 	}
-
-	return nil
 }
 
 func watchMotion(c *cli.Context) error {
@@ -77,20 +86,23 @@ func watchMotion(c *cli.Context) error {
 		return err
 	}
 
-	for motionVals := range motionCh {
-		if c.Bool("json") {
-			json.NewEncoder(os.Stdout).Encode(motionVals)
-		} else if c.Bool("shell") {
-			fmt.Printf(
-				"X=%d\nY=%d\nZ=%d\n",
-				motionVals.X,
-				motionVals.Y,
-				motionVals.Z,
-			)
-		} else {
-			fmt.Println(motionVals)
+	for {
+		select {
+		case motionVals := <-motionCh:
+			if c.Bool("json") {
+				json.NewEncoder(os.Stdout).Encode(motionVals)
+			} else if c.Bool("shell") {
+				fmt.Printf(
+					"X=%d\nY=%d\nZ=%d\n",
+					motionVals.X,
+					motionVals.Y,
+					motionVals.Z,
+				)
+			} else {
+				fmt.Println(motionVals)
+			}
+		case <-c.Done():
+			return nil
 		}
 	}
-
-	return nil
 }
