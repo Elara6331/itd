@@ -19,6 +19,8 @@
 - Set current time
 - Control socket
 - Firmware upgrades
+- Weather
+- BLE Filesystem
 
 ---
 
@@ -26,15 +28,13 @@
 
 This daemon creates a UNIX socket at `/tmp/itd/socket`. It allows you to directly control the daemon and, by extension, the connected watch.
 
-The socket accepts JSON requests. For example, sending a notification looks like this:
+The socket uses my [lrpc](https://gitea.arsenm.dev/Arsen6331/lrpc) library for requests. This library accepts requests in msgpack, with the following format:
 
 ```json
-{"type": 5, "data": {"title": "title1", "body": "body1"}}
+{"Receiver": "ITD", "Method": "Notify", "Arg": {"title": "title1", "body": "body1"}, "ID": "some-id-here"}
 ```
 
-It will return a JSON response. A response can have 3 fields: `error`, `msg`, and `value`. Error is a boolean that signals whether an error was returned. If error is true, the msg field will contain the error. Value can contain any data and depends on what the request was.
-
-The various request types and their data requirements can be seen in `internal/types`. I can make separate docs for it if I get enough requests.
+It will return a msgpack response, the format of which can be found [here](https://gitea.arsenm.dev/Arsen6331/lrpc/src/branch/master/internal/types/types.go#L12). The response will have the same ID as was sent in the request in order to allow the client to keep track of which request the response belongs to.
 
 ---
 
