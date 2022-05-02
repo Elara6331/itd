@@ -10,7 +10,7 @@ all: version.txt
 clean:
 	rm -f itctl
 	rm -f itd
-	printf "unknown" > version.txt
+	rm -f version.txt
 
 install:
 	install -Dm755 ./itd $(BIN_PREFIX)/itd
