@@ -16,7 +16,7 @@ func (c *Client) FirmwareUpgrade(ctx context.Context, upgType UpgradeType, files
 			Type:  upgType,
 			Files: files,
 		},
-		&progressCh,
+		progressCh,
 	)
 	if err != nil {
 		return nil, err
