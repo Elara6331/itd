@@ -198,8 +198,8 @@ github.com/yuin/goldmark v1.3.8/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.4.0/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.4.1 h1:/vn0k+RBvwlxEmP5E7SZMqNxPhfMVFEJiykr15/0XKM=
 github.com/yuin/goldmark v1.4.1/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
-go.arsenm.dev/infinitime v0.0.0-20220424030849-6c3f1b14c948 h1:OX1SyEIFz4ae2z468lBQvRTNRvqLEwjfJ8lcssUH5+w=
-go.arsenm.dev/infinitime v0.0.0-20220424030849-6c3f1b14c948/go.mod h1:1cBQ3fp6QlRbSqu9kEBAHsVThINj31FtqHIYVsQ7wgg=
+go.arsenm.dev/infinitime v0.0.0-20220503031446-5e5eef15dc4c h1:N743kUJJVRQ5wsK6/fJMA3fLordceti3WACEnI0EZ+I=
+go.arsenm.dev/infinitime v0.0.0-20220503031446-5e5eef15dc4c/go.mod h1:1cBQ3fp6QlRbSqu9kEBAHsVThINj31FtqHIYVsQ7wgg=
 go.arsenm.dev/lrpc v0.0.0-20220502232450-5e99a660073e h1:JFnaJK9Ew6u+qpUfapjmlZL0wX64PfqcGnlLMjVdRng=
 go.arsenm.dev/lrpc v0.0.0-20220502232450-5e99a660073e/go.mod h1:3Apd8bykiyd+L+bR/ANzT/CbVn60a5vM6zsH9jSp59U=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
