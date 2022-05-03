@@ -55,6 +55,8 @@ func cfgWatch(provider *file.File) {
 
 func setCfgDefaults() {
 	k.Load(confmap.Provider(map[string]interface{}{
+		"bluetooth.adapter": "hci0",
+
 		"socket.path": "/tmp/itd/socket",
 
 		"conn.reconnect": true,

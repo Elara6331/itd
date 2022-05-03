@@ -1,3 +1,6 @@
+[bluetooth]
+    adapter = "hci0"
+
 [socket]
     path = "/tmp/itd/socket"
 

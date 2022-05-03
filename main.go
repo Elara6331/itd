@@ -60,7 +60,7 @@ func main() {
 	}
 
 	// Initialize infinitime library
-	infinitime.Init()
+	infinitime.Init(k.String("bluetooth.adapter"))
 	// Cleanly exit after function
 	defer infinitime.Exit()
 
