@@ -12,7 +12,7 @@ require (
 	github.com/mozillazg/go-pinyin v0.19.0
 	github.com/rs/zerolog v1.26.1
 	github.com/urfave/cli/v2 v2.3.0
-	go.arsenm.dev/infinitime v0.0.0-20220503031446-5e5eef15dc4c
+	go.arsenm.dev/infinitime v0.0.0-20220503032016-65fa04d36093
 	go.arsenm.dev/lrpc v0.0.0-20220502232450-5e99a660073e
 	golang.org/x/text v0.3.7
 )
