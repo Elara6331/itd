@@ -11,51 +11,47 @@ import (
 	"go.arsenm.dev/itd/api"
 )
 
-func timeTab(parent fyne.Window, client *api.Client) *fyne.Container {
-	// Create new entry for time string
+func timeTab(ctx context.Context, client *api.Client, w fyne.Window) fyne.CanvasObject {
+	c := container.NewVBox()
+	c.Add(layout.NewSpacer())
+
+	// Create entry for time string
 	timeEntry := widget.NewEntry()
-	// Set text to current time formatter properly
 	timeEntry.SetText(time.Now().Format(time.RFC1123))
+	timeEntry.SetPlaceHolder("RFC1123")
 
 	// Create button to set current time
-	currentBtn := widget.NewButton("Set Current", func() {
-		timeEntry.SetText(time.Now().Format(time.RFC1123))
-		setTime(client, true)
-	})
-
-	// Create button to set time inside entry
-	timeBtn := widget.NewButton("Set", func() {
-		// Parse time as RFC1123 string
-		parsedTime, err := time.Parse(time.RFC1123, timeEntry.Text)
+	setCurrentBtn := widget.NewButton("Set current time", func() {
+		// Set current time
+		err := client.SetTime(ctx, time.Now())
 		if err != nil {
-			guiErr(err, "Error parsing time string", false, parent)
+			guiErr(err, "Error setting time", false, w)
 			return
 		}
-		// Set time to parsed time
-		setTime(client, false, parsedTime)
+		// Set time entry to current time
+		timeEntry.SetText(time.Now().Format(time.RFC1123))
 	})
 
-	// Return new container with all elements centered
-	return container.NewVBox(
-		layout.NewSpacer(),
-		timeEntry,
-		currentBtn,
-		timeBtn,
-		layout.NewSpacer(),
-	)
-}
+	// Create button to set time from entry
+	setBtn := widget.NewButton("Set", func() {
+		// Parse RFC1123 time string in entry
+		newTime, err := time.Parse(time.RFC1123, timeEntry.Text)
+		if err != nil {
+			guiErr(err, "Error parsing time string", false, w)
+			return
+		}
+		// Set time from parsed string
+		err = client.SetTime(ctx, newTime)
+		if err != nil {
+			guiErr(err, "Error setting time", false, w)
+			return
+		}
+	})
 
-// setTime sets the first element in the variadic parameter
-// if current is false, otherwise, it sets the current time.
-func setTime(client *api.Client, current bool, t ...time.Time) error {
-	var err error
-	if current {
-		err = client.SetTime(context.Background(), time.Now())
-	} else {
-		err = client.SetTime(context.Background(), t[0])
-	}
-	if err != nil {
-		return err
-	}
-	return nil
+	c.Add(timeEntry)
+	c.Add(setBtn)
+	c.Add(setCurrentBtn)
+
+	c.Add(layout.NewSpacer())
+	return c
 }
