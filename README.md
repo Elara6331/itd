@@ -113,34 +113,21 @@ go build ./cmd/itgui
 
 #### Screenshots
 
-![Info tab](https://i.imgur.com/okxG9EI.png)
+![Info tab](cmd/itgui/screenshots/info.png)
 
-![Notify tab](https://i.imgur.com/DrVhOAq.png)
+![Motion tab](cmd/itgui/screenshots/motion.png)
 
-![Set time tab](https://i.imgur.com/j9civeY.png)
+![Notify tab](cmd/itgui/screenshots/notify.png)
 
-![Upgrade tab](https://i.imgur.com/1KY6fG4.png)
+![FS tab](cmd/itgui/screenshots/fs.png)
 
-![Upgrade in progress](https://i.imgur.com/w5qbWAw.png)
+![FS mkdir](cmd/itgui/screenshots/mkdir.png)
 
----
+![Time tab](cmd/itgui/screenshots/time.png)
 
-#### Interactive mode
+![Firmware tab](cmd/itgui/screenshots/firmware.png)
 
-Running `itctl` by itself will open interactive mode. It's essentially a shell where you can enter commands. For example:
-
-```
-$ itctl                        
-itctl> fw ver
-1.3.0
-itctl> get batt
-81%
-itctl> get heart
-92 BPM
-itctl> set time 2021-08-22T00:06:18-07:00
-itctl> set time now
-itctl> exit
-```
+![Upgrade in progress](cmd/itgui/screenshots/progress.png)
 
 ---
 
