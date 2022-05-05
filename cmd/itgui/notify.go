@@ -10,30 +10,31 @@ import (
 	"go.arsenm.dev/itd/api"
 )
 
-func notifyTab(parent fyne.Window, client *api.Client) *fyne.Container {
-	// Create new entry for notification title
+func notifyTab(ctx context.Context, client *api.Client, w fyne.Window) fyne.CanvasObject {
+	c := container.NewVBox()
+	c.Add(layout.NewSpacer())
+
+	// Create new entry for title
 	titleEntry := widget.NewEntry()
 	titleEntry.SetPlaceHolder("Title")
+	c.Add(titleEntry)
 
-	// Create multiline entry for notification body
+	// Create new multiline entry for body
 	bodyEntry := widget.NewMultiLineEntry()
 	bodyEntry.SetPlaceHolder("Body")
+	c.Add(bodyEntry)
 
-	// Create new button to send notification
+	// Create new send button
 	sendBtn := widget.NewButton("Send", func() {
-		err := client.Notify(context.Background(), titleEntry.Text, bodyEntry.Text)
+		// Send notification
+		err := client.Notify(ctx, titleEntry.Text, bodyEntry.Text)
 		if err != nil {
-			guiErr(err, "Error sending notification", false, parent)
+			guiErr(err, "Error sending notification", false, w)
 			return
 		}
 	})
+	c.Add(sendBtn)
 
-	// Return new container containing all elements
-	return container.NewVBox(
-		layout.NewSpacer(),
-		titleEntry,
-		bodyEntry,
-		sendBtn,
-		layout.NewSpacer(),
-	)
+	c.Add(layout.NewSpacer())
+	return container.NewVScroll(c)
 }

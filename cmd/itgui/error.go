@@ -28,10 +28,15 @@ func guiErr(err error, msg string, fatal bool, parent fyne.Window) {
 	)
 	if err != nil {
 		// Create new label containing error text
-		errLbl := widget.NewLabel(err.Error())
+		errEntry := widget.NewEntry()
+		errEntry.SetText(err.Error())
+		// If text changed, change it back
+		errEntry.OnChanged = func(string) {
+			errEntry.SetText(err.Error())
+		}
 		// Create new dropdown containing error label
 		content.Add(widget.NewAccordion(
-			widget.NewAccordionItem("More Details", errLbl),
+			widget.NewAccordionItem("More Details", errEntry),
 		))
 	}
 	if fatal {
@@ -49,5 +54,4 @@ func guiErr(err error, msg string, fatal bool, parent fyne.Window) {
 		// Show error dialog
 		dialog.NewCustom("Error", "Ok", content, parent).Show()
 	}
-
 }

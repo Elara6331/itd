@@ -3,122 +3,84 @@ package main
 import (
 	"context"
 	"fmt"
-	"image/color"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/theme"
 	"go.arsenm.dev/itd/api"
 )
 
-func infoTab(parent fyne.Window, client *api.Client) *fyne.Container {
-	infoLayout := container.NewVBox(
-		// Add rectangle for a bit of padding
-		canvas.NewRectangle(color.Transparent),
-	)
+func infoTab(ctx context.Context, client *api.Client, w fyne.Window) fyne.CanvasObject {
+	c := container.NewVBox()
 
-	// Create label for heart rate
-	heartRateLbl := newText("0 BPM", 24)
-	// Creae container to store heart rate section
-	heartRateSect := container.NewVBox(
-		newText("Heart Rate", 12),
-		heartRateLbl,
-		canvas.NewLine(theme.ShadowColor()),
-	)
-	infoLayout.Add(heartRateSect)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	onClose = append(onClose, cancel)
-
+	// Create titled text for heart rate
+	heartRateText := newTitledText("Heart Rate", "0 BPM")
+	c.Add(heartRateText)
+	// Watch heart rate
 	heartRateCh, err := client.WatchHeartRate(ctx)
 	if err != nil {
-		guiErr(err, "Error getting heart rate channel", true, parent)
+		guiErr(err, "Error watching heart rate", true, w)
 	}
 	go func() {
+		// For every heart rate sample
 		for heartRate := range heartRateCh {
-			// Change text of heart rate label
-			heartRateLbl.Text = fmt.Sprintf("%d BPM", heartRate)
-			// Refresh label
-			heartRateLbl.Refresh()
+			// Set body of titled text
+			heartRateText.SetBody(fmt.Sprintf("%d BPM", heartRate))
 		}
 	}()
 
-	// Create label for heart rate
-	stepCountLbl := newText("0 Steps", 24)
-	// Creae container to store heart rate section
-	stepCountSect := container.NewVBox(
-		newText("Step Count", 12),
-		stepCountLbl,
-		canvas.NewLine(theme.ShadowColor()),
-	)
-	infoLayout.Add(stepCountSect)
-
-	stepCountCh, err := client.WatchStepCount(ctx)
-	if err != nil {
-		guiErr(err, "Error getting step count channel", true, parent)
-	}
-	go func() {
-		for stepCount := range stepCountCh {
-			// Change text of heart rate label
-			stepCountLbl.Text = fmt.Sprintf("%d Steps", stepCount)
-			// Refresh label
-			stepCountLbl.Refresh()
-		}
-	}()
-
-	// Create label for battery level
-	battLevelLbl := newText("0%", 24)
-	// Create container to store battery level section
-	battLevel := container.NewVBox(
-		newText("Battery Level", 12),
-		battLevelLbl,
-		canvas.NewLine(theme.ShadowColor()),
-	)
-	infoLayout.Add(battLevel)
-
+	// Create titled text for battery level
+	battLevelText := newTitledText("Battery Level", "0%")
+	c.Add(battLevelText)
+	// Watch battery level
 	battLevelCh, err := client.WatchBatteryLevel(ctx)
 	if err != nil {
-		guiErr(err, "Error getting battery level channel", true, parent)
+		guiErr(err, "Error watching battery level", true, w)
 	}
 	go func() {
+		// For every battery level sample
 		for battLevel := range battLevelCh {
-			// Change text of battery level label
-			battLevelLbl.Text = fmt.Sprintf("%d%%", battLevel)
-			// Refresh label
-			battLevelLbl.Refresh()
+			// Set body of titled text
+			battLevelText.SetBody(fmt.Sprintf("%d%%", battLevel))
 		}
 	}()
 
-	fwVerString, err := client.Version(context.Background())
+	// Create titled text for step count
+	stepCountText := newTitledText("Step Count", "0 Steps")
+	c.Add(stepCountText)
+	// Watch step count
+	stepCountCh, err := client.WatchStepCount(ctx)
 	if err != nil {
-		guiErr(err, "Error getting firmware string", true, parent)
+		guiErr(err, "Error watching step count", true, w)
 	}
+	go func() {
+		// For every step count sample
+		for stepCount := range stepCountCh {
+			// Set body of titled text
+			stepCountText.SetBody(fmt.Sprintf("%d Steps", stepCount))
+		}
+	}()
 
-	fwVer := container.NewVBox(
-		newText("Firmware Version", 12),
-		newText(fwVerString, 24),
-		canvas.NewLine(theme.ShadowColor()),
-	)
-	infoLayout.Add(fwVer)
-
-	btAddrString, err := client.Address(context.Background())
+	// Create new titled text for address
+	addressText := newTitledText("Address", "")
+	c.Add(addressText)
+	// Get address
+	address, err := client.Address(ctx)
 	if err != nil {
-		panic(err)
+		guiErr(err, "Error getting address", true, w)
 	}
+	// Set body of titled text
+	addressText.SetBody(address)
 
-	btAddr := container.NewVBox(
-		newText("Bluetooth Address", 12),
-		newText(btAddrString, 24),
-		canvas.NewLine(theme.ShadowColor()),
-	)
-	infoLayout.Add(btAddr)
+	// Create new titled text for version
+	versionText := newTitledText("Version", "")
+	c.Add(versionText)
+	// Get version
+	version, err := client.Version(ctx)
+	if err != nil {
+		guiErr(err, "Error getting version", true, w)
+	}
+	// Set body of titled text
+	versionText.SetBody(version)
 
-	return infoLayout
-}
-
-func newText(t string, size float32) *canvas.Text {
-	text := canvas.NewText(t, theme.ForegroundColor())
-	text.TextSize = size
-	return text
+	return container.NewVScroll(c)
 }
