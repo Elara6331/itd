@@ -1,6 +1,7 @@
 package api
 
 import (
+	"io"
 	"net"
 
 	"go.arsenm.dev/lrpc/client"
@@ -23,6 +24,12 @@ func New(sockPath string) (*Client, error) {
 		client: client.New(conn, codec.Default),
 	}
 	return out, nil
+}
+
+func NewFromConn(conn io.ReadWriteCloser) *Client {
+	return &Client{
+		client: client.New(conn, codec.Default),
+	}
 }
 
 func (c *Client) Close() error {
