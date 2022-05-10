@@ -13,7 +13,7 @@ require (
 	github.com/rs/zerolog v1.26.1
 	github.com/urfave/cli/v2 v2.3.0
 	go.arsenm.dev/infinitime v0.0.0-20220505193916-1533865e4c42
-	go.arsenm.dev/lrpc v0.0.0-20220507220206-a7a2dc32706b
+	go.arsenm.dev/lrpc v0.0.0-20220510090735-af77b121f888
 	golang.org/x/text v0.3.7
 )
 
