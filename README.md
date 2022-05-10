@@ -133,7 +133,7 @@ go build ./cmd/itgui
 
 ### Installation
 
-To install, install the go compiler and make. Usually, go is provided by a package either named `go` or `golang`, and make is usually provided by `make`. The go compiler must be version 1.16 or newer for the `io/fs` module.
+To install, install the go compiler and make. Usually, go is provided by a package either named `go` or `golang`, and make is usually provided by `make`. The go compiler must be version 1.17 or newer for various new `reflect` features.
 
 To install, run
 ```shell
