@@ -4,6 +4,22 @@
 [socket]
     path = "/tmp/itd/socket"
 
+[metrics]
+    enabled = false
+
+    [metrics.heartRate]
+        enabled = true
+
+    [metrics.stepCount]
+        enabled = true
+
+    [metrics.battLevel]
+        enabled = true
+
+    [metrics.motion]
+        # This may lower the battery life of the PineTime
+        enabled = false
+
 [conn]
     reconnect = true
 
