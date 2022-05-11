@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"path/filepath"
 	"time"
@@ -10,7 +11,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func initMetrics(dev *infinitime.Device) error {
+func initMetrics(ctx context.Context, dev *infinitime.Device) error {
 	// If metrics disabled, return nil
 	if !k.Bool("metrics.enabled") {
 		return nil
@@ -49,7 +50,7 @@ func initMetrics(dev *infinitime.Device) error {
 	// If heart rate metrics enabled in config
 	if k.Bool("metrics.heartRate.enabled") {
 		// Watch heart rate
-		heartRateCh, _, err := dev.WatchHeartRate()
+		heartRateCh, err := dev.WatchHeartRate(ctx)
 		if err != nil {
 			return err
 		}
@@ -67,7 +68,7 @@ func initMetrics(dev *infinitime.Device) error {
 	// If step count metrics enabled in config
 	if k.Bool("metrics.stepCount.enabled") {
 		// Watch step count
-		stepCountCh, _, err := dev.WatchStepCount()
+		stepCountCh, err := dev.WatchStepCount(ctx)
 		if err != nil {
 			return err
 		}
@@ -85,7 +86,7 @@ func initMetrics(dev *infinitime.Device) error {
 	// If battery level metrics enabled in config
 	if k.Bool("metrics.battLevel.enabled") {
 		// Watch battery level
-		battLevelCh, _, err := dev.WatchBatteryLevel()
+		battLevelCh, err := dev.WatchBatteryLevel(ctx)
 		if err != nil {
 			return err
 		}
@@ -103,7 +104,7 @@ func initMetrics(dev *infinitime.Device) error {
 	// If motion metrics enabled in config
 	if k.Bool("metrics.motion.enabled") {
 		// Watch motion values
-		motionCh, _, err := dev.WatchMotion()
+		motionCh, err := dev.WatchMotion(ctx)
 		if err != nil {
 			return err
 		}

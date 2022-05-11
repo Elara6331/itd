@@ -19,11 +19,14 @@
 package main
 
 import (
+	"context"
 	_ "embed"
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/gen2brain/dlgs"
@@ -74,8 +77,24 @@ func main() {
 		LogLevel:         level,
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigCh := make(chan os.Signal, 1)
+	go func() {
+		<-sigCh
+		cancel()
+		time.Sleep(200 * time.Millisecond)
+		os.Exit(0)
+	}()
+	signal.Notify(
+		sigCh,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+	)
+
 	// Connect to InfiniTime with default options
-	dev, err := infinitime.Connect(opts)
+	dev, err := infinitime.Connect(ctx, opts)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error connecting to InfiniTime")
 	}
@@ -136,25 +155,25 @@ func main() {
 	}
 
 	// Start control socket
-	err = initCallNotifs(dev)
+	err = initCallNotifs(ctx, dev)
 	if err != nil {
 		log.Error().Err(err).Msg("Error initializing call notifications")
 	}
 
 	// Initialize notification relay
-	err = initNotifRelay(dev)
+	err = initNotifRelay(ctx, dev)
 	if err != nil {
 		log.Error().Err(err).Msg("Error initializing notification relay")
 	}
 
 	// Initializa weather
-	err = initWeather(dev)
+	err = initWeather(ctx, dev)
 	if err != nil {
 		log.Error().Err(err).Msg("Error initializing weather")
 	}
 
 	// Initialize metrics collection
-	err = initMetrics(dev)
+	err = initMetrics(ctx, dev)
 	if err != nil {
 		log.Error().Err(err).Msg("Error intializing metrics collection")
 	}

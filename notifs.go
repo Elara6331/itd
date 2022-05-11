@@ -19,6 +19,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/godbus/dbus/v5"
@@ -27,9 +28,9 @@ import (
 	"go.arsenm.dev/itd/translit"
 )
 
-func initNotifRelay(dev *infinitime.Device) error {
+func initNotifRelay(ctx context.Context, dev *infinitime.Device) error {
 	// Connect to dbus session bus
-	bus, err := newSessionBusConn()
+	bus, err := newSessionBusConn(ctx)
 	if err != nil {
 		return err
 	}
@@ -40,7 +41,9 @@ func initNotifRelay(dev *infinitime.Device) error {
 	}
 	var flag uint = 0
 	// Becode monitor for notifications
-	call := bus.BusObject().Call("org.freedesktop.DBus.Monitoring.BecomeMonitor", 0, rules, flag)
+	call := bus.BusObject().CallWithContext(
+		ctx, "org.freedesktop.DBus.Monitoring.BecomeMonitor", 0, rules, flag,
+	)
 	if call.Err != nil {
 		return call.Err
 	}
