@@ -36,6 +36,11 @@ func main() {
 		container.NewTabItem("Firmware", firmwareTab(ctx, client, w)),
 	)
 
+	metricsTab := graphTab(ctx, client, w)
+	if metricsTab != nil {
+		tabs.Append(container.NewTabItem("Metrics", metricsTab))
+	}
+
 	// When a tab is selected
 	tabs.OnSelected = func(ti *container.TabItem) {
 		// If the tab's name is FS

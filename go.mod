@@ -2,8 +2,11 @@ module go.arsenm.dev/itd
 
 go 1.17
 
+replace fyne.io/x/fyne => github.com/metal3d/fyne-x v0.0.0-20220508095732-177117e583fb
+
 require (
 	fyne.io/fyne/v2 v2.1.4
+	fyne.io/x/fyne v0.0.0-20220107050838-c4a1de51d4ce
 	github.com/cheggaaa/pb/v3 v3.0.8
 	github.com/gen2brain/dlgs v0.0.0-20211108104213-bade24837f0b
 	github.com/godbus/dbus/v5 v5.0.6
