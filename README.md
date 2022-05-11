@@ -129,6 +129,8 @@ go build ./cmd/itgui
 
 ![Upgrade in progress](cmd/itgui/screenshots/progress.png)
 
+![Metrics tab](cmd/itgui/screenshots/metrics.png)
+
 ---
 
 ### Installation
