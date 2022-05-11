@@ -13,14 +13,39 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var cfgDir string
+
 func init() {
 	// Set up logger
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
 	// Get user's configuration directory
-	cfgDir, err := os.UserConfigDir()
+	userCfgDir, err := os.UserConfigDir()
 	if err != nil {
 		panic(err)
+	}
+	cfgDir = filepath.Join(userCfgDir, "itd")
+
+	// If config dir is not readable
+	if _, err = os.ReadDir(cfgDir); err != nil {
+		// Create config dir with 700 permissions
+		err = os.MkdirAll(cfgDir, 0700)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// Get current and old config paths
+	cfgPath := filepath.Join(cfgDir, "itd.toml")
+	oldCfgPath := filepath.Join(userCfgDir, "itd.toml")
+
+	// If old config path exists
+	if _, err = os.Stat(oldCfgPath); err == nil {
+		// Move old config to new path
+		err = os.Rename(oldCfgPath, cfgPath)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// Set config defaults
@@ -28,7 +53,7 @@ func init() {
 
 	// Load config files
 	etcProvider := file.Provider("/etc/itd.toml")
-	cfgProvider := file.Provider(filepath.Join(cfgDir, "itd.toml"))
+	cfgProvider := file.Provider(cfgPath)
 	k.Load(etcProvider, toml.Parser())
 	k.Load(cfgProvider, toml.Parser())
 

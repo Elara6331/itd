@@ -153,12 +153,17 @@ func main() {
 		log.Error().Err(err).Msg("Error initializing weather")
 	}
 
+	// Initialize metrics collection
+	err = initMetrics(dev)
+	if err != nil {
+		log.Error().Err(err).Msg("Error intializing metrics collection")
+	}
+
 	// Start control socket
 	err = startSocket(dev)
 	if err != nil {
 		log.Error().Err(err).Msg("Error starting socket")
 	}
-
 	// Block forever
 	select {}
 }
