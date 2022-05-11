@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"sync"
 
 	"github.com/godbus/dbus/v5"
@@ -8,15 +9,15 @@ import (
 	"go.arsenm.dev/infinitime"
 )
 
-func initCallNotifs(dev *infinitime.Device) error {
+func initCallNotifs(ctx context.Context, dev *infinitime.Device) error {
 	// Connect to system bus. This connection is for method calls.
-	conn, err := newSystemBusConn()
+	conn, err := newSystemBusConn(ctx)
 	if err != nil {
 		return err
 	}
 
 	// Check if modem manager interface exists
-	exists, err := modemManagerExists(conn)
+	exists, err := modemManagerExists(ctx, conn)
 	if err != nil {
 		return err
 	}
@@ -28,7 +29,7 @@ func initCallNotifs(dev *infinitime.Device) error {
 	}
 
 	// Connect to system bus. This connection is for monitoring.
-	monitorConn, err := newSystemBusConn()
+	monitorConn, err := newSystemBusConn(ctx)
 	if err != nil {
 		return err
 	}
@@ -78,13 +79,13 @@ func initCallNotifs(dev *infinitime.Device) error {
 					switch res {
 					case infinitime.CallStatusAccepted:
 						// Attempt to accept call
-						err = acceptCall(conn, callObj)
+						err = acceptCall(ctx, conn, callObj)
 						if err != nil {
 							log.Warn().Err(err).Msg("Error accepting call")
 						}
 					case infinitime.CallStatusDeclined:
 						// Attempt to decline call
-						err = declineCall(conn, callObj)
+						err = declineCall(ctx, conn, callObj)
 						if err != nil {
 							log.Warn().Err(err).Msg("Error declining call")
 						}
@@ -101,9 +102,11 @@ func initCallNotifs(dev *infinitime.Device) error {
 	return nil
 }
 
-func modemManagerExists(conn *dbus.Conn) (bool, error) {
+func modemManagerExists(ctx context.Context, conn *dbus.Conn) (bool, error) {
 	var names []string
-	err := conn.BusObject().Call("org.freedesktop.DBus.ListNames", 0).Store(&names)
+	err := conn.BusObject().CallWithContext(
+		ctx, "org.freedesktop.DBus.ListNames", 0,
+	).Store(&names)
 	if err != nil {
 		return false, err
 	}
@@ -122,9 +125,11 @@ func getPhoneNum(conn *dbus.Conn, callObj dbus.BusObject) (string, error) {
 }
 
 // getPhoneNum accepts a call using a DBus connection
-func acceptCall(conn *dbus.Conn, callObj dbus.BusObject) error {
+func acceptCall(ctx context.Context, conn *dbus.Conn, callObj dbus.BusObject) error {
 	// Call Accept() method on DBus object
-	call := callObj.Call("org.freedesktop.ModemManager1.Call.Accept", 0)
+	call := callObj.CallWithContext(
+		ctx, "org.freedesktop.ModemManager1.Call.Accept", 0,
+	)
 	if call.Err != nil {
 		return call.Err
 	}
@@ -132,9 +137,11 @@ func acceptCall(conn *dbus.Conn, callObj dbus.BusObject) error {
 }
 
 // getPhoneNum declines a call using a DBus connection
-func declineCall(conn *dbus.Conn, callObj dbus.BusObject) error {
+func declineCall(ctx context.Context, conn *dbus.Conn, callObj dbus.BusObject) error {
 	// Call Hangup() method on DBus object
-	call := callObj.Call("org.freedesktop.ModemManager1.Call.Hangup", 0)
+	call := callObj.CallWithContext(
+		ctx, "org.freedesktop.ModemManager1.Call.Hangup", 0,
+	)
 	if call.Err != nil {
 		return call.Err
 	}

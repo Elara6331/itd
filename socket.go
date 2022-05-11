@@ -105,22 +105,15 @@ func (i *ITD) WatchHeartRate(ctx *server.Context) error {
 		return err
 	}
 
-	heartRateCh, cancel, err := i.dev.WatchHeartRate()
+	heartRateCh, err := i.dev.WatchHeartRate(ctx)
 	if err != nil {
 		return err
 	}
 
 	go func() {
 		// For every heart rate value
-		for {
-			select {
-			case <-ctx.Done():
-				// Stop notifications if done signal received
-				cancel()
-				return
-			case heartRate := <-heartRateCh:
-				ch <- heartRate
-			}
+		for heartRate := range heartRateCh {
+			ch <- heartRate
 		}
 	}()
 
@@ -137,22 +130,15 @@ func (i *ITD) WatchBatteryLevel(ctx *server.Context) error {
 		return err
 	}
 
-	battLevelCh, cancel, err := i.dev.WatchBatteryLevel()
+	battLevelCh, err := i.dev.WatchBatteryLevel(ctx)
 	if err != nil {
 		return err
 	}
 
 	go func() {
 		// For every heart rate value
-		for {
-			select {
-			case <-ctx.Done():
-				// Stop notifications if done signal received
-				cancel()
-				return
-			case battLevel := <-battLevelCh:
-				ch <- battLevel
-			}
+		for battLevel := range battLevelCh {
+			ch <- battLevel
 		}
 	}()
 
@@ -169,22 +155,15 @@ func (i *ITD) WatchMotion(ctx *server.Context) error {
 		return err
 	}
 
-	motionValsCh, cancel, err := i.dev.WatchMotion()
+	motionValsCh, err := i.dev.WatchMotion(ctx)
 	if err != nil {
 		return err
 	}
 
 	go func() {
 		// For every heart rate value
-		for {
-			select {
-			case <-ctx.Done():
-				// Stop notifications if done signal received
-				cancel()
-				return
-			case motionVals := <-motionValsCh:
-				ch <- motionVals
-			}
+		for motionVals := range motionValsCh {
+			ch <- motionVals
 		}
 	}()
 
@@ -201,22 +180,15 @@ func (i *ITD) WatchStepCount(ctx *server.Context) error {
 		return err
 	}
 
-	stepCountCh, cancel, err := i.dev.WatchStepCount()
+	stepCountCh, err := i.dev.WatchStepCount(ctx)
 	if err != nil {
 		return err
 	}
 
 	go func() {
 		// For every heart rate value
-		for {
-			select {
-			case <-ctx.Done():
-				// Stop notifications if done signal received
-				cancel()
-				return
-			case stepCount := <-stepCountCh:
-				ch <- stepCount
-			}
+		for stepCount := range stepCountCh {
+			ch <- stepCount
 		}
 	}()
 

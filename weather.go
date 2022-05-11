@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -60,13 +61,13 @@ type OSMData []struct {
 
 var sendWeatherCh = make(chan struct{}, 1)
 
-func initWeather(dev *infinitime.Device) error {
+func initWeather(ctx context.Context, dev *infinitime.Device) error {
 	if !k.Bool("weather.enabled") {
 		return nil
 	}
 
 	// Get location based on string in config
-	lat, lon, err := getLocation(k.String("weather.location"))
+	lat, lon, err := getLocation(ctx, k.String("weather.location"))
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func initWeather(dev *infinitime.Device) error {
 	go func() {
 		for {
 			// Attempt to get weather
-			data, err := getWeather(lat, lon)
+			data, err := getWeather(ctx, lat, lon)
 			if err != nil {
 				log.Warn().Err(err).Msg("Error getting weather data")
 				// Wait 15 minutes before retrying
@@ -181,10 +182,14 @@ func initWeather(dev *infinitime.Device) error {
 
 // getLocation returns the latitude and longitude
 // given a location
-func getLocation(loc string) (lat, lon float64, err error) {
+func getLocation(ctx context.Context, loc string) (lat, lon float64, err error) {
 	// Create request URL and perform GET request
 	reqURL := fmt.Sprintf("https://nominatim.openstreetmap.org/search.php?q=%s&format=jsonv2", url.QueryEscape(loc))
-	res, err := http.Get(reqURL)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
+	if err != nil {
+		return
+	}
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return
 	}
@@ -218,9 +223,10 @@ func getLocation(loc string) (lat, lon float64, err error) {
 }
 
 // getWeather gets weather data given a latitude and longitude
-func getWeather(lat, lon float64) (*METResponse, error) {
+func getWeather(ctx context.Context, lat, lon float64) (*METResponse, error) {
 	// Create new GET request
-	req, err := http.NewRequest(
+	req, err := http.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		fmt.Sprintf(
 			"https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=%.2f&lon=%.2f",
