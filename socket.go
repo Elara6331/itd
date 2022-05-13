@@ -19,6 +19,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"io"
 	"net"
@@ -40,7 +41,7 @@ var (
 	ErrDFUInvalidUpgType = errors.New("invalid upgrade type")
 )
 
-func startSocket(dev *infinitime.Device) error {
+func startSocket(ctx context.Context, dev *infinitime.Device) error {
 	// Make socket directory if non-existant
 	err := os.MkdirAll(filepath.Dir(k.String("socket.path")), 0755)
 	if err != nil {
@@ -83,7 +84,7 @@ func startSocket(dev *infinitime.Device) error {
 		return err
 	}
 
-	go srv.Serve(ln, codec.Default)
+	go srv.Serve(ctx, ln, codec.Default)
 
 	// Log socket start
 	log.Info().Str("path", k.String("socket.path")).Msg("Started control socket")

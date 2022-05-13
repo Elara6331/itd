@@ -179,7 +179,7 @@ func main() {
 	}
 
 	// Start control socket
-	err = startSocket(dev)
+	err = startSocket(ctx, dev)
 	if err != nil {
 		log.Error().Err(err).Msg("Error starting socket")
 	}
