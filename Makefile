@@ -4,8 +4,8 @@ SERVICE_PREFIX = $(DESTDIR)$(PREFIX)/lib/systemd/user
 CFG_PREFIX = $(DESTDIR)/etc
 
 all: version.txt
-	go build $(GOFLAGS)
-	go build ./cmd/itctl $(GOFLAGS)
+	go build
+	go build ./cmd/itctl
 
 clean:
 	rm -f itctl
