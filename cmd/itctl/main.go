@@ -26,6 +26,7 @@ func main() {
 
 	app := cli.App{
 		Name: "itctl",
+		HideHelpCommand: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "socket-path",
@@ -35,6 +36,12 @@ func main() {
 			},
 		},
 		Commands: []*cli.Command{
+			{
+				Name: "help",
+				ArgsUsage: "<command>",
+				Usage: "Display help screen for a command",
+				Action: helpCmd,
+			},
 			{
 				Name:    "filesystem",
 				Aliases: []string{"fs"},
@@ -229,11 +236,13 @@ func main() {
 			},
 		},
 		Before: func(c *cli.Context) error {
-			newClient, err := api.New(c.String("socket-path"))
-			if err != nil {
-				return err
+			if !isHelpCmd() {
+				newClient, err := api.New(c.String("socket-path"))
+				if err != nil {
+					return err
+				}
+				client = newClient
 			}
-			client = newClient
 			return nil
 		},
 		After: func(*cli.Context) error {
@@ -248,4 +257,22 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error while running app")
 	}
+}
+
+func helpCmd(c *cli.Context) error {
+	cmdArgs := append([]string{os.Args[0]}, c.Args().Slice()...)
+	cmdArgs = append(cmdArgs, "-h")
+	return c.App.RunContext(c.Context, cmdArgs)
+}
+
+func isHelpCmd() bool {
+	if len(os.Args) == 1 {
+		return true
+	}
+	for _, arg := range os.Args {
+		if arg == "-h" || arg == "help" {
+			return true
+		}
+	}
+	return false
 }
