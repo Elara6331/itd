@@ -1,6 +1,7 @@
 package main
 
 import (
+	"time"
 	"context"
 	"os"
 	"os/signal"
@@ -23,6 +24,13 @@ func main() {
 		syscall.SIGINT,
 		syscall.SIGTERM,
 	)
+	
+	// This goroutine ensures that itc
+	go func() {
+		<-ctx.Done()
+		time.Sleep(200*time.Millisecond)
+		os.Exit(0)
+	}()
 
 	app := cli.App{
 		Name: "itctl",
