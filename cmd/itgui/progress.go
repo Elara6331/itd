@@ -29,7 +29,7 @@ func newProgress(w fyne.Window) progress {
 	// Create new rectangle to set the size of the popup
 	sizeRect := canvas.NewRectangle(color.Transparent)
 	sizeRect.SetMinSize(fyne.NewSize(300, 50))
-	
+
 	// Create vbox for label and progress bar
 	l := container.NewVBox(out.lbl, out.pb)
 	// Create popup
