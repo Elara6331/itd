@@ -25,7 +25,8 @@ func main() {
 		syscall.SIGTERM,
 	)
 	
-	// This goroutine ensures that itc
+	// This goroutine ensures that itctl will exit
+	// at most 200ms after the user sends SIGINT/SIGTERM.
 	go func() {
 		<-ctx.Done()
 		time.Sleep(200*time.Millisecond)
