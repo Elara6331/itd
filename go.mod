@@ -4,6 +4,8 @@ go 1.17
 
 replace fyne.io/x/fyne => github.com/metal3d/fyne-x v0.0.0-20220508095732-177117e583fb
 
+replace github.com/muka/go-bluetooth => github.com/Arsen6331/go-bluetooth v0.0.0-20220814070311-fc0969aa82ed
+
 require (
 	fyne.io/fyne/v2 v2.1.4
 	fyne.io/x/fyne v0.0.0-20220107050838-c4a1de51d4ce
