@@ -15,7 +15,7 @@ require (
 	github.com/mozillazg/go-pinyin v0.19.0
 	github.com/rs/zerolog v1.26.1
 	github.com/urfave/cli/v2 v2.3.0
-	go.arsenm.dev/infinitime v0.0.0-20220511202257-9ed74726c478
+	go.arsenm.dev/infinitime v0.0.0-20220819210252-d199fba93c2f
 	go.arsenm.dev/lrpc v0.0.0-20220513001344-3bcc01fdb6a0
 	golang.org/x/text v0.3.7
 	modernc.org/sqlite v1.17.2
@@ -42,7 +42,7 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
-	github.com/muka/go-bluetooth v0.0.0-20220219050759-674a63b8741a // indirect
+	github.com/muka/go-bluetooth v0.0.0-20220819140550-1d8857e3b268 // indirect
 	github.com/pelletier/go-toml v1.9.3 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
