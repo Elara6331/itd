@@ -105,11 +105,21 @@ Use "itctl [command] --help" for more information about a command.
 
 ### `itgui`
 
-In `cmd/itgui`, there is a gui frontend to the socket of `itd`. It uses the [fyne library](https://fyne.io/) for Go. It can be compiled by running:
+In `cmd/itgui`, there is a gui frontend to the socket of `itd`. It uses the [Fyne library](https://fyne.io/) for Go.
+
+#### Compilation
+
+Before compiling, certain prerequisites must be installed. These are listed on the following page: https://developer.fyne.io/started/#prerequisites
+
+It can be compiled by running:
 
 ```shell
 go build ./cmd/itgui
 ```
+
+#### Cross-compilation
+
+Due to the use of OpenGL, cross-compilation of `itgui` isn't as simple as that of `itd` and `itctl`. The following guide from the Fyne website should work for `itgui`: https://developer.fyne.io/started/cross-compiling.
 
 #### Screenshots
 
