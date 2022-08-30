@@ -424,6 +424,31 @@ func (fs *FS) Download(ctx *server.Context, paths [2]string) error {
 	return nil
 }
 
+func (fs *FS) LoadResources(ctx *server.Context, path string) error {
+	resFl, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	progCh, err := infinitime.LoadResources(resFl, fs.fs)
+	if err != nil {
+		return err
+	}
+
+	ch, err := ctx.MakeChannel()
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		for evt := range progCh {
+			ch <- evt
+		}
+	}()
+
+	return nil
+}
+
 func (fs *FS) updateFS() {
 	if fs.fs == nil || updateFS {
 		// Get new FS
