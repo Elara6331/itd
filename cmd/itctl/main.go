@@ -1,11 +1,11 @@
 package main
 
 import (
-	"time"
 	"context"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -24,17 +24,17 @@ func main() {
 		syscall.SIGINT,
 		syscall.SIGTERM,
 	)
-	
+
 	// This goroutine ensures that itctl will exit
 	// at most 200ms after the user sends SIGINT/SIGTERM.
 	go func() {
 		<-ctx.Done()
-		time.Sleep(200*time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 		os.Exit(0)
 	}()
 
 	app := cli.App{
-		Name: "itctl",
+		Name:            "itctl",
 		HideHelpCommand: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -46,10 +46,23 @@ func main() {
 		},
 		Commands: []*cli.Command{
 			{
-				Name: "help",
+				Name:      "help",
 				ArgsUsage: "<command>",
-				Usage: "Display help screen for a command",
-				Action: helpCmd,
+				Usage:     "Display help screen for a command",
+				Action:    helpCmd,
+			},
+			{
+				Name:    "resources",
+				Aliases: []string{"res"},
+				Usage:   "Handle InfiniTime resource loading",
+				Subcommands: []*cli.Command{
+					{
+						Name:      "load",
+						ArgsUsage: "<path>",
+						Usage:     "Load an InifiniTime resources package",
+						Action:    resourcesLoad,
+					},
+				},
 			},
 			{
 				Name:    "filesystem",
