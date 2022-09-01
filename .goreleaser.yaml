@@ -1,0 +1,112 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+builds:
+  - id: itd
+    env:
+      - CGO_ENABLED=0
+    binary: itd
+    goos:
+      - linux
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+  - id: itctl
+    env:
+      - CGO_ENABLED=0
+    main: ./cmd/itctl
+    binary: itctl
+    goos:
+      - linux
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+archives:
+  - replacements:
+      386: i386
+      amd64: x86_64
+      arm64: aarch64
+    files:
+      - LICENSE
+      - README.md
+      - itd.toml
+      - itd.service
+nfpms:
+  - id: itd
+    file_name_template: '{{.PackageName}}-{{.Version}}-{{.Os}}-{{.Arch}}'
+    description: "Companion daemon for the InfiniTime firmware on the PineTime smartwatch"
+    replacements:
+      386: i386
+      amd64: x86_64
+      arm64: aarch64
+    homepage: 'https://gitea.arsenm.dev/Arsen6331/itd'
+    maintainer: 'Arsen Musyaelyan <arsen@arsenm.dev>'
+    license: GPLv3
+    formats:
+      - apk
+      - deb
+      - rpm
+    dependencies:
+      - dbus
+      - bluez
+      - pulseaudio-utils
+    contents:
+      - src: itd.toml
+        dst: /etc/itd.toml
+        type: "config|noreplace"
+      - src: itd.service
+        dst: /usr/lib/systemd/user/itd.service
+aurs:
+  - name: itd-bin
+    homepage: 'https://gitea.arsenm.dev/Arsen6331/itd'
+    description: "Companion daemon for the InfiniTime firmware on the PineTime smartwatch"
+    maintainers:
+      - 'Arsen Musyaelyan <arsen@arsenm.dev>'
+    license: GPLv3
+    private_key: '{{ .Env.AUR_KEY }}'
+    git_url: 'ssh://aur@aur.archlinux.org/itd-bin.git'
+    skip_upload: true
+    provides:
+      - itd
+      - itctl
+    conflicts:
+      - itd
+      - itctl
+    depends:
+      - dbus
+      - bluez
+      - libpulse
+    package: |-
+      # binaries
+      install -Dm755 "./itd" "${pkgdir}/usr/bin/itd"
+      install -Dm755 "./itctl" "${pkgdir}/usr/bin/itctl"
+
+      # service
+      install -Dm644 "./itd.service" ${pkgdir}/usr/lib/systemd/user/itd.service
+
+      # config
+      install -Dm644 "./itd.toml" ${pkgdir}/etc/itd.toml
+      
+      # license
+      install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/itd/LICENSE"
+release:
+  gitea:
+    owner: Arsen6331
+    name: itd
+gitea_urls:
+  api: 'https://gitea.arsenm.dev/api/v1/'
+  download: 'https://gitea.arsenm.dev'
+  skip_tls_verify: false
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
