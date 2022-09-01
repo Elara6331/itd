@@ -72,7 +72,6 @@ aurs:
     license: GPLv3
     private_key: '{{ .Env.AUR_KEY }}'
     git_url: 'ssh://aur@aur.archlinux.org/itd-bin.git'
-    skip_upload: true
     provides:
       - itd
       - itctl
