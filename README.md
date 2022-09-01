@@ -24,6 +24,36 @@
 
 ---
 
+### Installation
+
+Since ITD 0.0.7, packages are built and uploaded whenever a new release is created.
+
+#### Arch Linux
+
+Use the `itd-bin` or `itd-git` AUR packages.
+
+#### Debian/Ubuntu
+
+- Go to the [latest release](https://gitea.arsenm.dev/Arsen6331/itd/releases/latest) and download the `.deb` package for your CPU architecture. You can find your architecture by running `uname -m` in the terminal.
+- Run `sudo apt install <package>`, replacing `<package>` with the path to the downloaded file. Note: relative paths must begin with `./`.
+- Example: `sudo apt install ~/Downloads/itd-0.0.7-linux-aarch64.deb`
+
+#### Fedora
+
+- Go to the [latest release](https://gitea.arsenm.dev/Arsen6331/itd/releases/latest) and download the `.rpm` package for your CPU architecture. You can find your architecture by running `uname -m` in the terminal.
+- Run `sudo dnf install <package>`, replacing `<package>` with the path to the downloaded file.
+- Example: `sudo dnf install ~/Downloads/itd-0.0.7-linux-aarch64.rpm`
+
+#### Alpine (and postmarketOS)
+
+- Go to the [latest release](https://gitea.arsenm.dev/Arsen6331/itd/releases/latest) and download the `.apk` package for your CPU architecture. You can find your architecture by running `uname -m` in the terminal.
+- Run `sudo apk add --allow-untrusted <package>`, replacing `<package>` with the path to the downloaded file.
+- Example: `sudo apk add ~/Downloads/itd-0.0.7-linux-aarch64.rpm`
+
+Note: `--allow-untrusted` is required because ITD isn't part of a repository, and therefore is not signed.
+
+---
+
 ### Socket
 
 This daemon creates a UNIX socket at `/tmp/itd/socket`. It allows you to directly control the daemon and, by extension, the connected watch.
