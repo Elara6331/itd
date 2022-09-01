@@ -48,7 +48,7 @@ Use the `itd-bin` or `itd-git` AUR packages.
 
 - Go to the [latest release](https://gitea.arsenm.dev/Arsen6331/itd/releases/latest) and download the `.apk` package for your CPU architecture. You can find your architecture by running `uname -m` in the terminal.
 - Run `sudo apk add --allow-untrusted <package>`, replacing `<package>` with the path to the downloaded file.
-- Example: `sudo apk add ~/Downloads/itd-0.0.7-linux-aarch64.rpm`
+- Example: `sudo apk add --allow-untrusted ~/Downloads/itd-0.0.7-linux-aarch64.rpm`
 
 Note: `--allow-untrusted` is required because ITD isn't part of a repository, and therefore is not signed.
 
