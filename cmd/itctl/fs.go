@@ -34,7 +34,12 @@ func fsMkdir(c *cli.Context) error {
 		return cli.Exit("Command mkdir requires one or more arguments", 1)
 	}
 
-	err := client.Mkdir(c.Context, c.Args().Slice()...)
+	var err error
+	if c.Bool("parents") {
+		err = client.MkdirAll(c.Context, c.Args().Slice()...)
+	} else {
+		err = client.Mkdir(c.Context, c.Args().Slice()...)
+	}
 	if err != nil {
 		return err
 	}
@@ -109,7 +114,12 @@ func fsRemove(c *cli.Context) error {
 		return cli.Exit("Command remove requires one or more arguments", 1)
 	}
 
-	err := client.Remove(c.Context, c.Args().Slice()...)
+	var err error
+	if c.Bool("recursive") {
+		err = client.RemoveAll(c.Context, c.Args().Slice()...)
+	} else {
+		err = client.Remove(c.Context, c.Args().Slice()...)
+	}
 	if err != nil {
 		return err
 	}

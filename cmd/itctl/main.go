@@ -77,6 +77,13 @@ func main() {
 						Action:    fsList,
 					},
 					{
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:    "parents",
+								Aliases: []string{"p"},
+								Usage:   "Make parent directories if needed, no error if already existing",
+							},
+						},
 						Name:      "mkdir",
 						ArgsUsage: "<paths...>",
 						Usage:     "Create new directories",
@@ -97,6 +104,13 @@ func main() {
 						Action:      fsRead,
 					},
 					{
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:    "recursive",
+								Aliases: []string{"r", "R"},
+								Usage:   "Remove directories and their contents recursively",
+							},
+						},
 						Name:      "remove",
 						ArgsUsage: "<paths...>",
 						Aliases:   []string{"rm"},

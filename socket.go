@@ -293,6 +293,17 @@ type FS struct {
 	fs  *blefs.FS
 }
 
+func (fs *FS) RemoveAll(_ *server.Context, paths []string) error {
+	fs.updateFS()
+	for _, path := range paths {
+		err := fs.fs.RemoveAll(path)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (fs *FS) Remove(_ *server.Context, paths []string) error {
 	fs.updateFS()
 	for _, path := range paths {
@@ -307,6 +318,17 @@ func (fs *FS) Remove(_ *server.Context, paths []string) error {
 func (fs *FS) Rename(_ *server.Context, paths [2]string) error {
 	fs.updateFS()
 	return fs.fs.Rename(paths[0], paths[1])
+}
+
+func (fs *FS) MkdirAll(_ *server.Context, paths []string) error {
+	fs.updateFS()
+	for _, path := range paths {
+		err := fs.fs.MkdirAll(path)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (fs *FS) Mkdir(_ *server.Context, paths []string) error {
