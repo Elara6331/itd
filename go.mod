@@ -15,7 +15,7 @@ require (
 	github.com/mozillazg/go-pinyin v0.19.0
 	github.com/rs/zerolog v1.26.1
 	github.com/urfave/cli/v2 v2.3.0
-	go.arsenm.dev/infinitime v0.0.0-20220819210252-d199fba93c2f
+	go.arsenm.dev/infinitime v0.0.0-20221016193942-01970b2bb770
 	go.arsenm.dev/lrpc v0.0.0-20220513001344-3bcc01fdb6a0
 	golang.org/x/text v0.3.7
 	modernc.org/sqlite v1.17.2
@@ -38,7 +38,7 @@ require (
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
-	github.com/mattn/go-runewidth v0.0.12 // indirect
+	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect

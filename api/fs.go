@@ -2,6 +2,16 @@ package api
 
 import "context"
 
+func (c *Client) RemoveAll(ctx context.Context, paths ...string) error {
+	return c.client.Call(
+		ctx,
+		"FS",
+		"RemoveAll",
+		paths,
+		nil,
+	)
+}
+
 func (c *Client) Remove(ctx context.Context, paths ...string) error {
 	return c.client.Call(
 		ctx,
@@ -18,6 +28,16 @@ func (c *Client) Rename(ctx context.Context, old, new string) error {
 		"FS",
 		"Rename",
 		[2]string{old, new},
+		nil,
+	)
+}
+
+func (c *Client) MkdirAll(ctx context.Context, paths ...string) error {
+	return c.client.Call(
+		ctx,
+		"FS",
+		"MkdirAll",
+		paths,
 		nil,
 	)
 }
