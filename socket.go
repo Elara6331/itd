@@ -293,6 +293,17 @@ type FS struct {
 	fs  *blefs.FS
 }
 
+func (fs *FS) RemoveAll(_ *server.Context, paths []string) error {
+	fs.updateFS()
+	for _, path := range paths {
+		err := fs.fs.RemoveAll(path)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (fs *FS) Remove(_ *server.Context, paths []string) error {
 	fs.updateFS()
 	for _, path := range paths {
@@ -307,6 +318,17 @@ func (fs *FS) Remove(_ *server.Context, paths []string) error {
 func (fs *FS) Rename(_ *server.Context, paths [2]string) error {
 	fs.updateFS()
 	return fs.fs.Rename(paths[0], paths[1])
+}
+
+func (fs *FS) MkdirAll(_ *server.Context, paths []string) error {
+	fs.updateFS()
+	for _, path := range paths {
+		err := fs.fs.MkdirAll(path)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (fs *FS) Mkdir(_ *server.Context, paths []string) error {
@@ -420,6 +442,32 @@ func (fs *FS) Download(ctx *server.Context, paths [2]string) error {
 	}()
 
 	go io.Copy(localFile, remoteFile)
+
+	return nil
+}
+
+func (fs *FS) LoadResources(ctx *server.Context, path string) error {
+	resFl, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	progCh, err := infinitime.LoadResources(resFl, fs.fs)
+	if err != nil {
+		return err
+	}
+
+	ch, err := ctx.MakeChannel()
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		for evt := range progCh {
+			ch <- evt
+		}
+		close(ch)
+	}()
 
 	return nil
 }

@@ -11,6 +11,19 @@ import (
 )
 
 func fwUpgrade(c *cli.Context) error {
+	resources := c.String("resources")
+	if resources != "" {
+		absRes, err := filepath.Abs(resources)
+		if err != nil {
+			return err
+		}
+
+		err = resLoad(c.Context, []string{absRes})
+		if err != nil {
+			return err
+		}
+	}
+
 	start := time.Now()
 
 	var upgType api.UpgradeType

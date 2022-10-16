@@ -270,8 +270,9 @@ github.com/mattn/go-isatty v0.0.3/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNx
 github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Kysco4FUpU=
 github.com/mattn/go-isatty v0.0.14 h1:yVuAays6BHfxijgZPzw+3Zlu5yQgKGP2/hcQbHb7S9Y=
 github.com/mattn/go-isatty v0.0.14/go.mod h1:7GGIvUiUoEMVVmxf/4nioHXj79iQHKdU27kJ6hsGG94=
-github.com/mattn/go-runewidth v0.0.12 h1:Y41i/hVW3Pgwr8gV+J23B9YEY0zxjptBuCWEaxmAOow=
 github.com/mattn/go-runewidth v0.0.12/go.mod h1:RAqKPSqVFrSLVXbA8x7dzmKdmGzieGRCM46jaSJTDAk=
+github.com/mattn/go-runewidth v0.0.13 h1:lTGmDsbAYt5DmK6OnoV7EuIF1wEIFAcxld6ypU4OSgU=
+github.com/mattn/go-runewidth v0.0.13/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
 github.com/mattn/go-sqlite3 v1.14.12 h1:TJ1bhYJPV44phC+IMu1u2K/i5RriLTPe+yc68XDJ1Z0=
 github.com/mattn/go-sqlite3 v1.14.12/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
 github.com/metal3d/fyne-x v0.0.0-20220508095732-177117e583fb h1:+fP6ENsbd+BUOmD/kSjNtrOmi2vgJ/JfWDSWjTKmTVY=
@@ -396,8 +397,8 @@ github.com/yuin/goldmark v1.3.8/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1
 github.com/yuin/goldmark v1.4.0/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/yuin/goldmark v1.4.4 h1:zNWRjYUW32G9KirMXYHQHVNFkXvMI7LpgNW2AgYAoIs=
 github.com/yuin/goldmark v1.4.4/go.mod h1:rmuwmfZ0+bvzB24eSC//bk1R1Zp3hM0OXYv/G2LIilg=
-go.arsenm.dev/infinitime v0.0.0-20220819210252-d199fba93c2f h1:Np0ZNlgVC5D9NOilN14HJ1mSXM8vl2LYGfK0fZOYUbY=
-go.arsenm.dev/infinitime v0.0.0-20220819210252-d199fba93c2f/go.mod h1:K3NJ6fyPv5qqHUedB3MccKOE0whJMJZ80l/yTzzTrgc=
+go.arsenm.dev/infinitime v0.0.0-20221016193942-01970b2bb770 h1:OZ8kYFHCXt+7nxz9G0BTnSyJKnIpQnQ5m7kyIssG81Y=
+go.arsenm.dev/infinitime v0.0.0-20221016193942-01970b2bb770/go.mod h1:K3NJ6fyPv5qqHUedB3MccKOE0whJMJZ80l/yTzzTrgc=
 go.arsenm.dev/lrpc v0.0.0-20220513001344-3bcc01fdb6a0 h1:1K96g1eww+77GeGchwMhd0NTrs7Mk/Hc3M3ItW5NbG4=
 go.arsenm.dev/lrpc v0.0.0-20220513001344-3bcc01fdb6a0/go.mod h1:goK9z735lfXmqlDxu9qN7FS8t0HJHN3PjyDtCToUY4w=
 go.etcd.io/etcd/api/v3 v3.5.0/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
