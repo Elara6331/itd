@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"path/filepath"
 
 	"github.com/cheggaaa/pb/v3"
@@ -9,7 +10,11 @@ import (
 )
 
 func resourcesLoad(c *cli.Context) error {
-	if c.Args().Len() == 0 {
+	return resLoad(c.Context, c.Args().Slice())
+}
+
+func resLoad(ctx context.Context, args []string) error {
+	if len(args) == 0 {
 		return cli.Exit("Command load requires one argument.", 1)
 	}
 
@@ -19,12 +24,12 @@ func resourcesLoad(c *cli.Context) error {
 	// Start full bar at 0 total
 	bar := pb.ProgressBarTemplate(rmTmpl).Start(0)
 
-	path, err := filepath.Abs(c.Args().Get(0))
+	path, err := filepath.Abs(args[0])
 	if err != nil {
 		return err
 	}
 
-	progCh, err := client.LoadResources(c.Context, path)
+	progCh, err := client.LoadResources(ctx, path)
 	if err != nil {
 		return err
 	}
