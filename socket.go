@@ -466,6 +466,7 @@ func (fs *FS) LoadResources(ctx *server.Context, path string) error {
 		for evt := range progCh {
 			ch <- evt
 		}
+		close(ch)
 	}()
 
 	return nil
