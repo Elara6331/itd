@@ -144,6 +144,11 @@ func main() {
 								Usage:   "Path to firmware image (.bin file)",
 							},
 							&cli.PathFlag{
+								Name:    "resources",
+								Aliases: []string{"r"},
+								Usage:   "Path to resources file (.zip file)",
+							},
+							&cli.PathFlag{
 								Name:    "archive",
 								Aliases: []string{"a"},
 								Usage:   "Path to firmware archive (.zip file)",
