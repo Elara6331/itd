@@ -35,6 +35,10 @@ func resLoad(ctx context.Context, args []string) error {
 	}
 
 	for evt := range progCh {
+		if evt.Err != nil {
+			return evt.Err
+		}
+
 		if evt.Operation == infinitime.ResourceOperationRemoveObsolete {
 			bar.SetTemplateString(rmTmpl)
 			bar.Set("filename", evt.Name)
