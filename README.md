@@ -21,6 +21,7 @@
 - Firmware upgrades
 - Weather
 - BLE Filesystem
+- Navigation (PureMaps)
 
 ---
 
