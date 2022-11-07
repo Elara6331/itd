@@ -178,6 +178,12 @@ func main() {
 		log.Error().Err(err).Msg("Error intializing metrics collection")
 	}
 
+	// Initialize metrics collection
+	err = initPureMaps(ctx, dev)
+	if err != nil {
+		log.Error().Err(err).Msg("Error intializing puremaps integration")
+	}
+
 	// Start control socket
 	err = startSocket(ctx, dev)
 	if err != nil {

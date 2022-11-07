@@ -15,7 +15,7 @@ require (
 	github.com/mozillazg/go-pinyin v0.19.0
 	github.com/rs/zerolog v1.26.1
 	github.com/urfave/cli/v2 v2.3.0
-	go.arsenm.dev/infinitime v0.0.0-20221025193634-0ad671d3f550
+	go.arsenm.dev/infinitime v0.0.0-20221107042015-72b558707ee3
 	go.arsenm.dev/lrpc v0.0.0-20220513001344-3bcc01fdb6a0
 	golang.org/x/text v0.3.7
 	modernc.org/sqlite v1.17.2
