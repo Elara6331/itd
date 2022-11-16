@@ -8,8 +8,10 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/api"
 )
 
@@ -51,6 +53,52 @@ func fsTab(ctx context.Context, client *api.Client, w fyne.Window, opened chan s
 			theme.ViewRefreshIcon(),
 			func() {
 				refresh(ctx, cwdData, lsData, client, w, c)
+			},
+		),
+		widget.NewToolbarAction(
+			theme.FileApplicationIcon(),
+			func() {
+				dlg := dialog.NewFileOpen(func(uc fyne.URIReadCloser, err error) {
+					if err != nil || uc == nil {
+						return
+					}
+
+					resPath := uc.URI().Path()
+					uc.Close()
+
+					progressDlg := newProgress(w)
+					progressDlg.Show()
+
+					progCh, err := client.LoadResources(ctx, resPath)
+					if err != nil {
+						guiErr(err, "Error loading resources", false, w)
+						return
+					}
+
+					for evt := range progCh {
+						if evt.Err != nil {
+							guiErr(evt.Err, "Error loading resources", false, w)
+							return
+						}
+
+						switch evt.Operation {
+						case infinitime.ResourceOperationRemoveObsolete:
+							progressDlg.SetText("Removing " + evt.Name)
+						case infinitime.ResourceOperationUpload:
+							progressDlg.SetText("Uploading " + evt.Name)
+							progressDlg.SetTotal(float64(evt.Total))
+							progressDlg.SetValue(float64(evt.Sent))
+						}
+					}
+
+					progressDlg.Hide()
+					refresh(ctx, cwdData, lsData, client, w, c)
+				}, w)
+				dlg.SetConfirmText("Upload Resources")
+				dlg.SetFilter(storage.NewExtensionFileFilter([]string{
+					".zip",
+				}))
+				dlg.Show()
 			},
 		),
 		widget.NewToolbarAction(
@@ -113,7 +161,6 @@ func fsTab(ctx context.Context, client *api.Client, w fyne.Window, opened chan s
 					uploadDlg.Show()
 				}, w)
 				dlg.Show()
-
 			},
 		),
 		widget.NewToolbarAction(

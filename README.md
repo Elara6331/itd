@@ -164,6 +164,8 @@ Due to the use of OpenGL, cross-compilation of `itgui` isn't as simple as that o
 
 ![FS mkdir](cmd/itgui/screenshots/mkdir.png)
 
+![FS resource upload](cmd/itgui/screenshots/resources.png)
+
 ![Time tab](cmd/itgui/screenshots/time.png)
 
 ![Firmware tab](cmd/itgui/screenshots/firmware.png)
