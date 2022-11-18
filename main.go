@@ -39,9 +39,6 @@ import (
 
 var k = koanf.New(".")
 
-//go:embed version.txt
-var version string
-
 var (
 	firmwareUpdating = false
 	// The FS must be updated when the watch is reconnected
