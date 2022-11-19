@@ -112,24 +112,25 @@ This daemon comes with a binary called `itctl` which uses the socket to control 
 
 This is the `itctl` usage screen:
 ```
-Control the itd daemon for InfiniTime smartwatches
+NAME:
+   itctl - A new cli application
 
-Usage:
-  itctl [flags]
-  itctl [command]
+USAGE:
+   itctl [global options] command [command options] [arguments...]
 
-Available Commands:
-  firmware    Manage InfiniTime firmware
-  get         Get information from InfiniTime
-  help        Help about any command
-  notify      Send notification to InfiniTime
-  set         Set information on InfiniTime
+COMMANDS:
+   help            Display help screen for a command
+   resources, res  Handle InfiniTime resource loading
+   filesystem, fs  Perform filesystem operations on the PineTime
+   firmware, fw    Manage InfiniTime firmware
+   get             Get information from InfiniTime
+   notify          Send notification to InfiniTime
+   set             Set information on InfiniTime
+   update, upd     Update information on InfiniTime
+   watch           Watch a value for changes
 
-Flags:
-  -h, --help                 help for itctl
-  -s, --socket-path string   Path to itd socket
-
-Use "itctl [command] --help" for more information about a command.
+GLOBAL OPTIONS:
+   --socket-path value, -s value  Path to itd socket (default: "/tmp/itd/socket")
 ```
 
 ---
