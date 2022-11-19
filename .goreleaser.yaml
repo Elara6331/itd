@@ -54,7 +54,6 @@ nfpms:
     dependencies:
       - dbus
       - bluez
-      - pulseaudio-utils
     contents:
       - src: itd.toml
         dst: /etc/itd.toml
@@ -79,7 +78,6 @@ aurs:
     depends:
       - dbus
       - bluez
-      - libpulse
     package: |-
       # binaries
       install -Dm755 "./itd" "${pkgdir}/usr/bin/itd"
