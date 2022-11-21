@@ -7,11 +7,13 @@ import (
 	"github.com/godbus/dbus/v5"
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
+        "go.arsenm.dev/itd/internal/utils"
+
 )
 
 func initCallNotifs(ctx context.Context, dev *infinitime.Device) error {
 	// Connect to system bus. This connection is for method calls.
-	conn, err := newSystemBusConn(ctx)
+	conn, err := utils.NewSystemBusConn(ctx)
 	if err != nil {
 		return err
 	}
@@ -29,7 +31,7 @@ func initCallNotifs(ctx context.Context, dev *infinitime.Device) error {
 	}
 
 	// Connect to system bus. This connection is for monitoring.
-	monitorConn, err := newSystemBusConn(ctx)
+	monitorConn, err := utils.NewSystemBusConn(ctx)
 	if err != nil {
 		return err
 	}

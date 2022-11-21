@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"github.com/godbus/dbus/v5"
 )
 
-func newSystemBusConn(ctx context.Context) (*dbus.Conn, error) {
+func NewSystemBusConn(ctx context.Context) (*dbus.Conn, error) {
 	// Connect to dbus session bus
 	conn, err := dbus.SystemBusPrivate(dbus.WithContext(ctx))
 	if err != nil {
@@ -23,7 +23,7 @@ func newSystemBusConn(ctx context.Context) (*dbus.Conn, error) {
 	return conn, nil
 }
 
-func newSessionBusConn(ctx context.Context) (*dbus.Conn, error) {
+func NewSessionBusConn(ctx context.Context) (*dbus.Conn, error) {
 	// Connect to dbus session bus
 	conn, err := dbus.SessionBusPrivate(dbus.WithContext(ctx))
 	if err != nil {
