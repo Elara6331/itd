@@ -25,6 +25,6 @@ uninstall:
 	rm $(CFG_PREFIX)/itd.toml
 
 version.txt:
-	printf "r%s.%s" "$(shell git rev-list --count HEAD)" "$(shell git rev-parse --short HEAD)" > version.txt
+	go generate
 
 .PHONY: all clean install uninstall
