@@ -15,7 +15,7 @@ var (
 	onChangeOnce    sync.Once
 )
 
-// Init makes required connections to DBis and
+// Init makes required connections to DBus and
 // initializes change monitoring channel
 func Init(ctx context.Context) error {
 	// Connect to session bus for monitoring
