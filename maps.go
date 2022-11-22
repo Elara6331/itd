@@ -7,6 +7,7 @@ import (
 	"github.com/godbus/dbus/v5"
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
+	"go.arsenm.dev/itd/internal/utils"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 
 func initPureMaps(ctx context.Context, dev *infinitime.Device) error {
 	// Connect to session bus. This connection is for method calls.
-	conn, err := newSessionBusConn(ctx)
+	conn, err := utils.NewSessionBusConn(ctx)
 	if err != nil {
 		return err
 	}
@@ -30,7 +31,7 @@ func initPureMaps(ctx context.Context, dev *infinitime.Device) error {
 	}
 
 	// Connect to session bus. This connection is for method calls.
-	monitorConn, err := newSessionBusConn(ctx)
+	monitorConn, err := utils.NewSessionBusConn(ctx)
 	if err != nil {
 		return err
 	}

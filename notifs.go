@@ -26,11 +26,12 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/translit"
+	"go.arsenm.dev/itd/internal/utils"
 )
 
 func initNotifRelay(ctx context.Context, dev *infinitime.Device) error {
 	// Connect to dbus session bus
-	bus, err := newSessionBusConn(ctx)
+	bus, err := utils.NewSessionBusConn(ctx)
 	if err != nil {
 		return err
 	}

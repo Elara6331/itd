@@ -19,29 +19,31 @@
 package main
 
 import (
+        "context"
+
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/infinitime/pkg/player"
 	"go.arsenm.dev/itd/translit"
+        "go.arsenm.dev/itd/pkg/mpris"
 )
 
-func initMusicCtrl(dev *infinitime.Device) error {
-	player.Init()
+func initMusicCtrl(ctx context.Context, dev *infinitime.Device) error {
+        mpris.Init(ctx)
 
 	maps := k.Strings("notifs.translit.use")
 	translit.Transliterators["custom"] = translit.Map(k.Strings("notifs.translit.custom"))
 
-	player.OnChange(func(ct player.ChangeType, val string) {
+        mpris.OnChange(func(ct mpris.ChangeType, val string) {
 		newVal := translit.Transliterate(val, maps...)
 		if !firmwareUpdating {
 			switch ct {
-			case player.ChangeTypeStatus:
-				dev.Music.SetStatus(val == "Playing")
-			case player.ChangeTypeTitle:
-				dev.Music.SetTrack(newVal)
-			case player.ChangeTypeAlbum:
-				dev.Music.SetAlbum(newVal)
-			case player.ChangeTypeArtist:
+			case mpris.ChangeTypeStatus:
+			        dev.Music.SetStatus(val == "Playing")
+			case mpris.ChangeTypeTitle:
+			        dev.Music.SetTrack(newVal)
+			case mpris.ChangeTypeAlbum:
+			        dev.Music.SetAlbum(newVal)
+			case mpris.ChangeTypeArtist:
 				dev.Music.SetArtist(newVal)
 			}
 		}
@@ -58,17 +60,17 @@ func initMusicCtrl(dev *infinitime.Device) error {
 			// Perform appropriate action based on event
 			switch musicEvt {
 			case infinitime.MusicEventPlay:
-				player.Play()
+				mpris.Play()
 			case infinitime.MusicEventPause:
-				player.Pause()
+				mpris.Pause()
 			case infinitime.MusicEventNext:
-				player.Next()
+				mpris.Next()
 			case infinitime.MusicEventPrev:
-				player.Prev()
+				mpris.Prev()
 			case infinitime.MusicEventVolUp:
-				player.VolUp(uint(k.Int("music.vol.interval")))
+				mpris.VolUp(uint(k.Int("music.vol.interval")))
 			case infinitime.MusicEventVolDown:
-				player.VolDown(uint(k.Int("music.vol.interval")))
+				mpris.VolDown(uint(k.Int("music.vol.interval")))
 			}
 		}
 	}()
