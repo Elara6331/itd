@@ -62,10 +62,10 @@ nfpms:
       - apk
       - deb
       - rpm
+      - archlinux
     dependencies:
       - dbus
       - bluez
-      - pulseaudio-utils
     contents:
       - src: itd.toml
         dst: /etc/itd.toml
