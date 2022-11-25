@@ -98,9 +98,9 @@ aurs:
       - bluez
     package: |-
       # binaries
-      install -Dm755 "./itd" "${pkgdir}/usr/bin/itd"
-      install -Dm755 "./itctl" "${pkgdir}/usr/bin/itctl"
-      install -Dm755 "./itgui" "${pkgdir/usr/bin/itgui}"
+      install -Dm755 ./itd "${pkgdir}/usr/bin/itd"
+      install -Dm755 ./itctl "${pkgdir}/usr/bin/itctl"
+      install -Dm755 ./itgui-linux-* "${pkgdir/usr/bin/itgui}"
 
       # desktop files
       install -Dm644 "./itgui.desktop" "${pkgdir}/usr/share/applications/itgui.desktop"
