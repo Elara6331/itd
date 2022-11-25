@@ -14,6 +14,8 @@ builds:
       - amd64
       - arm
       - arm64
+    goarm:
+      - 7
   - id: itctl
     env:
       - CGO_ENABLED=0
@@ -26,24 +28,32 @@ builds:
       - amd64
       - arm
       - arm64
+    goarm:
+      -  7
 archives:
-  - replacements:
-      386: i386
-      amd64: x86_64
-      arm64: aarch64
+  - name_template: >-
+       {{- .ProjectName }}-{{.Version}}-{{.Os}}-
+       {{- if eq .Arch "386" }}i386
+       {{- else if eq .Arch "amd64" }}x86_64
+       {{- else if eq .Arch "arm64" }}aarch64
+       {{- else }}{{.Arch}}
+       {{- end }}
     files:
       - LICENSE
       - README.md
       - itd.toml
       - itd.service
+      - itgui-linux-{{.Arch}}{{if eq .Arch "arm"}}-7{{end}}
 nfpms:
   - id: itd
-    file_name_template: '{{.PackageName}}-{{.Version}}-{{.Os}}-{{.Arch}}'
+    file_name_template: >-
+        {{- .PackageName }}-{{.Version}}-{{.Os}}-
+        {{- if eq .Arch "386" }}i386
+        {{- else if eq .Arch "amd64" }}x86_64
+        {{- else if eq .Arch "arm64" }}aarch64
+        {{- else }}{{.Arch}}
+        {{- end }}
     description: "Companion daemon for the InfiniTime firmware on the PineTime smartwatch"
-    replacements:
-      386: i386
-      amd64: x86_64
-      arm64: aarch64
     homepage: 'https://gitea.arsenm.dev/Arsen6331/itd'
     maintainer: 'Arsen Musyaelyan <arsen@arsenm.dev>'
     license: GPLv3
@@ -54,12 +64,15 @@ nfpms:
     dependencies:
       - dbus
       - bluez
+      - pulseaudio-utils
     contents:
       - src: itd.toml
         dst: /etc/itd.toml
         type: "config|noreplace"
       - src: itd.service
         dst: /usr/lib/systemd/user/itd.service
+      - src: itgui-linux-{{.Arch}}{{if eq .Arch "arm"}}-7{{end}}
+        dst: /usr/bin/itgui
 aurs:
   - name: itd-bin
     homepage: 'https://gitea.arsenm.dev/Arsen6331/itd'
@@ -82,6 +95,10 @@ aurs:
       # binaries
       install -Dm755 "./itd" "${pkgdir}/usr/bin/itd"
       install -Dm755 "./itctl" "${pkgdir}/usr/bin/itctl"
+      install -Dm755 "./itgui" "${pkgdir/usr/bin/itgui}"
+
+      # desktop files
+      install -Dm644 "./itgui.desktop" "${pkgdir}/usr/share/applications/itgui.desktop"
 
       # service
       install -Dm644 "./itd.service" ${pkgdir}/usr/lib/systemd/user/itd.service

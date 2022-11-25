@@ -1,4 +1,16 @@
 pipeline:
+  xgo-itgui:
+    image: arsen6331/fyne-xgo
+    environment:
+      - 'TARGETS=linux/amd64 linux/arm64 linux/386 linux/arm-7'
+      - 'OUT=itgui'
+      - 'PACK=./cmd/itgui'
+    commands:
+      - export SOURCE_DIR=$${CI_WORKSPACE} OUT_DIR=$${CI_WORKSPACE}
+      - /build.sh
+    when:
+      event: tag
+
   release:
     image: goreleaser/goreleaser
     commands:
