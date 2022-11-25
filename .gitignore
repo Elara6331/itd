@@ -1,5 +1,6 @@
 /itctl
 /itd
-/itgui*
+/itgui
+/itgui-linux-*
 /version.txt
 dist/
