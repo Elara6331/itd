@@ -109,42 +109,40 @@ func Prev() error {
 }
 
 func VolUp(percent uint) error {
-
 	player, err := getPlayerObj()
 	if err != nil {
 		return err
 	}
 	if player != nil {
-                currentVal, err := player.GetProperty("org.mpris.MediaPlayer2.Player.Volume")
-                if err != nil {
-                    return err
-                }
-                newVal := currentVal.Value().(float64) + (float64(percent) / 100)
-                err = player.SetProperty("org.mpris.MediaPlayer2.Player.Volume", newVal)
-                if err != nil {
-                    return err
-                }
-        }
+		currentVal, err := player.GetProperty("org.mpris.MediaPlayer2.Player.Volume")
+		if err != nil {
+			return err
+		}
+		newVal := currentVal.Value().(float64) + (float64(percent) / 100)
+		err = player.SetProperty("org.mpris.MediaPlayer2.Player.Volume", newVal)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 func VolDown(percent uint) error {
-
 	player, err := getPlayerObj()
 	if err != nil {
 		return err
 	}
 	if player != nil {
-                currentVal, err := player.GetProperty("org.mpris.MediaPlayer2.Player.Volume")
-                if err != nil {
-                    return err
-                }
-                newVal := currentVal.Value().(float64) - (float64(percent) / 100)
-                err = player.SetProperty("org.mpris.MediaPlayer2.Player.Volume", newVal)
-                if err != nil {
-                    return err
-                }
-        }
+		currentVal, err := player.GetProperty("org.mpris.MediaPlayer2.Player.Volume")
+		if err != nil {
+			return err
+		}
+		newVal := currentVal.Value().(float64) - (float64(percent) / 100)
+		err = player.SetProperty("org.mpris.MediaPlayer2.Player.Volume", newVal)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

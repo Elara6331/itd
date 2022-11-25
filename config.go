@@ -29,7 +29,7 @@ func init() {
 	// If config dir is not readable
 	if _, err = os.ReadDir(cfgDir); err != nil {
 		// Create config dir with 700 permissions
-		err = os.MkdirAll(cfgDir, 0700)
+		err = os.MkdirAll(cfgDir, 0o700)
 		if err != nil {
 			panic(err)
 		}

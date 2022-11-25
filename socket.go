@@ -43,7 +43,7 @@ var (
 
 func startSocket(ctx context.Context, dev *infinitime.Device) error {
 	// Make socket directory if non-existant
-	err := os.MkdirAll(filepath.Dir(k.String("socket.path")), 0755)
+	err := os.MkdirAll(filepath.Dir(k.String("socket.path")), 0o755)
 	if err != nil {
 		return err
 	}

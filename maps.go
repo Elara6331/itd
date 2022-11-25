@@ -37,7 +37,7 @@ func initPureMaps(ctx context.Context, dev *infinitime.Device) error {
 	}
 
 	// Define rules to listen for
-	var rules = []string{
+	rules := []string{
 		"type='signal',interface='io.github.rinigus.PureMaps.navigator'",
 	}
 	var flag uint = 0

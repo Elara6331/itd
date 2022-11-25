@@ -19,30 +19,30 @@
 package main
 
 import (
-        "context"
+	"context"
 
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
+	"go.arsenm.dev/itd/mpris"
 	"go.arsenm.dev/itd/translit"
-        "go.arsenm.dev/itd/pkg/mpris"
 )
 
 func initMusicCtrl(ctx context.Context, dev *infinitime.Device) error {
-        mpris.Init(ctx)
+	mpris.Init(ctx)
 
 	maps := k.Strings("notifs.translit.use")
 	translit.Transliterators["custom"] = translit.Map(k.Strings("notifs.translit.custom"))
 
-        mpris.OnChange(func(ct mpris.ChangeType, val string) {
+	mpris.OnChange(func(ct mpris.ChangeType, val string) {
 		newVal := translit.Transliterate(val, maps...)
 		if !firmwareUpdating {
 			switch ct {
 			case mpris.ChangeTypeStatus:
-			        dev.Music.SetStatus(val == "Playing")
+				dev.Music.SetStatus(val == "Playing")
 			case mpris.ChangeTypeTitle:
-			        dev.Music.SetTrack(newVal)
+				dev.Music.SetTrack(newVal)
 			case mpris.ChangeTypeAlbum:
-			        dev.Music.SetAlbum(newVal)
+				dev.Music.SetAlbum(newVal)
 			case mpris.ChangeTypeArtist:
 				dev.Music.SetArtist(newVal)
 			}

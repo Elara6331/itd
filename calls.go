@@ -7,8 +7,7 @@ import (
 	"github.com/godbus/dbus/v5"
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
-        "go.arsenm.dev/itd/internal/utils"
-
+	"go.arsenm.dev/itd/internal/utils"
 )
 
 func initCallNotifs(ctx context.Context, dev *infinitime.Device) error {

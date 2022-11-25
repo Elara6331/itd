@@ -25,8 +25,8 @@ import (
 	"github.com/godbus/dbus/v5"
 	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/itd/translit"
 	"go.arsenm.dev/itd/internal/utils"
+	"go.arsenm.dev/itd/translit"
 )
 
 func initNotifRelay(ctx context.Context, dev *infinitime.Device) error {
@@ -37,7 +37,7 @@ func initNotifRelay(ctx context.Context, dev *infinitime.Device) error {
 	}
 
 	// Define rules to listen for
-	var rules = []string{
+	rules := []string{
 		"type='method_call',member='Notify',path='/org/freedesktop/Notifications',interface='org.freedesktop.Notifications'",
 	}
 	var flag uint = 0
