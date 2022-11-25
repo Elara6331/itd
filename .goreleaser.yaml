@@ -43,6 +43,7 @@ archives:
       - README.md
       - itd.toml
       - itd.service
+      - itgui.desktop
       - itgui-linux-{{.Arch}}{{if eq .Arch "arm"}}-7{{end}}
 nfpms:
   - id: itd
@@ -71,8 +72,12 @@ nfpms:
         type: "config|noreplace"
       - src: itd.service
         dst: /usr/lib/systemd/user/itd.service
+      - src: itgui.desktop
+        dst: /usr/share/applications/itgui.desktop
       - src: itgui-linux-{{.Arch}}{{if eq .Arch "arm"}}-7{{end}}
         dst: /usr/bin/itgui
+        file_info:
+          mode: 0755
 aurs:
   - name: itd-bin
     homepage: 'https://gitea.arsenm.dev/Arsen6331/itd'
