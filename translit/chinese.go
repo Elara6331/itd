@@ -35,8 +35,6 @@ func (ct *ChineseTranslit) Transliterate(s string) string {
 				// Reset temporary buffer
 				tmpBuf.Reset()
 			}
-			// Write character to output
-			outBuf.WriteRune(char)
 		}
 	}
 	// If buffer contains characters
