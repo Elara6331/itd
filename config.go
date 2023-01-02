@@ -16,6 +16,8 @@ import (
 var cfgDir string
 
 func init() {
+	etcPath := "/etc/itd.toml";
+
 	// Set up logger
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 
@@ -51,15 +53,9 @@ func init() {
 	// Set config defaults
 	setCfgDefaults()
 
-	// Load config files
-	etcProvider := file.Provider("/etc/itd.toml")
-	cfgProvider := file.Provider(cfgPath)
-	k.Load(etcProvider, toml.Parser())
-	k.Load(cfgProvider, toml.Parser())
-
-	// Watch configs for changes
-	cfgWatch(etcProvider)
-	cfgWatch(cfgProvider)
+	// Load and watch config files
+	loadAndwatchCfgFile(etcPath)
+	loadAndwatchCfgFile(cfgPath)
 
 	// Load envireonment variables
 	k.Load(env.Provider("ITD_", "_", func(s string) string {
@@ -67,14 +63,22 @@ func init() {
 	}), nil)
 }
 
-func cfgWatch(provider *file.File) {
+func loadAndwatchCfgFile(filename string) {
+	provider := file.Provider(filename)
+
+	if cfgError := k.Load(provider, toml.Parser()); cfgError != nil {
+		log.Warn().Str("filename", filename).Err(cfgError).Msg("Error while trying to read config file")
+	}
+
 	// Watch for changes and reload when detected
 	provider.Watch(func(_ interface{}, err error) {
 		if err != nil {
 			return
 		}
 
-		k.Load(provider, toml.Parser())
+		if cfgError := k.Load(provider, toml.Parser()); cfgError != nil {
+			log.Warn().Str("filename", filename).Err(cfgError).Msg("Error while trying to read config file")
+		}
 	})
 }
 
