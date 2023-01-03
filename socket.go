@@ -94,14 +94,18 @@ func startSocket(ctx context.Context, dev *infinitime.Device) error {
 				log.Fatal().Err(err).Msg("Error creating multiplexed session")
 			}
 
-			for {
-				conn, err := sess.Accept()
-				if err != nil {
-					log.Fatal().Err(err).Msg("Error accepting stream")
-				}
+			go func() {
+				for {
+					conn, err := sess.Accept()
+					if errors.Is(err, io.EOF) {
+						break
+					} else if err != nil {
+						log.Fatal().Err(err).Msg("Error accepting stream")
+					}
 
-				go srv.ServeOne(ctx, conn)
-			}
+					go srv.ServeOne(ctx, conn)
+				}
+			}()
 		}
 	}()
 
