@@ -16,6 +16,7 @@ require (
 	github.com/mozillazg/go-pinyin v0.19.0
 	github.com/rs/zerolog v1.28.0
 	github.com/urfave/cli/v2 v2.23.7
+	go.arsenm.dev/drpc v0.0.0-20230103210137-7219da760f6d
 	go.arsenm.dev/infinitime v0.0.0-20221122225335-2da80044b34a
 	golang.org/x/text v0.5.0
 	google.golang.org/protobuf v1.28.1

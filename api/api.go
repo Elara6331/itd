@@ -4,6 +4,7 @@ import (
 	"io"
 	"net"
 
+	"go.arsenm.dev/drpc/muxconn"
 	"go.arsenm.dev/itd/internal/rpc"
 	"storj.io/drpc"
 )
@@ -25,7 +26,7 @@ func New(sockPath string) (*Client, error) {
 		return nil, err
 	}
 
-	mconn, err := newMuxConn(conn)
+	mconn, err := muxconn.New(conn)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +40,7 @@ func New(sockPath string) (*Client, error) {
 // NewFromConn returns a client that communicates
 // over the given connection.
 func NewFromConn(conn io.ReadWriteCloser) (*Client, error) {
-	mconn, err := newMuxConn(conn)
+	mconn, err := muxconn.New(conn)
 	if err != nil {
 		return nil, err
 	}

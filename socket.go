@@ -27,13 +27,12 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/hashicorp/yamux"
 	"github.com/rs/zerolog/log"
+	"go.arsenm.dev/drpc/muxserver"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/infinitime/blefs"
 	"go.arsenm.dev/itd/internal/rpc"
 	"storj.io/drpc/drpcmux"
-	"storj.io/drpc/drpcserver"
 )
 
 var (
@@ -80,34 +79,7 @@ func startSocket(ctx context.Context, dev *infinitime.Device) error {
 		return err
 	}
 
-	srv := drpcserver.New(mux)
-
-	go func() {
-		for {
-			conn, err := ln.Accept()
-			if err != nil {
-				log.Fatal().Err(err).Msg("Error accepting connection")
-			}
-
-			sess, err := yamux.Server(conn, nil)
-			if err != nil {
-				log.Fatal().Err(err).Msg("Error creating multiplexed session")
-			}
-
-			go func() {
-				for {
-					conn, err := sess.Accept()
-					if errors.Is(err, io.EOF) {
-						break
-					} else if err != nil {
-						log.Fatal().Err(err).Msg("Error accepting stream")
-					}
-
-					go srv.ServeOne(ctx, conn)
-				}
-			}()
-		}
-	}()
+	go muxserver.New(mux).Serve(ctx, ln)
 
 	// Log socket start
 	log.Info().Str("path", k.String("socket.path")).Msg("Started control socket")
