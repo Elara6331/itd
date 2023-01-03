@@ -51,6 +51,7 @@ func (m *muxConn) Invoke(ctx context.Context, rpc string, enc drpc.Encoding, in,
 	}
 	defer conn.Close()
 	dconn := drpcconn.New(conn)
+	defer dconn.Close()
 	return dconn.Invoke(ctx, rpc, enc, in, out)
 }
 
@@ -59,7 +60,22 @@ func (m *muxConn) NewStream(ctx context.Context, rpc string, enc drpc.Encoding) 
 	if err != nil {
 		return nil, err
 	}
-
 	dconn := drpcconn.New(conn)
-	return dconn.NewStream(ctx, rpc, enc)
+
+	go func() {
+		<-dconn.Closed()
+		conn.Close()
+	}()
+
+	s, err := dconn.NewStream(ctx, rpc, enc)
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		<-s.Context().Done()
+		dconn.Close()
+	}()
+
+	return s, nil
 }
