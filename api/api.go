@@ -5,13 +5,14 @@ import (
 	"net"
 
 	"go.arsenm.dev/itd/internal/rpc"
+	"storj.io/drpc"
 	"storj.io/drpc/drpcconn"
 )
 
 const DefaultAddr = "/tmp/itd/socket"
 
 type Client struct {
-	conn   *drpcconn.Conn
+	conn   drpc.Conn
 	client rpc.DRPCITDClient
 }
 
@@ -20,11 +21,15 @@ func New(sockPath string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	dconn := drpcconn.New(conn)
+
+	mconn, err := newMuxConn(conn)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Client{
-		conn:   dconn,
-		client: rpc.NewDRPCITDClient(dconn),
+		conn:   mconn,
+		client: rpc.NewDRPCITDClient(mconn),
 	}, nil
 }
 

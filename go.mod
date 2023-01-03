@@ -10,6 +10,7 @@ require (
 	github.com/cheggaaa/pb/v3 v3.1.0
 	github.com/gen2brain/dlgs v0.0.0-20220603100644-40c77870fa8d
 	github.com/godbus/dbus/v5 v5.1.0
+	github.com/hashicorp/yamux v0.1.1
 	github.com/knadh/koanf v1.4.4
 	github.com/mattn/go-isatty v0.0.17
 	github.com/mozillazg/go-pinyin v0.19.0
