@@ -6,7 +6,7 @@ replace fyne.io/x/fyne => github.com/metal3d/fyne-x v0.0.0-20220508095732-177117
 
 require (
 	fyne.io/fyne/v2 v2.3.0
-	fyne.io/x/fyne v0.0.0-20221121180555-92e65f302337
+	fyne.io/x/fyne v0.0.0-20220107050838-c4a1de51d4ce
 	github.com/cheggaaa/pb/v3 v3.1.0
 	github.com/gen2brain/dlgs v0.0.0-20220603100644-40c77870fa8d
 	github.com/godbus/dbus/v5 v5.1.0
