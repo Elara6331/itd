@@ -16,7 +16,7 @@ import (
 var cfgDir string
 
 func init() {
-	etcPath := "/etc/itd.toml";
+	etcPath := "/etc/itd.toml"
 
 	// Set up logger
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})

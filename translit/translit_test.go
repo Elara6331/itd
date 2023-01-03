@@ -9,7 +9,7 @@ func TestTransliterate(t *testing.T) {
 		expected string
 	}
 
-	var cases = []testCase{
+	cases := []testCase{
 		{"eASCII", "œª°«»", `oeao""`},
 		{"Scandinavian", "ÆæØøÅå", "AeaeOeoeAaaa"},
 		{"German", "äöüÄÖÜßẞ", "aeoeueAeOeUessSS"},
