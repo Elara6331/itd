@@ -11,6 +11,8 @@ import (
 
 var _ drpc.Conn = &muxConn{}
 
+// muxConn implements drpc.Conn using the yamux
+// multiplexer to allow concurrent RPCs
 type muxConn struct {
 	conn   io.ReadWriteCloser
 	sess   *yamux.Session

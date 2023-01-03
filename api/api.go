@@ -10,11 +10,15 @@ import (
 
 const DefaultAddr = "/tmp/itd/socket"
 
+// Client is a client for ITD's socket API
 type Client struct {
 	conn   drpc.Conn
 	client rpc.DRPCITDClient
 }
 
+// New connects to the UNIX socket at the given
+// path, and returns a client that communicates
+// with that socket.
 func New(sockPath string) (*Client, error) {
 	conn, err := net.Dial("unix", sockPath)
 	if err != nil {
@@ -32,6 +36,8 @@ func New(sockPath string) (*Client, error) {
 	}, nil
 }
 
+// NewFromConn returns a client that communicates
+// over the given connection.
 func NewFromConn(conn io.ReadWriteCloser) (*Client, error) {
 	mconn, err := newMuxConn(conn)
 	if err != nil {
@@ -44,10 +50,12 @@ func NewFromConn(conn io.ReadWriteCloser) (*Client, error) {
 	}, nil
 }
 
+// FS returns the filesystem API client
 func (c *Client) FS() *FSClient {
 	return &FSClient{rpc.NewDRPCFSClient(c.conn)}
 }
 
+// Close closes the client connection
 func (c *Client) Close() error {
 	return c.conn.Close()
 }
