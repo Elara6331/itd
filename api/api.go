@@ -6,7 +6,6 @@ import (
 
 	"go.arsenm.dev/itd/internal/rpc"
 	"storj.io/drpc"
-	"storj.io/drpc/drpcconn"
 )
 
 const DefaultAddr = "/tmp/itd/socket"
@@ -33,13 +32,16 @@ func New(sockPath string) (*Client, error) {
 	}, nil
 }
 
-func NewFromConn(conn io.ReadWriteCloser) *Client {
-	dconn := drpcconn.New(conn)
+func NewFromConn(conn io.ReadWriteCloser) (*Client, error) {
+	mconn, err := newMuxConn(conn)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Client{
-		conn:   dconn,
-		client: rpc.NewDRPCITDClient(dconn),
-	}
+		conn:   mconn,
+		client: rpc.NewDRPCITDClient(mconn),
+	}, nil
 }
 
 func (c *Client) FS() *FSClient {
