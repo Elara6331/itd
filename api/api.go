@@ -4,14 +4,15 @@ import (
 	"io"
 	"net"
 
-	"go.arsenm.dev/lrpc/client"
-	"go.arsenm.dev/lrpc/codec"
+	"go.arsenm.dev/itd/internal/rpc"
+	"storj.io/drpc/drpcconn"
 )
 
 const DefaultAddr = "/tmp/itd/socket"
 
 type Client struct {
-	client *client.Client
+	conn   *drpcconn.Conn
+	client rpc.DRPCITDClient
 }
 
 func New(sockPath string) (*Client, error) {
@@ -19,19 +20,27 @@ func New(sockPath string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+	dconn := drpcconn.New(conn)
 
-	out := &Client{
-		client: client.New(conn, codec.Default),
-	}
-	return out, nil
+	return &Client{
+		conn:   dconn,
+		client: rpc.NewDRPCITDClient(dconn),
+	}, nil
 }
 
 func NewFromConn(conn io.ReadWriteCloser) *Client {
+	dconn := drpcconn.New(conn)
+
 	return &Client{
-		client: client.New(conn, codec.Default),
+		conn:   dconn,
+		client: rpc.NewDRPCITDClient(dconn),
 	}
 }
 
+func (c *Client) FS() *FSClient {
+	return &FSClient{rpc.NewDRPCFSClient(c.conn)}
+}
+
 func (c *Client) Close() error {
-	return c.client.Close()
+	return c.conn.Close()
 }

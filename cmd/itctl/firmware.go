@@ -54,6 +54,10 @@ func fwUpgrade(c *cli.Context) error {
 	bar := pb.ProgressBarTemplate(barTmpl).Start(0)
 	// Create new scanner of connection
 	for event := range progress {
+		if event.Err != nil {
+			return event.Err
+		}
+
 		// Set total bytes in progress bar
 		bar.SetTotal(event.Total)
 		// Set amount of bytes received in progress bar

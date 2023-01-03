@@ -1,13 +1,12 @@
 package api
 
-import "context"
+import (
+	"context"
+
+	"go.arsenm.dev/itd/internal/rpc"
+)
 
 func (c *Client) WeatherUpdate(ctx context.Context) error {
-	return c.client.Call(
-		ctx,
-		"ITD",
-		"WeatherUpdate",
-		nil,
-		nil,
-	)
+	_, err := c.client.WeatherUpdate(ctx, &rpc.Empty{})
+	return err
 }

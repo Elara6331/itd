@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -17,7 +16,7 @@ func fsList(c *cli.Context) error {
 		dirPath = c.Args().Get(0)
 	}
 
-	listing, err := client.ReadDir(c.Context, dirPath)
+	listing, err := client.FS().ReadDir(c.Context, dirPath)
 	if err != nil {
 		return err
 	}
@@ -36,9 +35,9 @@ func fsMkdir(c *cli.Context) error {
 
 	var err error
 	if c.Bool("parents") {
-		err = client.MkdirAll(c.Context, c.Args().Slice()...)
+		err = client.FS().MkdirAll(c.Context, c.Args().Slice()...)
 	} else {
-		err = client.Mkdir(c.Context, c.Args().Slice()...)
+		err = client.FS().Mkdir(c.Context, c.Args().Slice()...)
 	}
 	if err != nil {
 		return err
@@ -52,7 +51,7 @@ func fsMove(c *cli.Context) error {
 		return cli.Exit("Command move requires two arguments", 1)
 	}
 
-	err := client.Rename(c.Context, c.Args().Get(0), c.Args().Get(1))
+	err := client.FS().Rename(c.Context, c.Args().Get(0), c.Args().Get(1))
 	if err != nil {
 		return err
 	}
@@ -69,7 +68,7 @@ func fsRead(c *cli.Context) error {
 	var path string
 	var err error
 	if c.Args().Get(1) == "-" {
-		tmpFile, err = ioutil.TempFile("/tmp", "itctl.*")
+		tmpFile, err = os.CreateTemp("/tmp", "itctl.*")
 		if err != nil {
 			return err
 		}
@@ -81,7 +80,7 @@ func fsRead(c *cli.Context) error {
 		}
 	}
 
-	progress, err := client.Download(c.Context, path, c.Args().Get(0))
+	progress, err := client.FS().Download(c.Context, path, c.Args().Get(0))
 	if err != nil {
 		return err
 	}
@@ -92,6 +91,10 @@ func fsRead(c *cli.Context) error {
 	bar := pb.ProgressBarTemplate(barTmpl).Start(0)
 	// Get progress events
 	for event := range progress {
+		if event.Err != nil {
+			return event.Err
+		}
+
 		// Set total bytes in progress bar
 		bar.SetTotal(int64(event.Total))
 		// Set amount of bytes sent in progress bar
@@ -116,9 +119,9 @@ func fsRemove(c *cli.Context) error {
 
 	var err error
 	if c.Bool("recursive") {
-		err = client.RemoveAll(c.Context, c.Args().Slice()...)
+		err = client.FS().RemoveAll(c.Context, c.Args().Slice()...)
 	} else {
-		err = client.Remove(c.Context, c.Args().Slice()...)
+		err = client.FS().Remove(c.Context, c.Args().Slice()...)
 	}
 	if err != nil {
 		return err
@@ -136,7 +139,7 @@ func fsWrite(c *cli.Context) error {
 	var path string
 	var err error
 	if c.Args().Get(0) == "-" {
-		tmpFile, err = ioutil.TempFile("/tmp", "itctl.*")
+		tmpFile, err = os.CreateTemp("/tmp", "itctl.*")
 		if err != nil {
 			return err
 		}
@@ -154,7 +157,7 @@ func fsWrite(c *cli.Context) error {
 		defer os.Remove(path)
 	}
 
-	progress, err := client.Upload(c.Context, c.Args().Get(1), path)
+	progress, err := client.FS().Upload(c.Context, c.Args().Get(1), path)
 	if err != nil {
 		return err
 	}
@@ -165,6 +168,10 @@ func fsWrite(c *cli.Context) error {
 	bar := pb.ProgressBarTemplate(barTmpl).Start(0)
 	// Get progress events
 	for event := range progress {
+		if event.Err != nil {
+			return event.Err
+		}
+
 		// Set total bytes in progress bar
 		bar.SetTotal(int64(event.Total))
 		// Set amount of bytes sent in progress bar

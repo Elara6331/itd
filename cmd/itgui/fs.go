@@ -36,7 +36,7 @@ func fsTab(ctx context.Context, client *api.Client, w fyne.Window, opened chan s
 		loading.Show()
 
 		// Read root directory
-		ls, err := client.ReadDir(ctx, "/")
+		ls, err := client.FS().ReadDir(ctx, "/")
 		if err != nil {
 			guiErr(err, "Error reading directory", false, w)
 			return
@@ -69,18 +69,13 @@ func fsTab(ctx context.Context, client *api.Client, w fyne.Window, opened chan s
 					progressDlg := newProgress(w)
 					progressDlg.Show()
 
-					progCh, err := client.LoadResources(ctx, resPath)
+					progCh, err := client.FS().LoadResources(ctx, resPath)
 					if err != nil {
 						guiErr(err, "Error loading resources", false, w)
 						return
 					}
 
 					for evt := range progCh {
-						if evt.Err != nil {
-							guiErr(evt.Err, "Error loading resources", false, w)
-							return
-						}
-
 						switch evt.Operation {
 						case infinitime.ResourceOperationRemoveObsolete:
 							progressDlg.SetText("Removing " + evt.Name)
@@ -135,7 +130,7 @@ func fsTab(ctx context.Context, client *api.Client, w fyne.Window, opened chan s
 						progressDlg.Show()
 
 						// Upload file
-						progressCh, err := client.Upload(ctx, remotePath, localPath)
+						progressCh, err := client.FS().Upload(ctx, remotePath, localPath)
 						if err != nil {
 							guiErr(err, "Error uploading file", false, w)
 							return
@@ -182,7 +177,7 @@ func fsTab(ctx context.Context, client *api.Client, w fyne.Window, opened chan s
 					remotePath := filepath.Join(cwd, filenameEntry.Text)
 
 					// Make directory
-					err := client.Mkdir(ctx, remotePath)
+					err := client.FS().Mkdir(ctx, remotePath)
 					if err != nil {
 						guiErr(err, "Error creating directory", false, w)
 						return
@@ -282,7 +277,7 @@ func makeItems(
 					progressDlg.Show()
 
 					// Download file
-					progressCh, err := client.Download(ctx, localPath, remotePath)
+					progressCh, err := client.FS().Download(ctx, localPath, remotePath)
 					if err != nil {
 						guiErr(err, "Error downloading file", false, w)
 						return
@@ -323,7 +318,7 @@ func makeItems(
 				oldPath := filepath.Join(cwd, item.Name)
 
 				// Rename file
-				err := client.Rename(ctx, oldPath, moveEntry.Text)
+				err := client.FS().Rename(ctx, oldPath, moveEntry.Text)
 				if err != nil {
 					guiErr(err, "Error renaming file", false, w)
 					return
@@ -342,7 +337,7 @@ func makeItems(
 			path := filepath.Join(cwd, item.Name)
 
 			// Remove file
-			err := client.Remove(ctx, path)
+			err := client.FS().Remove(ctx, path)
 			if err != nil {
 				guiErr(err, "Error removing file", false, w)
 				return
@@ -381,7 +376,7 @@ func refresh(
 	// Get current directory
 	cwd, _ := cwdData.Get()
 	// Read directory
-	ls, err := client.ReadDir(ctx, cwd)
+	ls, err := client.FS().ReadDir(ctx, cwd)
 	if err != nil {
 		guiErr(err, "Error reading directory", false, w)
 		return

@@ -30,6 +30,7 @@ type NotifyData struct {
 type FSTransferProgress struct {
 	Total uint32
 	Sent  uint32
+	Err error
 }
 
 type FileInfo struct {

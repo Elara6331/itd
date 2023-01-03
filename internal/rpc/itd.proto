@@ -1,0 +1,124 @@
+syntax = "proto3";
+package rpc;
+option go_package = "go.arsenm.dev/itd/internal/rpc";
+
+message Empty {};
+
+message IntResponse {
+    uint32 value = 1;
+}
+
+message StringResponse {
+    string value = 1;
+}
+
+message MotionResponse {
+    int32 x = 1;
+    int32 y = 2;
+    int32 z = 3;
+}
+
+message NotifyRequest {
+    string title = 1;
+    string body = 2;
+}
+
+message SetTimeRequest {
+    int64 unix_nano = 1;
+}
+
+
+message FirmwareUpgradeRequest {
+    enum Type {
+        Archive = 0;
+        Files = 1;
+    }
+
+    Type type = 1;
+    repeated string files = 2;
+}
+
+message DFUProgress {
+    int64 sent = 1;
+    int64 recieved = 2;
+    int64 total = 3;
+}
+
+service ITD {
+    rpc HeartRate(Empty) returns (IntResponse);
+    rpc WatchHeartRate(Empty) returns (stream IntResponse);
+
+    rpc BatteryLevel(Empty) returns (IntResponse);
+    rpc WatchBatteryLevel(Empty) returns (stream IntResponse);
+
+    rpc Motion(Empty) returns (MotionResponse);
+    rpc WatchMotion(Empty) returns (stream MotionResponse);
+
+    rpc StepCount(Empty) returns (IntResponse);
+    rpc WatchStepCount(Empty) returns (stream IntResponse);
+
+    rpc Version(Empty) returns (StringResponse);
+    rpc Address(Empty) returns (StringResponse);
+
+    rpc Notify(NotifyRequest) returns (Empty);
+    rpc SetTime(SetTimeRequest) returns (Empty);
+    rpc WeatherUpdate(Empty) returns (Empty);
+    rpc FirmwareUpgrade(FirmwareUpgradeRequest) returns (stream DFUProgress);
+}
+
+message PathRequest {
+    string path = 1;
+}
+
+message PathsRequest {
+    repeated string paths = 1;
+}
+
+message RenameRequest {
+    string from = 1;
+    string to = 2;
+}
+
+message TransferRequest {
+    string source = 1;
+    string destination = 2;
+}
+
+message FileInfo {
+    string name = 1;
+    int64 size = 2;
+    bool is_dir = 3;
+}
+
+message DirResponse {
+    repeated FileInfo entries = 1;
+}
+
+message TransferProgress {
+    uint32 sent = 1;
+    uint32 total = 2;
+}
+
+message ResourceLoadProgress {
+    enum Operation {
+        Upload = 0;
+        RemoveObsolete = 1;
+    }
+
+    string name = 1;
+    int64 total = 2;
+    int64 sent = 3;
+    Operation operation = 4;
+}
+
+service FS {
+    rpc RemoveAll(PathsRequest) returns (Empty);
+    rpc Remove(PathsRequest) returns (Empty);
+    rpc Rename(RenameRequest) returns (Empty);
+    rpc MkdirAll(PathsRequest) returns (Empty);
+    rpc Mkdir(PathsRequest) returns (Empty);
+    rpc ReadDir(PathRequest) returns (DirResponse);
+    rpc Upload(TransferRequest) returns (stream TransferProgress);
+    rpc Download(TransferRequest) returns (stream TransferProgress);
+    rpc LoadResources(PathRequest) returns (stream ResourceLoadProgress);
+}

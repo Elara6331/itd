@@ -29,7 +29,7 @@ func resLoad(ctx context.Context, args []string) error {
 		return err
 	}
 
-	progCh, err := client.LoadResources(ctx, path)
+	progCh, err := client.FS().LoadResources(ctx, path)
 	if err != nil {
 		return err
 	}

@@ -3,24 +3,34 @@ package api
 import (
 	"context"
 
-	"go.arsenm.dev/infinitime"
+	"go.arsenm.dev/itd/internal/rpc"
 )
 
-func (c *Client) FirmwareUpgrade(ctx context.Context, upgType UpgradeType, files ...string) (chan infinitime.DFUProgress, error) {
-	progressCh := make(chan infinitime.DFUProgress, 5)
-	err := c.client.Call(
-		ctx,
-		"ITD",
-		"FirmwareUpgrade",
-		FwUpgradeData{
-			Type:  upgType,
-			Files: files,
-		},
-		progressCh,
-	)
+type DFUProgress struct {
+	Sent     int64
+	Received int64
+	Total    int64
+	Err      error
+}
+
+func (c *Client) FirmwareUpgrade(ctx context.Context, upgType UpgradeType, files ...string) (chan DFUProgress, error) {
+	progressCh := make(chan DFUProgress, 5)
+	fc, err := c.client.FirmwareUpgrade(ctx, &rpc.FirmwareUpgradeRequest{
+		Type:  rpc.FirmwareUpgradeRequest_Type(upgType),
+		Files: files,
+	})
 	if err != nil {
 		return nil, err
 	}
+
+	go fsRecvToChannel[rpc.DFUProgress](fc, progressCh, func(evt *rpc.DFUProgress, err error) DFUProgress {
+		return DFUProgress{
+			Sent:     evt.Sent,
+			Received: evt.Recieved,
+			Total:    evt.Total,
+			Err:      err,
+		}
+	})
 
 	return progressCh, nil
 }

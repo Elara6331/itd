@@ -1,16 +1,15 @@
 package api
 
-import "context"
+import (
+	"context"
+
+	"go.arsenm.dev/itd/internal/rpc"
+)
 
 func (c *Client) Notify(ctx context.Context, title, body string) error {
-	return c.client.Call(
-		ctx,
-		"ITD",
-		"Notify",
-		NotifyData{
-			Title: title,
-			Body:  body,
-		},
-		nil,
-	)
+	_, err := c.client.Notify(ctx, &rpc.NotifyRequest{
+		Title: title,
+		Body:  body,
+	})
+	return err
 }
