@@ -9,8 +9,8 @@ import (
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
+	"go.arsenm.dev/logger"
+	"go.arsenm.dev/logger/log"
 )
 
 var cfgDir string
@@ -19,7 +19,7 @@ func init() {
 	etcPath := "/etc/itd.toml"
 
 	// Set up logger
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	log.Logger = logger.NewPretty(os.Stderr)
 
 	// Get user's configuration directory
 	userCfgDir, err := os.UserConfigDir()
@@ -67,7 +67,7 @@ func loadAndwatchCfgFile(filename string) {
 	provider := file.Provider(filename)
 
 	if cfgError := k.Load(provider, toml.Parser()); cfgError != nil {
-		log.Warn().Str("filename", filename).Err(cfgError).Msg("Error while trying to read config file")
+		log.Warn("Error while trying to read config file").Str("filename", filename).Err(cfgError).Send()
 	}
 
 	// Watch for changes and reload when detected
@@ -77,7 +77,7 @@ func loadAndwatchCfgFile(filename string) {
 		}
 
 		if cfgError := k.Load(provider, toml.Parser()); cfgError != nil {
-			log.Warn().Str("filename", filename).Err(cfgError).Msg("Error while trying to read config file")
+			log.Warn("Error while trying to read config file").Str("filename", filename).Err(cfgError).Send()
 		}
 	})
 }

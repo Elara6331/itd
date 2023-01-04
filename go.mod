@@ -16,7 +16,8 @@ require (
 	github.com/rs/zerolog v1.28.0
 	github.com/urfave/cli/v2 v2.23.7
 	go.arsenm.dev/drpc v0.0.0-20230104221210-aa7525743d98
-	go.arsenm.dev/infinitime v0.0.0-20221122225335-2da80044b34a
+	go.arsenm.dev/infinitime v0.0.0-20230104230015-512d48bc2469
+	go.arsenm.dev/logger v0.0.0-20230104225304-d706171ea6df
 	golang.org/x/text v0.5.0
 	google.golang.org/protobuf v1.28.1
 	modernc.org/sqlite v1.20.1
@@ -43,6 +44,7 @@ require (
 	github.com/go-text/typesetting v0.0.0-20221219135543-5d0d724ee181 // indirect
 	github.com/goki/freetype v0.0.0-20220119013949-7a161fd3728c // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/gookit/color v1.5.1 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/jsummers/gobmp v0.0.0-20151104160322-e2ba15ffa76e // indirect
@@ -64,6 +66,7 @@ require (
 	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/tevino/abool v1.2.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
+	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	github.com/yuin/goldmark v1.5.3 // indirect
 	github.com/zeebo/errs v1.3.0 // indirect

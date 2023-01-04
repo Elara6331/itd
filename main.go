@@ -32,9 +32,9 @@ import (
 	"github.com/gen2brain/dlgs"
 	"github.com/knadh/koanf"
 	"github.com/mattn/go-isatty"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
+	"go.arsenm.dev/logger"
+	"go.arsenm.dev/logger/log"
 )
 
 var k = koanf.New(".")
@@ -54,9 +54,9 @@ func main() {
 		return
 	}
 
-	level, err := zerolog.ParseLevel(k.String("logging.level"))
-	if err != nil || level == zerolog.NoLevel {
-		level = zerolog.InfoLevel
+	level, err := logger.ParseLogLevel(k.String("logging.level"))
+	if err != nil {
+		level = logger.LogLevelInfo
 	}
 
 	// Initialize infinitime library
@@ -93,7 +93,7 @@ func main() {
 	// Connect to InfiniTime with default options
 	dev, err := infinitime.Connect(ctx, opts)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Error connecting to InfiniTime")
+		log.Fatal("Error connecting to InfiniTime").Err(err).Send()
 	}
 
 	// When InfiniTime reconnects
@@ -124,67 +124,67 @@ func main() {
 	// Get firmware version
 	ver, err := dev.Version()
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting firmware version")
+		log.Error("Error getting firmware version").Err(err).Send()
 	}
 
 	// Log connection
-	log.Info().Str("version", ver).Msg("Connected to InfiniTime")
+	log.Info("Connected to InfiniTime").Str("version", ver).Send()
 
 	// If config specifies to notify on connect
 	if k.Bool("on.connect.notify") {
 		// Send notification to InfiniTime
 		err = dev.Notify("itd", "Successfully connected")
 		if err != nil {
-			log.Error().Err(err).Msg("Error sending notification to InfiniTime")
+			log.Error("Error sending notification to InfiniTime").Err(err).Send()
 		}
 	}
 
 	// Set time to current time
 	err = dev.SetTime(time.Now())
 	if err != nil {
-		log.Error().Err(err).Msg("Error setting current time on connected InfiniTime")
+		log.Error("Error setting current time on connected InfiniTime").Err(err).Send()
 	}
 
 	// Initialize music controls
 	err = initMusicCtrl(ctx, dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Error initializing music control")
+		log.Error("Error initializing music control").Err(err).Send()
 	}
 
 	// Start control socket
 	err = initCallNotifs(ctx, dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Error initializing call notifications")
+		log.Error("Error initializing call notifications").Err(err).Send()
 	}
 
 	// Initialize notification relay
 	err = initNotifRelay(ctx, dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Error initializing notification relay")
+		log.Error("Error initializing notification relay").Err(err).Send()
 	}
 
 	// Initializa weather
 	err = initWeather(ctx, dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Error initializing weather")
+		log.Error("Error initializing weather").Err(err).Send()
 	}
 
 	// Initialize metrics collection
 	err = initMetrics(ctx, dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Error intializing metrics collection")
+		log.Error("Error intializing metrics collection").Err(err).Send()
 	}
 
 	// Initialize metrics collection
 	err = initPureMaps(ctx, dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Error intializing puremaps integration")
+		log.Error("Error intializing puremaps integration").Err(err).Send()
 	}
 
 	// Start control socket
 	err = startSocket(ctx, dev)
 	if err != nil {
-		log.Error().Err(err).Msg("Error starting socket")
+		log.Error("Error starting socket").Err(err).Send()
 	}
 	// Block forever
 	select {}

@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/infinitime/weather"
+	"go.arsenm.dev/logger/log"
 )
 
 // METResponse represents a response from
@@ -79,7 +79,7 @@ func initWeather(ctx context.Context, dev *infinitime.Device) error {
 			// Attempt to get weather
 			data, err := getWeather(ctx, lat, lon)
 			if err != nil {
-				log.Warn().Err(err).Msg("Error getting weather data")
+				log.Warn("Error getting weather data").Err(err).Send()
 				// Wait 15 minutes before retrying
 				time.Sleep(15 * time.Minute)
 				continue
@@ -99,7 +99,7 @@ func initWeather(ctx context.Context, dev *infinitime.Device) error {
 				DewPoint:    int16(round(currentData.DewPoint)),
 			})
 			if err != nil {
-				log.Error().Err(err).Msg("Error adding temperature event")
+				log.Error("Error adding temperature event").Err(err).Send()
 			}
 
 			// Add precipitation event
@@ -112,7 +112,7 @@ func initWeather(ctx context.Context, dev *infinitime.Device) error {
 				Amount: uint8(round(current.Data.NextHour.Details.PrecipitationAmount)),
 			})
 			if err != nil {
-				log.Error().Err(err).Msg("Error adding precipitation event")
+				log.Error("Error adding precipitation event").Err(err).Send()
 			}
 
 			// Add wind event
@@ -127,7 +127,7 @@ func initWeather(ctx context.Context, dev *infinitime.Device) error {
 				DirectionMax: uint8(round(currentData.WindDirection)),
 			})
 			if err != nil {
-				log.Error().Err(err).Msg("Error adding wind event")
+				log.Error("Error adding wind event").Err(err).Send()
 			}
 
 			// Add cloud event
@@ -139,7 +139,7 @@ func initWeather(ctx context.Context, dev *infinitime.Device) error {
 				Amount: uint8(round(currentData.CloudAreaFraction)),
 			})
 			if err != nil {
-				log.Error().Err(err).Msg("Error adding clouds event")
+				log.Error("Error adding clouds event").Err(err).Send()
 			}
 
 			// Add humidity event
@@ -151,7 +151,7 @@ func initWeather(ctx context.Context, dev *infinitime.Device) error {
 				Humidity: uint8(round(currentData.RelativeHumidity)),
 			})
 			if err != nil {
-				log.Error().Err(err).Msg("Error adding humidity event")
+				log.Error("Error adding humidity event").Err(err).Send()
 			}
 
 			// Add pressure event
@@ -163,7 +163,7 @@ func initWeather(ctx context.Context, dev *infinitime.Device) error {
 				Pressure: int16(round(currentData.AirPressure)),
 			})
 			if err != nil {
-				log.Error().Err(err).Msg("Error adding pressure event")
+				log.Error("Error adding pressure event").Err(err).Send()
 			}
 
 			// Reset timer to 1 hour

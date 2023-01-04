@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/cheggaaa/pb/v3"
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"go.arsenm.dev/itd/api"
+	"go.arsenm.dev/logger/log"
 )
 
 func fwUpgrade(c *cli.Context) error {

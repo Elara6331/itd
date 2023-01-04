@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/godbus/dbus/v5"
-	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/internal/utils"
+	"go.arsenm.dev/logger/log"
 )
 
 const (
@@ -55,7 +55,7 @@ func initPureMaps(ctx context.Context, dev *infinitime.Device) error {
 		navigator = conn.Object("io.github.rinigus.PureMaps", "/io/github/rinigus/PureMaps/navigator")
 		err = setAll(navigator, dev)
 		if err != nil {
-			log.Error().Err(err).Msg("Error setting all navigation fields")
+			log.Error("Error setting all navigation fields").Err(err).Send()
 		}
 	}
 
@@ -73,7 +73,7 @@ func initPureMaps(ctx context.Context, dev *infinitime.Device) error {
 				var member string
 				err = sig.Headers[dbus.FieldMember].Store(&member)
 				if err != nil {
-					log.Error().Err(err).Msg("Error getting dbus member field")
+					log.Error("Error getting dbus member field").Err(err).Send()
 					continue
 				}
 
@@ -81,7 +81,7 @@ func initPureMaps(ctx context.Context, dev *infinitime.Device) error {
 					continue
 				}
 
-				log.Debug().Str("member", member).Msg("Signal received from PureMaps navigator")
+				log.Debug("Signal received from PureMaps navigator").Str("member", member).Send()
 
 				// The object must be retrieved in this loop in case PureMaps was not
 				// open at the time ITD was started.
@@ -93,52 +93,52 @@ func initPureMaps(ctx context.Context, dev *infinitime.Device) error {
 					var icon string
 					err = navigator.StoreProperty(iconProperty, &icon)
 					if err != nil {
-						log.Error().Err(err).Str("property", member).Msg("Error getting property")
+						log.Error("Error getting property").Err(err).Str("property", member).Send()
 						continue
 					}
 
 					err = dev.Navigation.SetFlag(infinitime.NavFlag(icon))
 					if err != nil {
-						log.Error().Err(err).Str("property", member).Msg("Error setting flag")
+						log.Error("Error setting flag").Err(err).Str("property", member).Send()
 						continue
 					}
 				case "narrative":
 					var narrative string
 					err = navigator.StoreProperty(narrativeProperty, &narrative)
 					if err != nil {
-						log.Error().Err(err).Str("property", member).Msg("Error getting property")
+						log.Error("Error getting property").Err(err).Str("property", member).Send()
 						continue
 					}
 
 					err = dev.Navigation.SetNarrative(narrative)
 					if err != nil {
-						log.Error().Err(err).Str("property", member).Msg("Error setting flag")
+						log.Error("Error setting flag").Err(err).Str("property", member).Send()
 						continue
 					}
 				case "manDist":
 					var manDist string
 					err = navigator.StoreProperty(manDistProperty, &manDist)
 					if err != nil {
-						log.Error().Err(err).Str("property", member).Msg("Error getting property")
+						log.Error("Error getting property").Err(err).Str("property", member).Send()
 						continue
 					}
 
 					err = dev.Navigation.SetManDist(manDist)
 					if err != nil {
-						log.Error().Err(err).Str("property", member).Msg("Error setting flag")
+						log.Error("Error setting flag").Err(err).Str("property", member).Send()
 						continue
 					}
 				case "progress":
 					var progress int32
 					err = navigator.StoreProperty(progressProperty, &progress)
 					if err != nil {
-						log.Error().Err(err).Str("property", member).Msg("Error getting property")
+						log.Error("Error getting property").Err(err).Str("property", member).Send()
 						continue
 					}
 
 					err = dev.Navigation.SetProgress(uint8(progress))
 					if err != nil {
-						log.Error().Err(err).Str("property", member).Msg("Error setting flag")
+						log.Error("Error setting flag").Err(err).Str("property", member).Send()
 						continue
 					}
 				}
@@ -149,7 +149,7 @@ func initPureMaps(ctx context.Context, dev *infinitime.Device) error {
 	}()
 
 	if exists {
-		log.Info().Msg("Sending PureMaps data to InfiniTime")
+		log.Info("Sending PureMaps data to InfiniTime").Send()
 	}
 
 	return nil

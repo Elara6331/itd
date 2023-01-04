@@ -5,9 +5,9 @@ import (
 	"sync"
 
 	"github.com/godbus/dbus/v5"
-	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/internal/utils"
+	"go.arsenm.dev/logger/log"
 )
 
 func initCallNotifs(ctx context.Context, dev *infinitime.Device) error {
@@ -64,7 +64,7 @@ func initCallNotifs(ctx context.Context, dev *infinitime.Device) error {
 			// Get phone number from call object using method call connection
 			phoneNum, err := getPhoneNum(conn, callObj)
 			if err != nil {
-				log.Error().Err(err).Msg("Error getting phone number")
+				log.Error("Error getting phone number").Err(err).Send()
 				continue
 			}
 
@@ -82,24 +82,24 @@ func initCallNotifs(ctx context.Context, dev *infinitime.Device) error {
 						// Attempt to accept call
 						err = acceptCall(ctx, conn, callObj)
 						if err != nil {
-							log.Warn().Err(err).Msg("Error accepting call")
+							log.Warn("Error accepting call").Err(err).Send()
 						}
 					case infinitime.CallStatusDeclined:
 						// Attempt to decline call
 						err = declineCall(ctx, conn, callObj)
 						if err != nil {
-							log.Warn().Err(err).Msg("Error declining call")
+							log.Warn("Error declining call").Err(err).Send()
 						}
 					case infinitime.CallStatusMuted:
 						// Warn about unimplemented muting
-						log.Warn().Msg("Muting calls is not implemented")
+						log.Warn("Muting calls is not implemented").Send()
 					}
 				}
 			})
 		}
 	}()
 
-	log.Info().Msg("Relaying calls to InfiniTime")
+	log.Info("Relaying calls to InfiniTime").Send()
 	return nil
 }
 

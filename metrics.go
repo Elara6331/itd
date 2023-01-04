@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
+	"go.arsenm.dev/logger/log"
 	_ "modernc.org/sqlite"
 )
 
@@ -125,7 +125,7 @@ func initMetrics(ctx context.Context, dev *infinitime.Device) error {
 		}()
 	}
 
-	log.Info().Msg("Initialized metrics collection")
+	log.Info("Initialized metrics collection").Send()
 
 	return nil
 }

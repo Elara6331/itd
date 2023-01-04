@@ -23,10 +23,10 @@ import (
 	"fmt"
 
 	"github.com/godbus/dbus/v5"
-	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/internal/utils"
 	"go.arsenm.dev/itd/translit"
+	"go.arsenm.dev/logger/log"
 )
 
 func initNotifRelay(ctx context.Context, dev *infinitime.Device) error {
@@ -94,7 +94,7 @@ func initNotifRelay(ctx context.Context, dev *infinitime.Device) error {
 		}
 	}()
 
-	log.Info().Msg("Relaying notifications to InfiniTime")
+	log.Info("Relaying notifications to InfiniTime").Send()
 	return nil
 }
 

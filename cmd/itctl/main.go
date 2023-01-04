@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"go.arsenm.dev/itd/api"
+	"go.arsenm.dev/logger/log"
 )
 
 var client *api.Client
@@ -296,7 +296,7 @@ func main() {
 
 	err := app.RunContext(ctx, os.Args)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Error while running app")
+		log.Fatal("Error while running app").Err(err).Send()
 	}
 }
 

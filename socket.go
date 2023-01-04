@@ -27,11 +27,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/drpc/muxserver"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/infinitime/blefs"
 	"go.arsenm.dev/itd/internal/rpc"
+	"go.arsenm.dev/logger/log"
 	"storj.io/drpc/drpcmux"
 )
 
@@ -62,7 +62,7 @@ func startSocket(ctx context.Context, dev *infinitime.Device) error {
 
 	fs, err := dev.FS()
 	if err != nil {
-		log.Warn().Err(err).Msg("Error getting BLE filesystem")
+		log.Warn("Error getting BLE filesystem").Err(err).Send()
 	}
 
 	mux := drpcmux.New()
@@ -80,7 +80,7 @@ func startSocket(ctx context.Context, dev *infinitime.Device) error {
 	go muxserver.New(mux).Serve(ctx, ln)
 
 	// Log socket start
-	log.Info().Str("path", k.String("socket.path")).Msg("Started control socket")
+	log.Info("Started control socket").Str("path", k.String("socket.path")).Send()
 
 	return nil
 }
@@ -445,7 +445,7 @@ func (fs *FS) updateFS() {
 		// Get new FS
 		newFS, err := fs.dev.FS()
 		if err != nil {
-			log.Warn().Err(err).Msg("Error updating BLE filesystem")
+			log.Warn("Error updating BLE filesystem").Err(err).Send()
 		} else {
 			// Set FS pointer to new FS
 			fs.fs = newFS

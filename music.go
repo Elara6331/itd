@@ -21,10 +21,10 @@ package main
 import (
 	"context"
 
-	"github.com/rs/zerolog/log"
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/mpris"
 	"go.arsenm.dev/itd/translit"
+	"go.arsenm.dev/logger/log"
 )
 
 func initMusicCtrl(ctx context.Context, dev *infinitime.Device) error {
@@ -76,7 +76,7 @@ func initMusicCtrl(ctx context.Context, dev *infinitime.Device) error {
 	}()
 
 	// Log completed initialization
-	log.Info().Msg("Initialized InfiniTime music controls")
+	log.Info("Initialized InfiniTime music controls").Send()
 
 	return nil
 }
