@@ -67,14 +67,12 @@ func startSocket(ctx context.Context, dev *infinitime.Device) error {
 
 	mux := drpcmux.New()
 
-	rpc.DRPCRegisterITD(mux, &ITD{
-		dev: dev,
-	})
+	err = rpc.DRPCRegisterITD(mux, &ITD{dev})
+	if err != nil {
+		return err
+	}
 
-	rpc.DRPCRegisterFS(mux, &FS{
-		dev: dev,
-		fs:  fs,
-	})
+	err = rpc.DRPCRegisterFS(mux, &FS{dev, fs})
 	if err != nil {
 		return err
 	}
