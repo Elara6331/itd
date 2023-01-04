@@ -13,7 +13,6 @@ require (
 	github.com/knadh/koanf v1.4.4
 	github.com/mattn/go-isatty v0.0.17
 	github.com/mozillazg/go-pinyin v0.19.0
-	github.com/rs/zerolog v1.28.0
 	github.com/urfave/cli/v2 v2.23.7
 	go.arsenm.dev/drpc v0.0.0-20230104221210-aa7525743d98
 	go.arsenm.dev/infinitime v0.0.0-20230104230015-512d48bc2469

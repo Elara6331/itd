@@ -21,7 +21,7 @@ func fwUpgrade(c *cli.Context) error {
 
 		err = resLoad(c.Context, []string{absRes})
 		if err != nil {
-			log.Error().Msg("Resource loading has returned an error. This can happen if your current version of InfiniTime doesn't support BLE FS. Try updating without resource loading, and then load them after using the `itctl res load` command.")
+			log.Error("Resource loading has returned an error. This can happen if your current version of InfiniTime doesn't support BLE FS. Try updating without resource loading, and then load them after using the `itctl res load` command.").Send()
 			return err
 		}
 	}

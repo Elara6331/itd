@@ -7,16 +7,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rs/zerolog"
 	"github.com/urfave/cli/v2"
 	"go.arsenm.dev/itd/api"
+	"go.arsenm.dev/logger"
 	"go.arsenm.dev/logger/log"
 )
 
 var client *api.Client
 
 func main() {
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	log.Logger = logger.NewPretty(os.Stderr)
 
 	ctx := context.Background()
 	ctx, _ = signal.NotifyContext(
