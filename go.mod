@@ -10,13 +10,12 @@ require (
 	github.com/cheggaaa/pb/v3 v3.1.0
 	github.com/gen2brain/dlgs v0.0.0-20220603100644-40c77870fa8d
 	github.com/godbus/dbus/v5 v5.1.0
-	github.com/hashicorp/yamux v0.1.1
 	github.com/knadh/koanf v1.4.4
 	github.com/mattn/go-isatty v0.0.17
 	github.com/mozillazg/go-pinyin v0.19.0
 	github.com/rs/zerolog v1.28.0
 	github.com/urfave/cli/v2 v2.23.7
-	go.arsenm.dev/drpc v0.0.0-20230103210137-7219da760f6d
+	go.arsenm.dev/drpc v0.0.0-20230104221210-aa7525743d98
 	go.arsenm.dev/infinitime v0.0.0-20221122225335-2da80044b34a
 	golang.org/x/text v0.5.0
 	google.golang.org/protobuf v1.28.1
@@ -45,6 +44,7 @@ require (
 	github.com/goki/freetype v0.0.0-20220119013949-7a161fd3728c // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
+	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/jsummers/gobmp v0.0.0-20151104160322-e2ba15ffa76e // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
