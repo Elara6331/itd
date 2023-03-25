@@ -22,6 +22,7 @@
 - Weather
 - BLE Filesystem
 - Navigation (PureMaps)
+- FUSE Filesystem
 
 ---
 
