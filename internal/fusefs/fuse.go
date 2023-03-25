@@ -29,13 +29,22 @@ type DirEntry struct {
 
 type ITNode struct {
 	fs.Inode
-	kind int
+	kind nodeKind
 	Ino  uint64
 
 	lst  []DirEntry
 	self DirEntry
 	path string
 }
+
+type nodeKind uint8
+
+const (
+	nodeKindRoot = iota
+	nodeKindInfo
+	nodeKindFS
+	nodeKindReadOnly
+)
 
 var (
 	myfs     *blefs.FS         = nil
@@ -51,7 +60,7 @@ func BuildRootNode(dev *infinitime.Device) (*ITNode, error) {
 		return nil, err
 	}
 
-	return &ITNode{kind: 0}, nil
+	return &ITNode{kind: nodeKindRoot}, nil
 }
 
 var properties = make([]ITProperty, 6)
@@ -198,7 +207,7 @@ func (n *ITNode) Lookup(ctx context.Context, name string, out *fuse.EntryOut) (*
 				Mode: fuse.S_IFDIR,
 				Ino:  uint64(0),
 			}
-			operations := &ITNode{kind: 1, Ino: 0}
+			operations := &ITNode{kind: nodeKindInfo, Ino: 0}
 			child := n.NewInode(ctx, operations, stable)
 			return child, 0
 		} else if name == "fs" {
@@ -206,7 +215,7 @@ func (n *ITNode) Lookup(ctx context.Context, name string, out *fuse.EntryOut) (*
 				Mode: fuse.S_IFDIR,
 				Ino:  uint64(1),
 			}
-			operations := &ITNode{kind: 2, Ino: 1, path: ""}
+			operations := &ITNode{kind: nodeKindFS, Ino: 1, path: ""}
 			child := n.NewInode(ctx, operations, stable)
 			return child, 0
 		}
@@ -218,7 +227,7 @@ func (n *ITNode) Lookup(ctx context.Context, name string, out *fuse.EntryOut) (*
 					Mode: fuse.S_IFREG,
 					Ino:  uint64(value.Ino),
 				}
-				operations := &ITNode{kind: 3, Ino: value.Ino}
+				operations := &ITNode{kind: nodeKindReadOnly, Ino: value.Ino}
 				child := n.NewInode(ctx, operations, stable)
 				return child, 0
 			}
@@ -241,7 +250,7 @@ func (n *ITNode) Lookup(ctx context.Context, name string, out *fuse.EntryOut) (*
 					Mode: fuse.S_IFDIR,
 					Ino:  inodemap[file.path],
 				}
-				operations := &ITNode{kind: 2, path: file.path}
+				operations := &ITNode{kind: nodeKindFS, path: file.path}
 				child := n.NewInode(ctx, operations, stable)
 				return child, 0
 			} else {
@@ -250,7 +259,7 @@ func (n *ITNode) Lookup(ctx context.Context, name string, out *fuse.EntryOut) (*
 					Ino:  inodemap[file.path],
 				}
 				operations := &ITNode{
-					kind: 2, path: file.path,
+					kind: nodeKindFS, path: file.path,
 					self: file,
 				}
 				child := n.NewInode(ctx, operations, stable)
@@ -483,7 +492,7 @@ func (f *ITNode) Create(ctx context.Context, name string, flags uint32, mode uin
 		Ino:  ino,
 	}
 	operations := &ITNode{
-		kind: 2, Ino: ino,
+		kind: nodeKindFS, Ino: ino,
 		path: path,
 	}
 	node = f.NewInode(ctx, operations, stable)
@@ -524,7 +533,7 @@ func (f *ITNode) Mkdir(ctx context.Context, name string, mode uint32, out *fuse.
 		Ino:  ino,
 	}
 	operations := &ITNode{
-		kind: 2, Ino: ino,
+		kind: nodeKindFS, Ino: ino,
 		path: path,
 	}
 	node := f.NewInode(ctx, operations, stable)
