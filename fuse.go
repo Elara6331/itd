@@ -1,24 +1,25 @@
 package main
+
 import (
-	"go.arsenm.dev/itd/internal/fusefs"
+	"context"
 	"os"
+
 	"github.com/hanwen/go-fuse/v2/fs"
 	"github.com/hanwen/go-fuse/v2/fuse"
-	"go.arsenm.dev/logger/log"
-	"context"
 	"go.arsenm.dev/infinitime"
+	"go.arsenm.dev/itd/internal/fusefs"
+	"go.arsenm.dev/logger/log"
 )
 
 func startFUSE(ctx context.Context, dev *infinitime.Device) error {
 	// This is where we'll mount the FS
-	err := os.MkdirAll(k.String("fuse.mountpoint"), 0755)
+	err := os.MkdirAll(k.String("fuse.mountpoint"), 0o755)
 	if err != nil && !os.IsExist(err) {
 		return err
 	}
 
 	// Ignore the error because nothing might be mounted on the mountpoint
 	_ = fusefs.Unmount(k.String("fuse.mountpoint"))
-
 
 	root, err := fusefs.BuildRootNode(dev)
 	if err != nil {
@@ -31,7 +32,7 @@ func startFUSE(ctx context.Context, dev *infinitime.Device) error {
 	server, err := fs.Mount(k.String("fuse.mountpoint"), root, &fs.Options{
 		MountOptions: fuse.MountOptions{
 			// Set to true to see how the file system works.
-			Debug: false,
+			Debug:          false,
 			SingleThreaded: true,
 		},
 	})
@@ -40,7 +41,7 @@ func startFUSE(ctx context.Context, dev *infinitime.Device) error {
 			Str("target", k.String("fuse.mountpoint")).
 			Err(err).
 			Send()
-			return err
+		return err
 	}
 
 	log.Info("Mounted on target").
