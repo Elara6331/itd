@@ -293,7 +293,7 @@ type sensorFileReadHandle struct {
 var _ fs.FileReader = (*sensorFileReadHandle)(nil)
 
 func (fh *sensorFileReadHandle) Read(ctx context.Context, dest []byte, off int64) (fuse.ReadResult, syscall.Errno) {
-	log.Info("Executing Read").Int("size", len(fh.content)).Send()
+	log.Debug("FUSE Executing Read").Int("size", len(fh.content)).Send()
 	end := off + int64(len(dest))
 	if end > int64(len(fh.content)) {
 		end = int64(len(fh.content))
@@ -315,7 +315,7 @@ type bytesFileWriteHandle struct {
 var _ fs.FileWriter = (*bytesFileWriteHandle)(nil)
 
 func (fh *bytesFileWriteHandle) Write(ctx context.Context, data []byte, off int64) (written uint32, errno syscall.Errno) {
-	log.Info("Executing Write").Str("path", fh.path).Int("prev_size", len(fh.content)).Int("next_size", len(data)).Send()
+	log.Debug("FUSE Executing Write").Str("path", fh.path).Int("prev_size", len(fh.content)).Int("next_size", len(data)).Send()
 	if off != int64(len(fh.content)) {
 		log.Error("FUSE Write file size changed unexpectedly").Int("expect", int(off)).Int("received", len(fh.content)).Send()
 		return 0, syscall.ENXIO
