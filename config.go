@@ -106,5 +106,8 @@ func setCfgDefaults() {
 		"notifs.ignore.body":    []string{},
 
 		"music.vol.interval": 5,
+
+		"fuse.enabled": false,
+		"fuse.mountpoint": "/tmp/itd/mnt",
 	}, "."), nil)
 }

@@ -181,6 +181,14 @@ func main() {
 		log.Error("Error intializing puremaps integration").Err(err).Send()
 	}
 
+	// Start fuse socket
+	if k.Bool("fuse.enabled") {
+		err = startFUSE(ctx, dev)
+		if err != nil {
+			log.Error("Error starting fuse socket").Err(err).Send()
+		}
+	}
+
 	// Start control socket
 	err = startSocket(ctx, dev)
 	if err != nil {
