@@ -265,7 +265,6 @@ func (n *ITNode) Lookup(ctx context.Context, name string, out *fuse.EntryOut) (*
 				child := n.NewInode(ctx, operations, stable)
 				return child, 0
 			}
-			break
 		}
 		log.Warn("FUSE Lookup failed").Str("path", n.path+"/"+name).Send()
 	}
