@@ -26,6 +26,8 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"sync"
+
 	"syscall"
 	"time"
 
@@ -74,21 +76,7 @@ func main() {
 		LogLevel:         level,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	sigCh := make(chan os.Signal, 1)
-	go func() {
-		<-sigCh
-		cancel()
-		time.Sleep(200 * time.Millisecond)
-		os.Exit(0)
-	}()
-	signal.Notify(
-		sigCh,
-		syscall.SIGINT,
-		syscall.SIGTERM,
-	)
+	ctx := context.Background()
 
 	// Connect to InfiniTime with default options
 	dev, err := infinitime.Connect(ctx, opts)
@@ -145,57 +133,88 @@ func main() {
 		log.Error("Error setting current time on connected InfiniTime").Err(err).Send()
 	}
 
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	go func() {
+		sig := <-sigCh
+		log.Warn("Signal received, shutting down").Stringer("signal", sig).Send()
+		cancel()
+	}()
+
+	wg := WaitGroup{&sync.WaitGroup{}}
+
 	// Initialize music controls
-	err = initMusicCtrl(ctx, dev)
+	err = initMusicCtrl(ctx, wg, dev)
 	if err != nil {
 		log.Error("Error initializing music control").Err(err).Send()
 	}
 
 	// Start control socket
-	err = initCallNotifs(ctx, dev)
+	err = initCallNotifs(ctx, wg, dev)
 	if err != nil {
 		log.Error("Error initializing call notifications").Err(err).Send()
 	}
 
 	// Initialize notification relay
-	err = initNotifRelay(ctx, dev)
+	err = initNotifRelay(ctx, wg, dev)
 	if err != nil {
 		log.Error("Error initializing notification relay").Err(err).Send()
 	}
 
 	// Initializa weather
-	err = initWeather(ctx, dev)
+	err = initWeather(ctx, wg, dev)
 	if err != nil {
 		log.Error("Error initializing weather").Err(err).Send()
 	}
 
 	// Initialize metrics collection
-	err = initMetrics(ctx, dev)
+	err = initMetrics(ctx, wg, dev)
 	if err != nil {
 		log.Error("Error intializing metrics collection").Err(err).Send()
 	}
 
-	// Initialize metrics collection
-	err = initPureMaps(ctx, dev)
+	// Initialize puremaps integration
+	err = initPureMaps(ctx, wg, dev)
 	if err != nil {
 		log.Error("Error intializing puremaps integration").Err(err).Send()
 	}
 
 	// Start fuse socket
 	if k.Bool("fuse.enabled") {
-		err = startFUSE(ctx, dev)
+		err = startFUSE(ctx, wg, dev)
 		if err != nil {
 			log.Error("Error starting fuse socket").Err(err).Send()
 		}
 	}
 
 	// Start control socket
-	err = startSocket(ctx, dev)
+	err = startSocket(ctx, wg, dev)
 	if err != nil {
 		log.Error("Error starting socket").Err(err).Send()
 	}
-	// Block forever
-	select {}
+
+	wg.Wait()
+}
+
+type x struct {
+	n int
+	*sync.WaitGroup
+}
+
+func (xy *x) Add(i int) {
+	xy.n += i
+	xy.WaitGroup.Add(i)
+	fmt.Println("add: counter:", xy.n)
+}
+
+func (xy *x) Done() {
+	xy.n -= 1
+	xy.WaitGroup.Done()
+	fmt.Println("done: counter:", xy.n)
 }
 
 func onReqPasskey() (uint32, error) {

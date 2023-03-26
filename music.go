@@ -20,6 +20,7 @@ package main
 
 import (
 	"context"
+	
 
 	"go.arsenm.dev/infinitime"
 	"go.arsenm.dev/itd/mpris"
@@ -27,7 +28,7 @@ import (
 	"go.arsenm.dev/logger/log"
 )
 
-func initMusicCtrl(ctx context.Context, dev *infinitime.Device) error {
+func initMusicCtrl(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
 	mpris.Init(ctx)
 
 	maps := k.Strings("notifs.translit.use")
@@ -54,23 +55,31 @@ func initMusicCtrl(ctx context.Context, dev *infinitime.Device) error {
 	if err != nil {
 		return err
 	}
+	
+	wg.Add(1)
 	go func() {
+		defer wg.Done("musicCtrl")
 		// For every music event received
-		for musicEvt := range musicEvtCh {
-			// Perform appropriate action based on event
-			switch musicEvt {
-			case infinitime.MusicEventPlay:
-				mpris.Play()
-			case infinitime.MusicEventPause:
-				mpris.Pause()
-			case infinitime.MusicEventNext:
-				mpris.Next()
-			case infinitime.MusicEventPrev:
-				mpris.Prev()
-			case infinitime.MusicEventVolUp:
-				mpris.VolUp(uint(k.Int("music.vol.interval")))
-			case infinitime.MusicEventVolDown:
-				mpris.VolDown(uint(k.Int("music.vol.interval")))
+		for {
+			select {
+			case musicEvt := <-musicEvtCh:
+				// Perform appropriate action based on event
+				switch musicEvt {
+				case infinitime.MusicEventPlay:
+					mpris.Play()
+				case infinitime.MusicEventPause:
+					mpris.Pause()
+				case infinitime.MusicEventNext:
+					mpris.Next()
+				case infinitime.MusicEventPrev:
+					mpris.Prev()
+				case infinitime.MusicEventVolUp:
+					mpris.VolUp(uint(k.Int("music.vol.interval")))
+				case infinitime.MusicEventVolDown:
+					mpris.VolDown(uint(k.Int("music.vol.interval")))
+				}
+			case <-ctx.Done():
+				return
 			}
 		}
 	}()

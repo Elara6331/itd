@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"path/filepath"
+
 	"time"
 
 	"go.arsenm.dev/infinitime"
@@ -11,7 +12,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func initMetrics(ctx context.Context, dev *infinitime.Device) error {
+func initMetrics(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
 	// If metrics disabled, return nil
 	if !k.Bool("metrics.enabled") {
 		return nil
@@ -124,6 +125,13 @@ func initMetrics(ctx context.Context, dev *infinitime.Device) error {
 			}
 		}()
 	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done("metrics")
+		<-ctx.Done()
+		db.Close()
+	}()
 
 	log.Info("Initialized metrics collection").Send()
 

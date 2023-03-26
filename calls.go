@@ -10,7 +10,7 @@ import (
 	"go.arsenm.dev/logger/log"
 )
 
-func initCallNotifs(ctx context.Context, dev *infinitime.Device) error {
+func initCallNotifs(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
 	// Connect to system bus. This connection is for method calls.
 	conn, err := utils.NewSystemBusConn(ctx)
 	if err != nil {
@@ -53,49 +53,55 @@ func initCallNotifs(ctx context.Context, dev *infinitime.Device) error {
 	var respHandlerOnce sync.Once
 	var callObj dbus.BusObject
 
+	wg.Add(1)
 	go func() {
-		// For every message received
-		for event := range callCh {
-			// Get path to call object
-			callPath := event.Body[0].(dbus.ObjectPath)
-			// Get call object
-			callObj = conn.Object("org.freedesktop.ModemManager1", callPath)
+		defer wg.Done("callNotifs")
+		for {
+			select {
+			case event := <-callCh:
+				// Get path to call object
+				callPath := event.Body[0].(dbus.ObjectPath)
+				// Get call object
+				callObj = conn.Object("org.freedesktop.ModemManager1", callPath)
 
-			// Get phone number from call object using method call connection
-			phoneNum, err := getPhoneNum(conn, callObj)
-			if err != nil {
-				log.Error("Error getting phone number").Err(err).Send()
-				continue
-			}
-
-			// Send call notification to InfiniTime
-			resCh, err := dev.NotifyCall(phoneNum)
-			if err != nil {
-				continue
-			}
-
-			go respHandlerOnce.Do(func() {
-				// Wait for PineTime response
-				for res := range resCh {
-					switch res {
-					case infinitime.CallStatusAccepted:
-						// Attempt to accept call
-						err = acceptCall(ctx, conn, callObj)
-						if err != nil {
-							log.Warn("Error accepting call").Err(err).Send()
-						}
-					case infinitime.CallStatusDeclined:
-						// Attempt to decline call
-						err = declineCall(ctx, conn, callObj)
-						if err != nil {
-							log.Warn("Error declining call").Err(err).Send()
-						}
-					case infinitime.CallStatusMuted:
-						// Warn about unimplemented muting
-						log.Warn("Muting calls is not implemented").Send()
-					}
+				// Get phone number from call object using method call connection
+				phoneNum, err := getPhoneNum(conn, callObj)
+				if err != nil {
+					log.Error("Error getting phone number").Err(err).Send()
+					continue
 				}
-			})
+
+				// Send call notification to InfiniTime
+				resCh, err := dev.NotifyCall(phoneNum)
+				if err != nil {
+					continue
+				}
+
+				go respHandlerOnce.Do(func() {
+					// Wait for PineTime response
+					for res := range resCh {
+						switch res {
+						case infinitime.CallStatusAccepted:
+							// Attempt to accept call
+							err = acceptCall(ctx, conn, callObj)
+							if err != nil {
+								log.Warn("Error accepting call").Err(err).Send()
+							}
+						case infinitime.CallStatusDeclined:
+							// Attempt to decline call
+							err = declineCall(ctx, conn, callObj)
+							if err != nil {
+								log.Warn("Error declining call").Err(err).Send()
+							}
+						case infinitime.CallStatusMuted:
+							// Warn about unimplemented muting
+							log.Warn("Muting calls is not implemented").Send()
+						}
+					}
+				})
+			case <-ctx.Done():
+				return
+			}
 		}
 	}()
 

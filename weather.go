@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+
 	"time"
 
 	"go.arsenm.dev/infinitime"
@@ -61,7 +62,14 @@ type OSMData []struct {
 
 var sendWeatherCh = make(chan struct{}, 1)
 
-func initWeather(ctx context.Context, dev *infinitime.Device) error {
+func sleepCtx(ctx context.Context, d time.Duration) {
+	select {
+	case <-time.After(d):
+	case <-ctx.Done():
+	}
+}
+
+func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
 	if !k.Bool("weather.enabled") {
 		return nil
 	}
@@ -74,14 +82,21 @@ func initWeather(ctx context.Context, dev *infinitime.Device) error {
 
 	timer := time.NewTimer(time.Hour)
 
+	wg.Add(1)
 	go func() {
+		defer wg.Done("weather")
 		for {
+			_, ok := <-ctx.Done()
+			if !ok {
+				return
+			}
+
 			// Attempt to get weather
 			data, err := getWeather(ctx, lat, lon)
 			if err != nil {
 				log.Warn("Error getting weather data").Err(err).Send()
 				// Wait 15 minutes before retrying
-				time.Sleep(15 * time.Minute)
+				sleepCtx(ctx, 15*time.Minute)
 				continue
 			}
 
@@ -174,6 +189,8 @@ func initWeather(ctx context.Context, dev *infinitime.Device) error {
 			select {
 			case <-timer.C:
 			case <-sendWeatherCh:
+			case <-ctx.Done():
+				return
 			}
 		}
 	}()

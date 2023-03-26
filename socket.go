@@ -25,6 +25,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	
 	"time"
 
 	"go.arsenm.dev/drpc/muxserver"
@@ -41,7 +42,7 @@ var (
 	ErrDFUInvalidUpgType = errors.New("invalid upgrade type")
 )
 
-func startSocket(ctx context.Context, dev *infinitime.Device) error {
+func startSocket(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
 	// Make socket directory if non-existant
 	err := os.MkdirAll(filepath.Dir(k.String("socket.path")), 0o755)
 	if err != nil {
@@ -77,10 +78,13 @@ func startSocket(ctx context.Context, dev *infinitime.Device) error {
 		return err
 	}
 
-	go muxserver.New(mux).Serve(ctx, ln)
+	log.Info("Starting control socket").Str("path", k.String("socket.path")).Send()
 
-	// Log socket start
-	log.Info("Started control socket").Str("path", k.String("socket.path")).Send()
+	wg.Add(1)
+	go func() {
+		defer wg.Done("socket")
+		muxserver.New(mux).Serve(ctx, ln)
+	}()
 
 	return nil
 }

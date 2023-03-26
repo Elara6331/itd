@@ -18,7 +18,7 @@ const (
 	progressProperty  = interfaceName + ".progress"
 )
 
-func initPureMaps(ctx context.Context, dev *infinitime.Device) error {
+func initPureMaps(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
 	// Connect to session bus. This connection is for method calls.
 	conn, err := utils.NewSessionBusConn(ctx)
 	if err != nil {
@@ -59,7 +59,10 @@ func initPureMaps(ctx context.Context, dev *infinitime.Device) error {
 		}
 	}
 
+	wg.Add(1)
 	go func() {
+		defer wg.Done("pureMaps")
+
 		signalCh := make(chan *dbus.Message, 10)
 		monitorConn.Eavesdrop(signalCh)
 

@@ -4,6 +4,8 @@ go 1.18
 
 replace fyne.io/x/fyne => github.com/metal3d/fyne-x v0.0.0-20220508095732-177117e583fb
 
+replace go.arsenm.dev/drpc => /home/elara/Code/drpc
+
 require (
 	fyne.io/fyne/v2 v2.3.0
 	fyne.io/x/fyne v0.0.0-20220107050838-c4a1de51d4ce
@@ -74,7 +76,7 @@ require (
 	golang.org/x/mobile v0.0.0-20221110043201-43a038452099 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.4.0 // indirect
-	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/tools v0.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/js/dom v0.0.0-20221001195520-26252dedbe70 // indirect

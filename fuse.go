@@ -11,7 +11,7 @@ import (
 	"go.arsenm.dev/logger/log"
 )
 
-func startFUSE(ctx context.Context, dev *infinitime.Device) error {
+func startFUSE(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
 	// This is where we'll mount the FS
 	err := os.MkdirAll(k.String("fuse.mountpoint"), 0o755)
 	if err != nil && !os.IsExist(err) {
@@ -55,7 +55,12 @@ func startFUSE(ctx context.Context, dev *infinitime.Device) error {
 		return err
 	}
 
-	// Wait until unmount before exiting
-	go server.Serve()
+	wg.Add(1)
+	go func() {
+		defer wg.Done("fuse")
+		<-ctx.Done()
+		server.Unmount()
+	}()
+
 	return nil
 }

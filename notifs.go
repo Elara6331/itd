@@ -29,7 +29,7 @@ import (
 	"go.arsenm.dev/logger/log"
 )
 
-func initNotifRelay(ctx context.Context, dev *infinitime.Device) error {
+func initNotifRelay(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
 	// Connect to dbus session bus
 	bus, err := utils.NewSessionBusConn(ctx)
 	if err != nil {
@@ -54,43 +54,51 @@ func initNotifRelay(ctx context.Context, dev *infinitime.Device) error {
 	// Send events to channel
 	bus.Eavesdrop(notifCh)
 
+	wg.Add(1)
 	go func() {
+		defer wg.Done("notifRelay")
 		// For every event sent to channel
-		for v := range notifCh {
-			// If firmware is updating, skip
-			if firmwareUpdating {
-				continue
+		for {
+			select {
+			case v := <-notifCh:
+				// If firmware is updating, skip
+				if firmwareUpdating {
+					continue
+				}
+
+				// If body does not contain 5 elements, skip
+				if len(v.Body) < 5 {
+					continue
+				}
+
+				// Get requred fields
+				sender, summary, body := v.Body[0].(string), v.Body[3].(string), v.Body[4].(string)
+
+				// If fields are ignored in config, skip
+				if ignored(sender, summary, body) {
+					continue
+				}
+
+				maps := k.Strings("notifs.translit.use")
+				translit.Transliterators["custom"] = translit.Map(k.Strings("notifs.translit.custom"))
+				sender = translit.Transliterate(sender, maps...)
+				summary = translit.Transliterate(summary, maps...)
+				body = translit.Transliterate(body, maps...)
+
+				var msg string
+				// If summary does not exist, set message to body.
+				// If it does, set message to summary, two newlines, and then body
+				if summary == "" {
+					msg = body
+				} else {
+					msg = fmt.Sprintf("%s\n\n%s", summary, body)
+				}
+
+				dev.Notify(sender, msg)
+			case <-ctx.Done():
+				bus.Close()
+				return
 			}
-
-			// If body does not contain 5 elements, skip
-			if len(v.Body) < 5 {
-				continue
-			}
-
-			// Get requred fields
-			sender, summary, body := v.Body[0].(string), v.Body[3].(string), v.Body[4].(string)
-
-			// If fields are ignored in config, skip
-			if ignored(sender, summary, body) {
-				continue
-			}
-
-			maps := k.Strings("notifs.translit.use")
-			translit.Transliterators["custom"] = translit.Map(k.Strings("notifs.translit.custom"))
-			sender = translit.Transliterate(sender, maps...)
-			summary = translit.Transliterate(summary, maps...)
-			body = translit.Transliterate(body, maps...)
-
-			var msg string
-			// If summary does not exist, set message to body.
-			// If it does, set message to summary, two newlines, and then body
-			if summary == "" {
-				msg = body
-			} else {
-				msg = fmt.Sprintf("%s\n\n%s", summary, body)
-			}
-
-			dev.Notify(sender, msg)
 		}
 	}()
 
