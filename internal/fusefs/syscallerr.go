@@ -58,7 +58,7 @@ func syscallErr(err error) syscall.Errno {
 		case blefs.ErrFileWriteOnly: // file is write only
 			return syscall.EACCES
 		case blefs.ErrInvalidOffset: // invalid file offset
-			return syscall.EFAULT // TODO
+			return syscall.EINVAL
 		case blefs.ErrOffsetChanged: // offset has already been changed
 			return syscall.ESPIPE
 		case blefs.ErrReadOpen: // only one file can be opened for reading at a time
