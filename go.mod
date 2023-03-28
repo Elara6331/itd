@@ -4,8 +4,6 @@ go 1.18
 
 replace fyne.io/x/fyne => github.com/metal3d/fyne-x v0.0.0-20220508095732-177117e583fb
 
-replace go.arsenm.dev/drpc => /home/elara/Code/drpc
-
 require (
 	fyne.io/fyne/v2 v2.3.0
 	fyne.io/x/fyne v0.0.0-20220107050838-c4a1de51d4ce
