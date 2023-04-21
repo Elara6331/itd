@@ -7,8 +7,8 @@ import (
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/urfave/cli/v2"
-	"go.arsenm.dev/itd/api"
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/itd/api"
+	"go.elara.ws/logger/log"
 )
 
 func fwUpgrade(c *cli.Context) error {

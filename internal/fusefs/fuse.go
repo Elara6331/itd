@@ -9,9 +9,9 @@ import (
 
 	"github.com/hanwen/go-fuse/v2/fs"
 	"github.com/hanwen/go-fuse/v2/fuse"
-	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/infinitime/blefs"
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/infinitime"
+	"go.elara.ws/infinitime/blefs"
+	"go.elara.ws/logger/log"
 )
 
 type ITProperty struct {

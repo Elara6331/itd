@@ -9,8 +9,8 @@ import (
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
-	"go.arsenm.dev/logger"
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/logger"
+	"go.elara.ws/logger/log"
 )
 
 var cfgDir string

@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/godbus/dbus/v5"
-	"go.arsenm.dev/itd/internal/utils"
+	"go.elara.ws/itd/internal/utils"
 )
 
 var (

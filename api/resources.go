@@ -3,8 +3,8 @@ package api
 import (
 	"context"
 
-	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/itd/internal/rpc"
+	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/internal/rpc"
 )
 
 type ResourceOperation uint8

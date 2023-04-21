@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/godbus/dbus/v5"
-	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/itd/internal/utils"
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/internal/utils"
+	"go.elara.ws/logger/log"
 )
 
 const (

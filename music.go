@@ -22,10 +22,10 @@ import (
 	"context"
 	
 
-	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/itd/mpris"
-	"go.arsenm.dev/itd/translit"
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/mpris"
+	"go.elara.ws/itd/translit"
+	"go.elara.ws/logger/log"
 )
 
 func initMusicCtrl(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {

@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 
-	"go.arsenm.dev/itd/internal/rpc"
+	"go.elara.ws/itd/internal/rpc"
 )
 
 func (c *Client) Notify(ctx context.Context, title, body string) error {

@@ -3,7 +3,7 @@ package fusefs
 import (
 	"syscall"
 
-	"go.arsenm.dev/infinitime/blefs"
+	"go.elara.ws/infinitime/blefs"
 )
 
 func syscallErr(err error) syscall.Errno {

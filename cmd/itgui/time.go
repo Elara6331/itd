@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"go.arsenm.dev/itd/api"
+	"go.elara.ws/itd/api"
 )
 
 func timeTab(ctx context.Context, client *api.Client, w fyne.Window) fyne.CanvasObject {

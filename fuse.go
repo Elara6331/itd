@@ -6,9 +6,9 @@ import (
 
 	"github.com/hanwen/go-fuse/v2/fs"
 	"github.com/hanwen/go-fuse/v2/fuse"
-	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/itd/internal/fusefs"
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/internal/fusefs"
+	"go.elara.ws/logger/log"
 )
 
 func startFUSE(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {

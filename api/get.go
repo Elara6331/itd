@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 
-	"go.arsenm.dev/itd/internal/rpc"
+	"go.elara.ws/itd/internal/rpc"
 )
 
 func (c *Client) HeartRate(ctx context.Context) (uint8, error) {

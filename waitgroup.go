@@ -3,7 +3,7 @@ package main
 import (
 	"sync"
 
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/logger/log"
 )
 
 type WaitGroup struct {

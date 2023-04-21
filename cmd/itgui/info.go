@@ -6,7 +6,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"go.arsenm.dev/itd/api"
+	"go.elara.ws/itd/api"
 )
 
 func infoTab(ctx context.Context, client *api.Client, w fyne.Window) fyne.CanvasObject {

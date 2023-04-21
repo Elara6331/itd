@@ -12,9 +12,9 @@ import (
 
 	"time"
 
-	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/infinitime/weather"
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/infinitime"
+	"go.elara.ws/infinitime/weather"
+	"go.elara.ws/logger/log"
 )
 
 // METResponse represents a response from

@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/urfave/cli/v2"
-	"go.arsenm.dev/itd/api"
-	"go.arsenm.dev/logger"
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/itd/api"
+	"go.elara.ws/logger"
+	"go.elara.ws/logger/log"
 )
 
 var client *api.Client

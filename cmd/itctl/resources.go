@@ -6,7 +6,7 @@ import (
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/urfave/cli/v2"
-	"go.arsenm.dev/infinitime"
+	"go.elara.ws/infinitime"
 )
 
 func resourcesLoad(c *cli.Context) error {

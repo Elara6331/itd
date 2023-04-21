@@ -4,8 +4,8 @@ import (
 	"io"
 	"net"
 
-	"go.arsenm.dev/drpc/muxconn"
-	"go.arsenm.dev/itd/internal/rpc"
+	"go.elara.ws/drpc/muxconn"
+	"go.elara.ws/itd/internal/rpc"
 	"storj.io/drpc"
 )
 

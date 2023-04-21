@@ -34,9 +34,9 @@ import (
 	"github.com/gen2brain/dlgs"
 	"github.com/knadh/koanf"
 	"github.com/mattn/go-isatty"
-	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/logger"
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/infinitime"
+	"go.elara.ws/logger"
+	"go.elara.ws/logger/log"
 )
 
 var k = koanf.New(".")

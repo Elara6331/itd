@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	"go.arsenm.dev/itd/internal/rpc"
+	"go.elara.ws/itd/internal/rpc"
 )
 
 type FSClient struct {

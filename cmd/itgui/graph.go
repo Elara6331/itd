@@ -11,7 +11,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/x/fyne/widget/charts"
-	"go.arsenm.dev/itd/api"
+	"go.elara.ws/itd/api"
 	_ "modernc.org/sqlite"
 )
 

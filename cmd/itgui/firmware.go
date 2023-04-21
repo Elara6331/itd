@@ -9,7 +9,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
-	"go.arsenm.dev/itd/api"
+	"go.elara.ws/itd/api"
 )
 
 func firmwareTab(ctx context.Context, client *api.Client, w fyne.Window) fyne.CanvasObject {

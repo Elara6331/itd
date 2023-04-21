@@ -15,9 +15,9 @@ require (
 	github.com/mattn/go-isatty v0.0.17
 	github.com/mozillazg/go-pinyin v0.19.0
 	github.com/urfave/cli/v2 v2.23.7
-	go.arsenm.dev/drpc v0.0.0-20230328202554-c1f2aa71e794
-	go.arsenm.dev/infinitime v0.0.0-20230104230015-512d48bc2469
-	go.arsenm.dev/logger v0.0.0-20230104225304-d706171ea6df
+	go.elara.ws/drpc v0.0.0-20230421021209-fe4c05460a3d
+	go.elara.ws/infinitime v0.0.0-20230421025334-f2640203e9e9
+	go.elara.ws/logger v0.0.0-20230421022458-e80700db2090
 	golang.org/x/text v0.5.0
 	google.golang.org/protobuf v1.28.1
 	modernc.org/sqlite v1.20.1

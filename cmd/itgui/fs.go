@@ -11,8 +11,8 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/itd/api"
+	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/api"
 )
 
 func fsTab(ctx context.Context, client *api.Client, w fyne.Window, opened chan struct{}) fyne.CanvasObject {

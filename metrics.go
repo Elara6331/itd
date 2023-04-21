@@ -7,8 +7,8 @@ import (
 
 	"time"
 
-	"go.arsenm.dev/infinitime"
-	"go.arsenm.dev/logger/log"
+	"go.elara.ws/infinitime"
+	"go.elara.ws/logger/log"
 	_ "modernc.org/sqlite"
 )
 
