@@ -1,4 +1,4 @@
-module go.arsenm.dev/itd
+module go.elara.ws/itd
 
 go 1.18
 
