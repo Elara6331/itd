@@ -71,6 +71,17 @@ func initCallNotifs(ctx context.Context, wg WaitGroup, dev *infinitime.Device) e
 					continue
 				}
 
+				// Get direction of call object using method call connection
+				direction, err := getDirection(conn, callObj)
+				if err != nil {
+					log.Error("Error getting call direction").Err(err).Send()
+					continue
+				}
+
+				if direction != MMCallDirectionIncoming {
+					continue
+				}
+
 				// Send call notification to InfiniTime
 				resCh, err := dev.NotifyCall(phoneNum)
 				if err != nil {
@@ -127,6 +138,25 @@ func getPhoneNum(conn *dbus.Conn, callObj dbus.BusObject) (string, error) {
 	err := callObj.StoreProperty("org.freedesktop.ModemManager1.Call.Number", &out)
 	if err != nil {
 		return "", err
+	}
+	return out, nil
+}
+
+type MMCallDirection int
+
+const (
+	MMCallDirectionUnknown MMCallDirection = iota
+	MMCallDirectionIncoming
+	MMCallDirectionOutgoing
+)
+
+// getDirection gets the direction of a call object using a DBus connection
+func getDirection(conn *dbus.Conn, callObj dbus.BusObject) (MMCallDirection, error) {
+	var out MMCallDirection
+	// Get number property on DBus object and store return value in out
+	err := callObj.StoreProperty("org.freedesktop.ModemManager1.Call.Direction", &out)
+	if err != nil {
+		return 0, err
 	}
 	return out, nil
 }
