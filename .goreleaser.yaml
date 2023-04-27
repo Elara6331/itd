@@ -53,8 +53,8 @@ nfpms:
         {{- else }}{{.Arch}}
         {{- end }}
     description: "Companion daemon for the InfiniTime firmware on the PineTime smartwatch"
-    homepage: 'https://gitea.arsenm.dev/Arsen6331/itd'
-    maintainer: 'Arsen Musyaelyan <arsen@arsenm.dev>'
+    homepage: 'https://gitea.elara.ws/Elara6331/itd'
+    maintainer: 'Elara Musayelyan <elara@elara.ws>'
     license: GPLv3
     formats:
       - apk
@@ -74,10 +74,10 @@ nfpms:
           mode: 0755
 aurs:
   - name: itd-bin
-    homepage: 'https://gitea.arsenm.dev/Arsen6331/itd'
+    homepage: 'https://gitea.elara.ws/Elara6331/itd'
     description: "Companion daemon for the InfiniTime firmware on the PineTime smartwatch"
     maintainers:
-      - 'Arsen Musyaelyan <arsen@arsenm.dev>'
+      - 'Elara Musayelyan <elara@elara.ws>'
     license: GPLv3
     private_key: '{{ .Env.AUR_KEY }}'
     git_url: 'ssh://aur@aur.archlinux.org/itd-bin.git'
@@ -105,11 +105,11 @@ aurs:
       install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/itd/LICENSE"
 release:
   gitea:
-    owner: Arsen6331
+    owner: Elara6331
     name: itd
 gitea_urls:
-  api: 'https://gitea.arsenm.dev/api/v1/'
-  download: 'https://gitea.arsenm.dev'
+  api: 'https://gitea.elara.ws/api/v1/'
+  download: 'https://gitea.elara.ws'
   skip_tls_verify: false
 checksum:
   name_template: 'checksums.txt'
