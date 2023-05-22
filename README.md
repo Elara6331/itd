@@ -38,19 +38,19 @@ Use the `itd-bin` or `itd-git` AUR packages.
 
 #### Debian/Ubuntu
 
-- Go to the [latest release](https://gitea.arsenm.dev/Arsen6331/itd/releases/latest) and download the `.deb` package for your CPU architecture. You can find your architecture by running `uname -m` in the terminal.
+- Go to the [latest release](https://gitea.elara.ws/Elara6331/itd/releases/latest) and download the `.deb` package for your CPU architecture. You can find your architecture by running `uname -m` in the terminal.
 - Run `sudo apt install <package>`, replacing `<package>` with the path to the downloaded file. Note: relative paths must begin with `./`.
 - Example: `sudo apt install ~/Downloads/itd-0.0.7-linux-aarch64.deb`
 
 #### Fedora
 
-- Go to the [latest release](https://gitea.arsenm.dev/Arsen6331/itd/releases/latest) and download the `.rpm` package for your CPU architecture. You can find your architecture by running `uname -m` in the terminal.
+- Go to the [latest release](https://gitea.elara.ws/Elara6331/itd/releases/latest) and download the `.rpm` package for your CPU architecture. You can find your architecture by running `uname -m` in the terminal.
 - Run `sudo dnf install <package>`, replacing `<package>` with the path to the downloaded file.
 - Example: `sudo dnf install ~/Downloads/itd-0.0.7-linux-aarch64.rpm`
 
 #### Alpine (and postmarketOS)
 
-- Go to the [latest release](https://gitea.arsenm.dev/Arsen6331/itd/releases/latest) and download the `.apk` package for your CPU architecture. You can find your architecture by running `uname -m` in the terminal.
+- Go to the [latest release](https://gitea.elara.ws/Elara6331/itd/releases/latest) and download the `.apk` package for your CPU architecture. You can find your architecture by running `uname -m` in the terminal.
 - Run `sudo apk add --allow-untrusted <package>`, replacing `<package>` with the path to the downloaded file.
 - Example: `sudo apk add --allow-untrusted ~/Downloads/itd-0.0.7-linux-aarch64.apk`
 
@@ -93,11 +93,11 @@ In `cmd/itgui`, there is a gui frontend to the socket of `itd`. It uses the [Fyn
 
 #### Easy Installation
 
-The easiest way to install `itgui` is to use my other project, [LURE](https://gitea.arsenm.dev/Arsen6331/lure). LURE will only work if your package manager is `apt`, `dnf`, `yum`, `zypper`, `pacman`, or `apk`.
+The easiest way to install `itgui` is to use my other project, [LURE](https://gitea.elara.ws/Elara6331/lure). LURE will only work if your package manager is `apt`, `dnf`, `yum`, `zypper`, `pacman`, or `apk`.
 
 Instructions:
 
-1. Install LURE. This can be done with the following command: `curl https://www.arsenm.dev/lure.sh | bash`.
+1. Install LURE. This can be done with the following command: `curl https://www.elara.ws/lure.sh | bash`.
 2. Check to make sure LURE is properly installed by running `lure ref`.
 3. Run `lure in itgui`. This process may take a while as it will compile `itgui` from source and package it for your distro.
 4. Once the process is complete, you should be able to open and use `itgui` like any other app.
