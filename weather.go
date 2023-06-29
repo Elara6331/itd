@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-
 	"time"
 
 	"go.elara.ws/infinitime"
@@ -86,9 +85,12 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 	go func() {
 		defer wg.Done("weather")
 		for {
-			_, ok := <-ctx.Done()
-			if !ok {
-				return
+			select {
+			case _, ok := <-ctx.Done():
+				if !ok {
+					return
+				}
+			default:
 			}
 
 			// Attempt to get weather
