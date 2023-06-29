@@ -259,7 +259,7 @@ func getWeather(ctx context.Context, lat, lon float64) (*METResponse, error) {
 	}
 
 	// Set identifying user agent as per NMI requirements
-	req.Header.Set("User-Agent", fmt.Sprintf("ITD/%s gitea.arsenm.dev/Arsen6331/itd", version))
+	req.Header.Set("User-Agent", fmt.Sprintf("ITD/%s gitea.arsenm.dev/Arsen6331/itd", strings.TrimSpace(version)))
 
 	// Perform request
 	res, err := http.DefaultClient.Do(req)
