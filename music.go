@@ -20,7 +20,6 @@ package main
 
 import (
 	"context"
-	
 
 	"go.elara.ws/infinitime"
 	"go.elara.ws/itd/mpris"
@@ -55,7 +54,7 @@ func initMusicCtrl(ctx context.Context, wg WaitGroup, dev *infinitime.Device) er
 	if err != nil {
 		return err
 	}
-	
+
 	wg.Add(1)
 	go func() {
 		defer wg.Done("musicCtrl")
