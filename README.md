@@ -6,8 +6,8 @@
 [![status-badge](https://ci.elara.ws/api/badges/Elara6331/itd/status.svg)](https://ci.elara.ws/Elara6331/itd)
 [![itd-git AUR package](https://img.shields.io/aur/version/itd-git?label=itd-git&logo=archlinux)](https://aur.archlinux.org/packages/itd-git/)
 [![itd-bin AUR package](https://img.shields.io/aur/version/itd-bin?label=itd-bin&logo=archlinux)](https://aur.archlinux.org/packages/itd-bin/)
-[![LURE badge for itd-git package](https://api.lure.elara.ws/badge/default/itd-git)](https://lure.elara.ws/pkg/default/itd-git)
-[![LURE badge for itd-bin package](https://api.lure.elara.ws/badge/default/itd-bin)](https://lure.elara.ws/pkg/default/itd-bin)
+[![LURE badge for itd-git package](https://api.lure.sh/badge/default/itd-git)](https://lure.sh/pkg/default/itd-git)
+[![LURE badge for itd-bin package](https://api.lure.sh/badge/default/itd-bin)](https://lure.sh/pkg/default/itd-bin)
 
 ---
 
