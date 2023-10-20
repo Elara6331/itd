@@ -9,6 +9,10 @@
 [![LURE badge for itd-git package](https://api.lure.sh/badge/default/itd-git)](https://lure.sh/pkg/default/itd-git)
 [![LURE badge for itd-bin package](https://api.lure.sh/badge/default/itd-bin)](https://lure.sh/pkg/default/itd-bin)
 
+This repository is part of the Software Heritage Archive:
+
+[![SWH](https://archive.softwareheritage.org/badge/swh:1:dir:1374aa47b5c0a0d636d6f9c69f77af5e5bae99b2/)](https://archive.softwareheritage.org/swh:1:dir:1374aa47b5c0a0d636d6f9c69f77af5e5bae99b2;origin=https://gitea.elara.ws/Elara6331/itd;visit=swh:1:snp:d2935acbc966dfe1b15c771927bb08b5fc2ec89f;anchor=swh:1:rev:395cded9758dccc020fcd5b666f83a62308c9ab7)
+
 ---
 
 ### Features
@@ -137,17 +141,6 @@ Due to the use of OpenGL, cross-compilation of `itgui` isn't as simple as that o
 ![Upgrade in progress](cmd/itgui/screenshots/progress.png)
 
 ![Metrics tab](cmd/itgui/screenshots/metrics.png)
-
----
-
-### Installation
-
-To install, install the go compiler and make. Usually, go is provided by a package either named `go` or `golang`, and make is usually provided by `make`. The go compiler must be version 1.17 or newer for various new `reflect` features.
-
-To install, run
-```shell
-make && sudo make install
-```
 
 ---
 
