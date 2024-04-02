@@ -16,8 +16,8 @@ require (
 	github.com/mozillazg/go-pinyin v0.19.0
 	github.com/urfave/cli/v2 v2.23.7
 	go.elara.ws/drpc v0.0.0-20230421021209-fe4c05460a3d
-	go.elara.ws/infinitime v0.0.0-20230421025334-f2640203e9e9
-	go.elara.ws/logger v0.0.0-20230421022458-e80700db2090
+	go.elara.ws/infinitime v0.0.0-20240402033333-89617800536f
+	go.elara.ws/logger v0.0.0-20230928062203-85e135cf02ae
 	golang.org/x/text v0.5.0
 	google.golang.org/protobuf v1.28.1
 	modernc.org/sqlite v1.20.1
