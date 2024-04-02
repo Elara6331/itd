@@ -109,6 +109,7 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 			// Add temperature event
 			err = dev.AddWeatherEvent(weather.TemperatureEvent{
 				TimelineHeader: weather.NewHeader(
+					time.Now(),
 					weather.EventTypeTemperature,
 					time.Hour,
 				),
@@ -122,6 +123,7 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 			// Add precipitation event
 			err = dev.AddWeatherEvent(weather.PrecipitationEvent{
 				TimelineHeader: weather.NewHeader(
+					time.Now(),
 					weather.EventTypePrecipitation,
 					time.Hour,
 				),
@@ -135,6 +137,7 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 			// Add wind event
 			err = dev.AddWeatherEvent(weather.WindEvent{
 				TimelineHeader: weather.NewHeader(
+					time.Now(),
 					weather.EventTypeWind,
 					time.Hour,
 				),
@@ -150,6 +153,7 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 			// Add cloud event
 			err = dev.AddWeatherEvent(weather.CloudsEvent{
 				TimelineHeader: weather.NewHeader(
+					time.Now(),
 					weather.EventTypeClouds,
 					time.Hour,
 				),
@@ -162,6 +166,7 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 			// Add humidity event
 			err = dev.AddWeatherEvent(weather.HumidityEvent{
 				TimelineHeader: weather.NewHeader(
+					time.Now(),
 					weather.EventTypeHumidity,
 					time.Hour,
 				),
@@ -174,6 +179,7 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 			// Add pressure event
 			err = dev.AddWeatherEvent(weather.PressureEvent{
 				TimelineHeader: weather.NewHeader(
+					time.Now(),
 					weather.EventTypePressure,
 					time.Hour,
 				),
