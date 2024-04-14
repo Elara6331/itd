@@ -113,9 +113,9 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 			icon := parseSymbol(current.Data.NextHour.Summary.SymbolCode)
 			if icon == infinitime.WeatherIconClear {
 				switch {
-				case currentData.CloudAreaFraction > 0.5:
+				case currentData.CloudAreaFraction > 50:
 					icon = infinitime.WeatherIconHeavyClouds
-				case currentData.CloudAreaFraction == 0.5:
+				case currentData.CloudAreaFraction == 50:
 					icon = infinitime.WeatherIconClouds
 				case currentData.CloudAreaFraction > 0:
 					icon = infinitime.WeatherIconFewClouds
