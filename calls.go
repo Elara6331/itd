@@ -2,10 +2,9 @@ package main
 
 import (
 	"context"
-	"sync"
 
 	"github.com/godbus/dbus/v5"
-	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/internal/utils"
 	"go.elara.ws/logger/log"
 )
@@ -50,7 +49,6 @@ func initCallNotifs(ctx context.Context, wg WaitGroup, dev *infinitime.Device) e
 	// Notify channel upon received message
 	monitorConn.Eavesdrop(callCh)
 
-	var respHandlerOnce sync.Once
 	var callObj dbus.BusObject
 
 	wg.Add(1)
@@ -83,33 +81,28 @@ func initCallNotifs(ctx context.Context, wg WaitGroup, dev *infinitime.Device) e
 				}
 
 				// Send call notification to InfiniTime
-				resCh, err := dev.NotifyCall(phoneNum)
+				err = dev.NotifyCall(phoneNum, func(cs infinitime.CallStatus) {
+					switch cs {
+					case infinitime.CallStatusAccepted:
+						// Attempt to accept call
+						err = acceptCall(ctx, conn, callObj)
+						if err != nil {
+							log.Warn("Error accepting call").Err(err).Send()
+						}
+					case infinitime.CallStatusDeclined:
+						// Attempt to decline call
+						err = declineCall(ctx, conn, callObj)
+						if err != nil {
+							log.Warn("Error declining call").Err(err).Send()
+						}
+					case infinitime.CallStatusMuted:
+						// Warn about unimplemented muting
+						log.Warn("Muting calls is not implemented").Send()
+					}
+				})
 				if err != nil {
 					continue
 				}
-
-				go respHandlerOnce.Do(func() {
-					// Wait for PineTime response
-					for res := range resCh {
-						switch res {
-						case infinitime.CallStatusAccepted:
-							// Attempt to accept call
-							err = acceptCall(ctx, conn, callObj)
-							if err != nil {
-								log.Warn("Error accepting call").Err(err).Send()
-							}
-						case infinitime.CallStatusDeclined:
-							// Attempt to decline call
-							err = declineCall(ctx, conn, callObj)
-							if err != nil {
-								log.Warn("Error declining call").Err(err).Send()
-							}
-						case infinitime.CallStatusMuted:
-							// Warn about unimplemented muting
-							log.Warn("Muting calls is not implemented").Send()
-						}
-					}
-				})
 			case <-ctx.Done():
 				return
 			}

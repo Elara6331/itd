@@ -4,15 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"math"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
-	"go.elara.ws/infinitime"
-	"go.elara.ws/infinitime/weather"
+	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/logger/log"
 )
 
@@ -32,7 +30,7 @@ type METData struct {
 	Instant struct {
 		Details struct {
 			AirPressure       float32 `json:"air_pressure_at_sea_level"`
-			AirTemperature    float32 `json:"air_temperature"`
+			Temperature       float32 `json:"air_temperature"`
 			DewPoint          float32 `json:"dew_point_temperature"`
 			CloudAreaFraction float32 `json:"cloud_area_fraction"`
 			FogAreaFraction   float32 `json:"fog_area_fraction"`
@@ -50,6 +48,12 @@ type METData struct {
 			PrecipitationAmount float32 `json:"precipitation_amount"`
 		}
 	} `json:"next_1_hours"`
+	Next6Hours struct {
+		Details struct {
+			MaxTemp float32 `json:"air_temperature_max"`
+			MinTemp float32 `json:"air_temperature_min"`
+		}
+	} `json:"next_6_hours"`
 }
 
 // OSMData represents lat/long data from
@@ -106,87 +110,28 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 			current := data.Properties.Timeseries[0]
 			currentData := current.Data.Instant.Details
 
-			// Add temperature event
-			err = dev.AddWeatherEvent(weather.TemperatureEvent{
-				TimelineHeader: weather.NewHeader(
-					time.Now(),
-					weather.EventTypeTemperature,
-					time.Hour,
-				),
-				Temperature: int16(round(currentData.AirTemperature * 100)),
-				DewPoint:    int16(round(currentData.DewPoint)),
-			})
-			if err != nil {
-				log.Error("Error adding temperature event").Err(err).Send()
+			icon := parseSymbol(current.Data.NextHour.Summary.SymbolCode)
+			if icon == infinitime.WeatherIconClear {
+				switch {
+				case currentData.CloudAreaFraction > 0.5:
+					icon = infinitime.WeatherIconHeavyClouds
+				case currentData.CloudAreaFraction == 0.5:
+					icon = infinitime.WeatherIconClouds
+				case currentData.CloudAreaFraction > 0:
+					icon = infinitime.WeatherIconFewClouds
+				}
 			}
 
-			// Add precipitation event
-			err = dev.AddWeatherEvent(weather.PrecipitationEvent{
-				TimelineHeader: weather.NewHeader(
-					time.Now(),
-					weather.EventTypePrecipitation,
-					time.Hour,
-				),
-				Type:   parseSymbol(current.Data.NextHour.Summary.SymbolCode),
-				Amount: uint8(round(current.Data.NextHour.Details.PrecipitationAmount)),
+			err = dev.SetCurrentWeather(infinitime.CurrentWeather{
+				Time:        time.Now(),
+				CurrentTemp: currentData.Temperature,
+				MaxTemp:     current.Data.Next6Hours.Details.MaxTemp,
+				MinTemp:     current.Data.Next6Hours.Details.MinTemp,
+				Location:    k.String("weather.location"),
+				Icon:        icon,
 			})
 			if err != nil {
-				log.Error("Error adding precipitation event").Err(err).Send()
-			}
-
-			// Add wind event
-			err = dev.AddWeatherEvent(weather.WindEvent{
-				TimelineHeader: weather.NewHeader(
-					time.Now(),
-					weather.EventTypeWind,
-					time.Hour,
-				),
-				SpeedMin:     uint8(round(currentData.WindSpeed)),
-				SpeedMax:     uint8(round(currentData.WindSpeed)),
-				DirectionMin: uint8(round(currentData.WindDirection)),
-				DirectionMax: uint8(round(currentData.WindDirection)),
-			})
-			if err != nil {
-				log.Error("Error adding wind event").Err(err).Send()
-			}
-
-			// Add cloud event
-			err = dev.AddWeatherEvent(weather.CloudsEvent{
-				TimelineHeader: weather.NewHeader(
-					time.Now(),
-					weather.EventTypeClouds,
-					time.Hour,
-				),
-				Amount: uint8(round(currentData.CloudAreaFraction)),
-			})
-			if err != nil {
-				log.Error("Error adding clouds event").Err(err).Send()
-			}
-
-			// Add humidity event
-			err = dev.AddWeatherEvent(weather.HumidityEvent{
-				TimelineHeader: weather.NewHeader(
-					time.Now(),
-					weather.EventTypeHumidity,
-					time.Hour,
-				),
-				Humidity: uint8(round(currentData.RelativeHumidity)),
-			})
-			if err != nil {
-				log.Error("Error adding humidity event").Err(err).Send()
-			}
-
-			// Add pressure event
-			err = dev.AddWeatherEvent(weather.PressureEvent{
-				TimelineHeader: weather.NewHeader(
-					time.Now(),
-					weather.EventTypePressure,
-					time.Hour,
-				),
-				Pressure: int16(round(currentData.AirPressure)),
-			})
-			if err != nil {
-				log.Error("Error adding pressure event").Err(err).Send()
+				log.Error("Error setting weather").Err(err).Send()
 			}
 
 			// Reset timer to 1 hour
@@ -283,26 +228,19 @@ func getWeather(ctx context.Context, lat, lon float64) (*METResponse, error) {
 	return out, nil
 }
 
-// parseSymbol determines what type of precipitation a symbol code
-// codes for.
-func parseSymbol(symCode string) weather.PrecipitationType {
+// parseSymbol determines what weather icon a symbol code codes for.
+func parseSymbol(symCode string) infinitime.WeatherIcon {
 	switch {
 	case strings.Contains(symCode, "lightrain"):
-		return weather.PrecipitationTypeRain
+		return infinitime.WeatherIconRain
 	case strings.Contains(symCode, "rain"):
-		return weather.PrecipitationTypeRain
-	case strings.Contains(symCode, "snow"):
-		return weather.PrecipitationTypeSnow
-	case strings.Contains(symCode, "sleet"):
-		return weather.PrecipitationTypeSleet
-	case strings.Contains(symCode, "snow"):
-		return weather.PrecipitationTypeSnow
+		return infinitime.WeatherIconCloudsWithRain
+	case strings.Contains(symCode, "snow"),
+		strings.Contains(symCode, "sleet"):
+		return infinitime.WeatherIconSnow
+	case strings.Contains(symCode, "thunder"):
+		return infinitime.WeatherIconThunderstorm
 	default:
-		return weather.PrecipitationTypeNone
+		return infinitime.WeatherIconClear
 	}
-}
-
-// round rounds 32-bit floats to 32-bit integers
-func round(f float32) int32 {
-	return int32(math.Round(float64(f)))
 }

@@ -23,7 +23,7 @@ import (
 	"fmt"
 
 	"github.com/godbus/dbus/v5"
-	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/internal/utils"
 	"go.elara.ws/itd/translit"
 	"go.elara.ws/logger/log"

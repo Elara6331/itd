@@ -3,7 +3,7 @@ package fusefs
 import (
 	"syscall"
 
-	"go.elara.ws/infinitime/blefs"
+	"go.elara.ws/itd/internal/fsproto"
 )
 
 func syscallErr(err error) syscall.Errno {
@@ -12,10 +12,10 @@ func syscallErr(err error) syscall.Errno {
 	}
 
 	switch err := err.(type) {
-	case blefs.FSError:
+	case fsproto.Error:
 		switch err.Code {
 		case 0x02: // filesystem error
-			return syscall.EIO // TODO
+			return syscall.EIO
 		case 0x05: // read-only filesystem
 			return syscall.EROFS
 		case 0x03: // no such file
@@ -25,7 +25,7 @@ func syscallErr(err error) syscall.Errno {
 		case -5: // input/output error
 			return syscall.EIO
 		case -84: // filesystem is corrupted
-			return syscall.ENOTRECOVERABLE // TODO
+			return syscall.ENOTRECOVERABLE
 		case -2: // no such directory entry
 			return syscall.ENOENT
 		case -17: // entry already exists
@@ -45,28 +45,24 @@ func syscallErr(err error) syscall.Errno {
 		case -12: // no more memory available
 			return syscall.ENOMEM
 		case -61: // no attr available
-			return syscall.ENODATA // TODO
+			return syscall.ENODATA
 		case -36: // file name is too long
 			return syscall.ENAMETOOLONG
 		}
 	default:
 		switch err {
-		case blefs.ErrFileNotExists: // file does not exist
+		case fsproto.ErrFileNotExists: // file does not exist
 			return syscall.ENOENT
-		case blefs.ErrFileReadOnly: // file is read only
+		case fsproto.ErrFileReadOnly: // file is read only
 			return syscall.EACCES
-		case blefs.ErrFileWriteOnly: // file is write only
+		case fsproto.ErrFileWriteOnly: // file is write only
 			return syscall.EACCES
-		case blefs.ErrInvalidOffset: // invalid file offset
+		case fsproto.ErrInvalidOffset: // invalid file offset
 			return syscall.EINVAL
-		case blefs.ErrOffsetChanged: // offset has already been changed
-			return syscall.ESPIPE
-		case blefs.ErrReadOpen: // only one file can be opened for reading at a time
-			return syscall.ENFILE
-		case blefs.ErrWriteOpen: // only one file can be opened for writing at a time
-			return syscall.ENFILE
-		case blefs.ErrNoRemoveRoot: // refusing to remove root directory
+		case fsproto.ErrNoRemoveRoot: // refusing to remove root directory
 			return syscall.EPERM
+		default:
+			return syscall.EINVAL
 		}
 	}
 

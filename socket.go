@@ -19,6 +19,7 @@
 package main
 
 import (
+	"archive/zip"
 	"context"
 	"errors"
 	"io"
@@ -28,8 +29,7 @@ import (
 	"time"
 
 	"go.elara.ws/drpc/muxserver"
-	"go.elara.ws/infinitime"
-	"go.elara.ws/infinitime/blefs"
+	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/internal/rpc"
 	"go.elara.ws/logger/log"
 	"storj.io/drpc/drpcmux"
@@ -60,11 +60,7 @@ func startSocket(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 		return err
 	}
 
-	fs, err := dev.FS()
-	if err != nil {
-		log.Warn("Error getting BLE filesystem").Err(err).Send()
-	}
-
+	fs := dev.FS()
 	mux := drpcmux.New()
 
 	err = rpc.DRPCRegisterITD(mux, &ITD{dev})
@@ -98,19 +94,29 @@ func (i *ITD) HeartRate(_ context.Context, _ *rpc.Empty) (*rpc.IntResponse, erro
 }
 
 func (i *ITD) WatchHeartRate(_ *rpc.Empty, s rpc.DRPCITD_WatchHeartRateStream) error {
-	heartRateCh, err := i.dev.WatchHeartRate(s.Context())
+	errCh := make(chan error)
+
+	err := i.dev.WatchHeartRate(s.Context(), func(rate uint8, err error) {
+		if err != nil {
+			errCh <- err
+			return
+		}
+
+		err = s.Send(&rpc.IntResponse{Value: uint32(rate)})
+		if err != nil {
+			errCh <- err
+		}
+	})
 	if err != nil {
 		return err
 	}
 
-	for heartRate := range heartRateCh {
-		err = s.Send(&rpc.IntResponse{Value: uint32(heartRate)})
-		if err != nil {
-			return err
-		}
+	select {
+	case <-errCh:
+		return err
+	case <-s.Context().Done():
+		return nil
 	}
-
-	return nil
 }
 
 func (i *ITD) BatteryLevel(_ context.Context, _ *rpc.Empty) (*rpc.IntResponse, error) {
@@ -119,19 +125,29 @@ func (i *ITD) BatteryLevel(_ context.Context, _ *rpc.Empty) (*rpc.IntResponse, e
 }
 
 func (i *ITD) WatchBatteryLevel(_ *rpc.Empty, s rpc.DRPCITD_WatchBatteryLevelStream) error {
-	battLevelCh, err := i.dev.WatchBatteryLevel(s.Context())
+	errCh := make(chan error)
+
+	err := i.dev.WatchBatteryLevel(s.Context(), func(level uint8, err error) {
+		if err != nil {
+			errCh <- err
+			return
+		}
+
+		err = s.Send(&rpc.IntResponse{Value: uint32(level)})
+		if err != nil {
+			errCh <- err
+		}
+	})
 	if err != nil {
 		return err
 	}
 
-	for battLevel := range battLevelCh {
-		err = s.Send(&rpc.IntResponse{Value: uint32(battLevel)})
-		if err != nil {
-			return err
-		}
+	select {
+	case <-errCh:
+		return err
+	case <-s.Context().Done():
+		return nil
 	}
-
-	return nil
 }
 
 func (i *ITD) Motion(_ context.Context, _ *rpc.Empty) (*rpc.MotionResponse, error) {
@@ -144,23 +160,33 @@ func (i *ITD) Motion(_ context.Context, _ *rpc.Empty) (*rpc.MotionResponse, erro
 }
 
 func (i *ITD) WatchMotion(_ *rpc.Empty, s rpc.DRPCITD_WatchMotionStream) error {
-	motionValsCh, err := i.dev.WatchMotion(s.Context())
+	errCh := make(chan error)
+
+	err := i.dev.WatchMotion(s.Context(), func(motion infinitime.MotionValues, err error) {
+		if err != nil {
+			errCh <- err
+			return
+		}
+
+		err = s.Send(&rpc.MotionResponse{
+			X: int32(motion.X),
+			Y: int32(motion.Y),
+			Z: int32(motion.Z),
+		})
+		if err != nil {
+			errCh <- err
+		}
+	})
 	if err != nil {
 		return err
 	}
 
-	for motionVals := range motionValsCh {
-		err = s.Send(&rpc.MotionResponse{
-			X: int32(motionVals.X),
-			Y: int32(motionVals.Y),
-			Z: int32(motionVals.Z),
-		})
-		if err != nil {
-			return err
-		}
+	select {
+	case <-errCh:
+		return err
+	case <-s.Context().Done():
+		return nil
 	}
-
-	return nil
 }
 
 func (i *ITD) StepCount(_ context.Context, _ *rpc.Empty) (*rpc.IntResponse, error) {
@@ -169,19 +195,29 @@ func (i *ITD) StepCount(_ context.Context, _ *rpc.Empty) (*rpc.IntResponse, erro
 }
 
 func (i *ITD) WatchStepCount(_ *rpc.Empty, s rpc.DRPCITD_WatchStepCountStream) error {
-	stepCountCh, err := i.dev.WatchStepCount(s.Context())
+	errCh := make(chan error)
+
+	err := i.dev.WatchStepCount(s.Context(), func(count uint32, err error) {
+		if err != nil {
+			errCh <- err
+			return
+		}
+
+		err = s.Send(&rpc.IntResponse{Value: count})
+		if err != nil {
+			errCh <- err
+		}
+	})
 	if err != nil {
 		return err
 	}
 
-	for stepCount := range stepCountCh {
-		err = s.Send(&rpc.IntResponse{Value: stepCount})
-		if err != nil {
-			return err
-		}
+	select {
+	case <-errCh:
+		return err
+	case <-s.Context().Done():
+		return nil
 	}
-
-	return nil
 }
 
 func (i *ITD) Version(_ context.Context, _ *rpc.Empty) (*rpc.StringResponse, error) {
@@ -206,39 +242,34 @@ func (i *ITD) WeatherUpdate(context.Context, *rpc.Empty) (*rpc.Empty, error) {
 	return &rpc.Empty{}, nil
 }
 
-func (i *ITD) FirmwareUpgrade(data *rpc.FirmwareUpgradeRequest, s rpc.DRPCITD_FirmwareUpgradeStream) error {
-	i.dev.DFU.Reset()
+func (i *ITD) FirmwareUpgrade(data *rpc.FirmwareUpgradeRequest, s rpc.DRPCITD_FirmwareUpgradeStream) (err error) {
+	var fwimg, initpkt *os.File
 
 	switch data.Type {
 	case rpc.FirmwareUpgradeRequest_Archive:
-		// If less than one file, return error
-		if len(data.Files) < 1 {
-			return ErrDFUNotEnoughFiles
-		}
-		// If file is not zip archive, return error
-		if filepath.Ext(data.Files[0]) != ".zip" {
-			return ErrDFUInvalidFile
-		}
-		// Load DFU archive
-		err := i.dev.DFU.LoadArchive(data.Files[0])
+		fwimg, initpkt, err = extractDFU(data.Files[0])
 		if err != nil {
 			return err
 		}
 	case rpc.FirmwareUpgradeRequest_Files:
-		// If less than two files, return error
 		if len(data.Files) < 2 {
 			return ErrDFUNotEnoughFiles
 		}
-		// If first file is not init packet, return error
+
 		if filepath.Ext(data.Files[0]) != ".dat" {
 			return ErrDFUInvalidFile
 		}
-		// If second file is not firmware image, return error
+
 		if filepath.Ext(data.Files[1]) != ".bin" {
 			return ErrDFUInvalidFile
 		}
-		// Load individual DFU files
-		err := i.dev.DFU.LoadFiles(data.Files[0], data.Files[1])
+
+		initpkt, err = os.Open(data.Files[0])
+		if err != nil {
+			return err
+		}
+
+		fwimg, err = os.Open(data.Files[1])
 		if err != nil {
 			return err
 		}
@@ -246,38 +277,33 @@ func (i *ITD) FirmwareUpgrade(data *rpc.FirmwareUpgradeRequest, s rpc.DRPCITD_Fi
 		return ErrDFUInvalidUpgType
 	}
 
-	go func() {
-		for event := range i.dev.DFU.Progress() {
-			_ = s.Send(&rpc.DFUProgress{
-				Sent:     int64(event.Sent),
-				Recieved: int64(event.Received),
-				Total:    event.Total,
-			})
-		}
+	defer os.Remove(fwimg.Name())
+	defer os.Remove(initpkt.Name())
+	defer fwimg.Close()
+	defer initpkt.Close()
 
-		firmwareUpdating = false
-	}()
-
-	// Set firmwareUpdating
 	firmwareUpdating = true
+	defer func() { firmwareUpdating = false }()
 
-	// Start DFU
-	err := i.dev.DFU.Start()
-	if err != nil {
-		firmwareUpdating = false
-		return err
-	}
-
-	return nil
+	return i.dev.UpgradeFirmware(infinitime.DFUOptions{
+		InitPacket:    initpkt,
+		FirmwareImage: fwimg,
+		ProgressFunc: func(sent, received, total uint32) {
+			_ = s.Send(&rpc.DFUProgress{
+				Sent:     int64(sent),
+				Recieved: int64(received),
+				Total:    int64(total),
+			})
+		},
+	})
 }
 
 type FS struct {
 	dev *infinitime.Device
-	fs  *blefs.FS
+	fs  *infinitime.FS
 }
 
 func (fs *FS) RemoveAll(_ context.Context, req *rpc.PathsRequest) (*rpc.Empty, error) {
-	fs.updateFS()
 	for _, path := range req.Paths {
 		err := fs.fs.RemoveAll(path)
 		if err != nil {
@@ -288,7 +314,6 @@ func (fs *FS) RemoveAll(_ context.Context, req *rpc.PathsRequest) (*rpc.Empty, e
 }
 
 func (fs *FS) Remove(_ context.Context, req *rpc.PathsRequest) (*rpc.Empty, error) {
-	fs.updateFS()
 	for _, path := range req.Paths {
 		err := fs.fs.Remove(path)
 		if err != nil {
@@ -299,12 +324,10 @@ func (fs *FS) Remove(_ context.Context, req *rpc.PathsRequest) (*rpc.Empty, erro
 }
 
 func (fs *FS) Rename(_ context.Context, req *rpc.RenameRequest) (*rpc.Empty, error) {
-	fs.updateFS()
 	return &rpc.Empty{}, fs.fs.Rename(req.From, req.To)
 }
 
 func (fs *FS) MkdirAll(_ context.Context, req *rpc.PathsRequest) (*rpc.Empty, error) {
-	fs.updateFS()
 	for _, path := range req.Paths {
 		err := fs.fs.MkdirAll(path)
 		if err != nil {
@@ -315,7 +338,6 @@ func (fs *FS) MkdirAll(_ context.Context, req *rpc.PathsRequest) (*rpc.Empty, er
 }
 
 func (fs *FS) Mkdir(_ context.Context, req *rpc.PathsRequest) (*rpc.Empty, error) {
-	fs.updateFS()
 	for _, path := range req.Paths {
 		err := fs.fs.Mkdir(path)
 		if err != nil {
@@ -326,8 +348,6 @@ func (fs *FS) Mkdir(_ context.Context, req *rpc.PathsRequest) (*rpc.Empty, error
 }
 
 func (fs *FS) ReadDir(_ context.Context, req *rpc.PathRequest) (*rpc.DirResponse, error) {
-	fs.updateFS()
-
 	entries, err := fs.fs.ReadDir(req.Path)
 	if err != nil {
 		return nil, err
@@ -349,8 +369,6 @@ func (fs *FS) ReadDir(_ context.Context, req *rpc.PathRequest) (*rpc.DirResponse
 }
 
 func (fs *FS) Upload(req *rpc.TransferRequest, s rpc.DRPCFS_UploadStream) error {
-	fs.updateFS()
-
 	localFile, err := os.Open(req.Source)
 	if err != nil {
 		return err
@@ -366,15 +384,12 @@ func (fs *FS) Upload(req *rpc.TransferRequest, s rpc.DRPCFS_UploadStream) error 
 		return err
 	}
 
-	go func() {
-		// For every progress event
-		for sent := range remoteFile.Progress() {
-			_ = s.Send(&rpc.TransferProgress{
-				Total: remoteFile.Size(),
-				Sent:  sent,
-			})
-		}
-	}()
+	remoteFile.ProgressFunc = func(transferred, total uint32) {
+		_ = s.Send(&rpc.TransferProgress{
+			Total: total,
+			Sent:  transferred,
+		})
+	}
 
 	io.Copy(remoteFile, localFile)
 	localFile.Close()
@@ -384,8 +399,6 @@ func (fs *FS) Upload(req *rpc.TransferRequest, s rpc.DRPCFS_UploadStream) error 
 }
 
 func (fs *FS) Download(req *rpc.TransferRequest, s rpc.DRPCFS_DownloadStream) error {
-	fs.updateFS()
-
 	localFile, err := os.Create(req.Destination)
 	if err != nil {
 		return err
@@ -399,15 +412,12 @@ func (fs *FS) Download(req *rpc.TransferRequest, s rpc.DRPCFS_DownloadStream) er
 	defer localFile.Close()
 	defer remoteFile.Close()
 
-	go func() {
-		// For every progress event
-		for sent := range remoteFile.Progress() {
-			_ = s.Send(&rpc.TransferProgress{
-				Total: remoteFile.Size(),
-				Sent:  sent,
-			})
-		}
-	}()
+	remoteFile.ProgressFunc = func(transferred, total uint32) {
+		_ = s.Send(&rpc.TransferProgress{
+			Total: total,
+			Sent:  transferred,
+		})
+	}
 
 	_, err = io.Copy(localFile, remoteFile)
 	if err != nil {
@@ -418,42 +428,86 @@ func (fs *FS) Download(req *rpc.TransferRequest, s rpc.DRPCFS_DownloadStream) er
 }
 
 func (fs *FS) LoadResources(req *rpc.PathRequest, s rpc.DRPCFS_LoadResourcesStream) error {
-	resFl, err := os.Open(req.Path)
-	if err != nil {
-		return err
-	}
-
-	progCh, err := infinitime.LoadResources(resFl, fs.fs)
-	if err != nil {
-		return err
-	}
-
-	for evt := range progCh {
-		err = s.Send(&rpc.ResourceLoadProgress{
+	return infinitime.LoadResources(req.Path, fs.fs, func(evt infinitime.ResourceLoadProgress) {
+		_ = s.Send(&rpc.ResourceLoadProgress{
 			Name:      evt.Name,
-			Total:     evt.Total,
-			Sent:      evt.Sent,
+			Total:     int64(evt.Total),
+			Sent:      int64(evt.Transferred),
 			Operation: rpc.ResourceLoadProgress_Operation(evt.Operation),
 		})
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	})
 }
 
-func (fs *FS) updateFS() {
-	if fs.fs == nil || updateFS {
-		// Get new FS
-		newFS, err := fs.dev.FS()
-		if err != nil {
-			log.Warn("Error updating BLE filesystem").Err(err).Send()
-		} else {
-			// Set FS pointer to new FS
-			fs.fs = newFS
-			// Reset updateFS
-			updateFS = false
+func extractDFU(path string) (fwimg, initpkt *os.File, err error) {
+	zipReader, err := zip.OpenReader(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer zipReader.Close()
+
+	for _, file := range zipReader.File {
+		if fwimg != nil && initpkt != nil {
+			break
+		}
+
+		switch filepath.Ext(file.Name) {
+		case ".bin":
+			fwimg, err = os.CreateTemp(os.TempDir(), "itd_dfu_fwimg_*.bin")
+			if err != nil {
+				return nil, nil, err
+			}
+
+			zipFile, err := file.Open()
+			if err != nil {
+				return nil, nil, err
+			}
+			defer zipFile.Close()
+
+			_, err = io.Copy(fwimg, zipFile)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			err = zipFile.Close()
+			if err != nil {
+				return nil, nil, err
+			}
+
+			_, err = fwimg.Seek(0, io.SeekStart)
+			if err != nil {
+				return nil, nil, err
+			}
+		case ".dat":
+			initpkt, err = os.CreateTemp(os.TempDir(), "itd_dfu_initpkt_*.dat")
+			if err != nil {
+				return nil, nil, err
+			}
+
+			zipFile, err := file.Open()
+			if err != nil {
+				return nil, nil, err
+			}
+
+			_, err = io.Copy(initpkt, zipFile)
+			if err != nil {
+				return nil, nil, err
+			}
+
+			err = zipFile.Close()
+			if err != nil {
+				return nil, nil, err
+			}
+
+			_, err = initpkt.Seek(0, io.SeekStart)
+			if err != nil {
+				return nil, nil, err
+			}
 		}
 	}
+
+	if fwimg == nil || initpkt == nil {
+		return nil, nil, errors.New("invalid dfu archive")
+	}
+
+	return fwimg, initpkt, nil
 }

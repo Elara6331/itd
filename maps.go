@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/godbus/dbus/v5"
-	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/internal/utils"
 	"go.elara.ws/logger/log"
 )
@@ -100,7 +100,7 @@ func initPureMaps(ctx context.Context, wg WaitGroup, dev *infinitime.Device) err
 						continue
 					}
 
-					err = dev.Navigation.SetFlag(infinitime.NavFlag(icon))
+					err = dev.SetNavFlag(infinitime.NavFlag(icon))
 					if err != nil {
 						log.Error("Error setting flag").Err(err).Str("property", member).Send()
 						continue
@@ -113,7 +113,7 @@ func initPureMaps(ctx context.Context, wg WaitGroup, dev *infinitime.Device) err
 						continue
 					}
 
-					err = dev.Navigation.SetNarrative(narrative)
+					err = dev.SetNavNarrative(narrative)
 					if err != nil {
 						log.Error("Error setting flag").Err(err).Str("property", member).Send()
 						continue
@@ -126,7 +126,7 @@ func initPureMaps(ctx context.Context, wg WaitGroup, dev *infinitime.Device) err
 						continue
 					}
 
-					err = dev.Navigation.SetManDist(manDist)
+					err = dev.SetNavManeuverDistance(manDist)
 					if err != nil {
 						log.Error("Error setting flag").Err(err).Str("property", member).Send()
 						continue
@@ -139,7 +139,7 @@ func initPureMaps(ctx context.Context, wg WaitGroup, dev *infinitime.Device) err
 						continue
 					}
 
-					err = dev.Navigation.SetProgress(uint8(progress))
+					err = dev.SetNavProgress(uint8(progress))
 					if err != nil {
 						log.Error("Error setting flag").Err(err).Str("property", member).Send()
 						continue
@@ -165,7 +165,7 @@ func setAll(navigator dbus.BusObject, dev *infinitime.Device) error {
 		return err
 	}
 
-	err = dev.Navigation.SetFlag(infinitime.NavFlag(icon))
+	err = dev.SetNavFlag(infinitime.NavFlag(icon))
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func setAll(navigator dbus.BusObject, dev *infinitime.Device) error {
 		return err
 	}
 
-	err = dev.Navigation.SetNarrative(narrative)
+	err = dev.SetNavNarrative(narrative)
 	if err != nil {
 		return err
 	}
@@ -187,7 +187,7 @@ func setAll(navigator dbus.BusObject, dev *infinitime.Device) error {
 		return err
 	}
 
-	err = dev.Navigation.SetManDist(manDist)
+	err = dev.SetNavManeuverDistance(manDist)
 	if err != nil {
 		return err
 	}
@@ -198,7 +198,7 @@ func setAll(navigator dbus.BusObject, dev *infinitime.Device) error {
 		return err
 	}
 
-	return dev.Navigation.SetProgress(uint8(progress))
+	return dev.SetNavProgress(uint8(progress))
 }
 
 // pureMapsExists checks to make sure the PureMaps service exists on the bus

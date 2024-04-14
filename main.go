@@ -33,7 +33,7 @@ import (
 	"github.com/gen2brain/dlgs"
 	"github.com/knadh/koanf"
 	"github.com/mattn/go-isatty"
-	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/logger"
 	"go.elara.ws/logger/log"
 )
@@ -59,53 +59,41 @@ func main() {
 	if err != nil {
 		level = logger.LogLevelInfo
 	}
-
-	// Initialize infinitime library
-	infinitime.Init(k.String("bluetooth.adapter"))
-	// Cleanly exit after function
-	defer infinitime.Exit()
+	log.Logger.SetLevel(level)
 
 	// Create infinitime options struct
-	opts := &infinitime.Options{
-		AttemptReconnect: k.Bool("conn.reconnect"),
-		WhitelistEnabled: k.Bool("conn.whitelist.enabled"),
-		Whitelist:        k.Strings("conn.whitelist.devices"),
-		OnReqPasskey:     onReqPasskey,
-		Logger:           log.Logger,
-		LogLevel:         level,
+	opts := infinitime.Options{
+		OnReconnect: func(dev *infinitime.Device) {
+			if k.Bool("on.reconnect.setTime") {
+				// Set time to current time
+				err = dev.SetTime(time.Now())
+				if err != nil {
+					return
+				}
+			}
+
+			// If config specifies to notify on reconnect
+			if k.Bool("on.reconnect.notify") {
+				// Send notification to InfiniTime
+				err = dev.Notify("itd", "Successfully reconnected")
+				if err != nil {
+					return
+				}
+			}
+
+			// FS must be updated on reconnect
+			updateFS = true
+			// Resend weather on reconnect
+			sendWeatherCh <- struct{}{}
+		},
 	}
 
 	ctx := context.Background()
 
 	// Connect to InfiniTime with default options
-	dev, err := infinitime.Connect(ctx, opts)
+	dev, err := infinitime.Connect(opts)
 	if err != nil {
 		log.Fatal("Error connecting to InfiniTime").Err(err).Send()
-	}
-
-	// When InfiniTime reconnects
-	opts.OnReconnect = func() {
-		if k.Bool("on.reconnect.setTime") {
-			// Set time to current time
-			err = dev.SetTime(time.Now())
-			if err != nil {
-				return
-			}
-		}
-
-		// If config specifies to notify on reconnect
-		if k.Bool("on.reconnect.notify") {
-			// Send notification to InfiniTime
-			err = dev.Notify("itd", "Successfully reconnected")
-			if err != nil {
-				return
-			}
-		}
-
-		// FS must be updated on reconnect
-		updateFS = true
-		// Resend weather on reconnect
-		sendWeatherCh <- struct{}{}
 	}
 
 	// Get firmware version

@@ -3,15 +3,15 @@ package api
 import (
 	"context"
 
-	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/internal/rpc"
 )
 
-type ResourceOperation uint8
+type ResourceOperation infinitime.ResourceOperation
 
 const (
-	ResourceOperationRemoveObsolete = infinitime.ResourceOperationRemoveObsolete
-	ResourceOperationUpload         = infinitime.ResourceOperationUpload
+	ResourceRemove = infinitime.ResourceRemove
+	ResourceUpload = infinitime.ResourceUpload
 )
 
 type ResourceLoadProgress struct {

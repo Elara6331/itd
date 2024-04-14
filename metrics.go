@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/logger/log"
 	_ "modernc.org/sqlite"
 )
@@ -47,82 +47,95 @@ func initMetrics(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 		return err
 	}
 
-	// If heart rate metrics enabled in config
+	// Watch heart rate
 	if k.Bool("metrics.heartRate.enabled") {
-		// Watch heart rate
-		heartRateCh, err := dev.WatchHeartRate(ctx)
+		err := dev.WatchHeartRate(ctx, func(heartRate uint8, err error) {
+			if err != nil {
+				// Handle error
+				return
+			}
+			// Get current time
+			unixTime := time.Now().UnixNano()
+			// Insert sample and time into database
+			db.Exec("INSERT INTO heartRate VALUES (?, ?);", unixTime, heartRate)
+		})
 		if err != nil {
 			return err
 		}
-		go func() {
-			// For every heart rate sample
-			for heartRate := range heartRateCh {
-				// Get current time
-				unixTime := time.Now().UnixNano()
-				// Insert sample and time into database
-				db.Exec("INSERT INTO heartRate VALUES (?, ?);", unixTime, heartRate)
-			}
-		}()
 	}
 
 	// If step count metrics enabled in config
 	if k.Bool("metrics.stepCount.enabled") {
 		// Watch step count
-		stepCountCh, err := dev.WatchStepCount(ctx)
+		err := dev.WatchStepCount(ctx, func(count uint32, err error) {
+			if err != nil {
+				return
+			}
+			// Get current time
+			unixTime := time.Now().UnixNano()
+			// Insert sample and time into database
+			db.Exec("INSERT INTO stepCount VALUES (?, ?);", unixTime, count)
+		})
 		if err != nil {
 			return err
 		}
-		go func() {
-			// For every step count sample
-			for stepCount := range stepCountCh {
-				// Get current time
-				unixTime := time.Now().UnixNano()
-				// Insert sample and time into database
-				db.Exec("INSERT INTO stepCount VALUES (?, ?);", unixTime, stepCount)
-			}
-		}()
 	}
 
-	// If battery level metrics enabled in config
+	// Watch step count
+	if k.Bool("metrics.stepCount.enabled") {
+		err := dev.WatchStepCount(ctx, func(count uint32, err error) {
+			if err != nil {
+				// Handle error
+				return
+			}
+			// Get current time
+			unixTime := time.Now().UnixNano()
+			// Insert sample and time into database
+			db.Exec("INSERT INTO stepCount VALUES (?, ?);", unixTime, count)
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	// Watch battery level
 	if k.Bool("metrics.battLevel.enabled") {
-		// Watch battery level
-		battLevelCh, err := dev.WatchBatteryLevel(ctx)
+		err := dev.WatchBatteryLevel(ctx, func(battLevel uint8, err error) {
+			if err != nil {
+				// Handle error
+				return
+			}
+			// Get current time
+			unixTime := time.Now().UnixNano()
+			// Insert sample and time into database
+			db.Exec("INSERT INTO battLevel VALUES (?, ?);", unixTime, battLevel)
+		})
 		if err != nil {
 			return err
 		}
-		go func() {
-			// For every battery level sample
-			for battLevel := range battLevelCh {
-				// Get current time
-				unixTime := time.Now().UnixNano()
-				// Insert sample and time into database
-				db.Exec("INSERT INTO battLevel VALUES (?, ?);", unixTime, battLevel)
-			}
-		}()
 	}
 
-	// If motion metrics enabled in config
+	// Watch motion values
 	if k.Bool("metrics.motion.enabled") {
-		// Watch motion values
-		motionCh, err := dev.WatchMotion(ctx)
+		err := dev.WatchMotion(ctx, func(motionVals infinitime.MotionValues, err error) {
+			if err != nil {
+				// Handle error
+				return
+			}
+			// Get current time
+			unixTime := time.Now().UnixNano()
+			// Insert sample values and time into database
+			db.Exec(
+				"INSERT INTO motion VALUES (?, ?, ?, ?);",
+				unixTime,
+				motionVals.X,
+				motionVals.Y,
+				motionVals.Z,
+			)
+		})
 		if err != nil {
 			return err
 		}
-		go func() {
-			// For every motion sample
-			for motionVals := range motionCh {
-				// Get current time
-				unixTime := time.Now().UnixNano()
-				// Insert sample values and time into database
-				db.Exec(
-					"INSERT INTO motion VALUES (?, ?, ?, ?);",
-					unixTime,
-					motionVals.X,
-					motionVals.Y,
-					motionVals.Z,
-				)
-			}
-		}()
 	}
 
 	wg.Add(1)

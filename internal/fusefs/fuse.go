@@ -9,8 +9,7 @@ import (
 
 	"github.com/hanwen/go-fuse/v2/fs"
 	"github.com/hanwen/go-fuse/v2/fuse"
-	"go.elara.ws/infinitime"
-	"go.elara.ws/infinitime/blefs"
+	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/logger/log"
 )
 
@@ -47,14 +46,14 @@ const (
 )
 
 var (
-	myfs     *blefs.FS         = nil
+	myfs     *infinitime.FS    = nil
 	inodemap map[string]uint64 = nil
 )
 
 func BuildRootNode(dev *infinitime.Device) (*ITNode, error) {
 	var err error
 	inodemap = make(map[string]uint64)
-	myfs, err = dev.FS()
+	myfs = dev.FS()
 	if err != nil {
 		log.Error("FUSE Failed to get filesystem").Err(err).Send()
 		return nil, err
@@ -343,13 +342,10 @@ func (fh *bytesFileWriteHandle) Flush(ctx context.Context) (errno syscall.Errno)
 		}
 		return 0
 	}
-
-	go func() {
-		// For every progress event
-		for sent := range fp.Progress() {
-			log.Debug("FUSE Flush progress").Int("bytes", int(sent)).Int("total", len(fh.content)).Send()
-		}
-	}()
+	
+	fp.ProgressFunc = func(transferred, total uint32) {
+		log.Debug("FUSE Read progress").Uint32("bytes", transferred).Uint32("total", total).Send()
+	}
 
 	r := bytes.NewReader(fh.content)
 	nread, err := io.Copy(fp, r)
@@ -430,12 +426,9 @@ func (f *ITNode) Open(ctx context.Context, openFlags uint32) (fh fs.FileHandle, 
 
 			b := &bytes.Buffer{}
 
-			go func() {
-				// For every progress event
-				for sent := range fp.Progress() {
-					log.Debug("FUSE Read progress").Int("bytes", int(sent)).Int("total", int(f.self.size)).Send()
-				}
-			}()
+			fp.ProgressFunc = func(transferred, total uint32) {
+				log.Debug("FUSE Read progress").Uint32("bytes", transferred).Uint32("total", total).Send()
+			}
 
 			_, err = io.Copy(b, fp)
 			if err != nil {

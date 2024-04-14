@@ -21,7 +21,7 @@ package main
 import (
 	"context"
 
-	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/mpris"
 	"go.elara.ws/itd/translit"
 	"go.elara.ws/logger/log"
@@ -38,50 +38,42 @@ func initMusicCtrl(ctx context.Context, wg WaitGroup, dev *infinitime.Device) er
 		if !firmwareUpdating {
 			switch ct {
 			case mpris.ChangeTypeStatus:
-				dev.Music.SetStatus(val == "Playing")
+				dev.SetMusicStatus(val == "Playing")
 			case mpris.ChangeTypeTitle:
-				dev.Music.SetTrack(newVal)
+				dev.SetMusicTrack(newVal)
 			case mpris.ChangeTypeAlbum:
-				dev.Music.SetAlbum(newVal)
+				dev.SetMusicAlbum(newVal)
 			case mpris.ChangeTypeArtist:
-				dev.Music.SetArtist(newVal)
+				dev.SetMusicArtist(newVal)
 			}
 		}
 	})
 
 	// Watch for music events
-	musicEvtCh, err := dev.Music.WatchEvents()
+	err := dev.WatchMusicEvents(ctx, func(event infinitime.MusicEvent, err error) {
+		if err != nil {
+			log.Error("Music event error").Err(err).Send()
+		}
+		
+		// Perform appropriate action based on event
+		switch event {
+		case infinitime.MusicEventPlay:
+			mpris.Play()
+		case infinitime.MusicEventPause:
+			mpris.Pause()
+		case infinitime.MusicEventNext:
+			mpris.Next()
+		case infinitime.MusicEventPrev:
+			mpris.Prev()
+		case infinitime.MusicEventVolUp:
+			mpris.VolUp(uint(k.Int("music.vol.interval")))
+		case infinitime.MusicEventVolDown:
+			mpris.VolDown(uint(k.Int("music.vol.interval")))
+		}
+	})
 	if err != nil {
 		return err
 	}
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done("musicCtrl")
-		// For every music event received
-		for {
-			select {
-			case musicEvt := <-musicEvtCh:
-				// Perform appropriate action based on event
-				switch musicEvt {
-				case infinitime.MusicEventPlay:
-					mpris.Play()
-				case infinitime.MusicEventPause:
-					mpris.Pause()
-				case infinitime.MusicEventNext:
-					mpris.Next()
-				case infinitime.MusicEventPrev:
-					mpris.Prev()
-				case infinitime.MusicEventVolUp:
-					mpris.VolUp(uint(k.Int("music.vol.interval")))
-				case infinitime.MusicEventVolDown:
-					mpris.VolDown(uint(k.Int("music.vol.interval")))
-				}
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
 
 	// Log completed initialization
 	log.Info("Initialized InfiniTime music controls").Send()

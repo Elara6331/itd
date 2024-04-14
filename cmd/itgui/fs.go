@@ -11,8 +11,8 @@ import (
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"go.elara.ws/infinitime"
 	"go.elara.ws/itd/api"
+	"go.elara.ws/itd/infinitime"
 )
 
 func fsTab(ctx context.Context, client *api.Client, w fyne.Window, opened chan struct{}) fyne.CanvasObject {
@@ -77,9 +77,9 @@ func fsTab(ctx context.Context, client *api.Client, w fyne.Window, opened chan s
 
 					for evt := range progCh {
 						switch evt.Operation {
-						case infinitime.ResourceOperationRemoveObsolete:
+						case infinitime.ResourceRemove:
 							progressDlg.SetText("Removing " + evt.Name)
-						case infinitime.ResourceOperationUpload:
+						case infinitime.ResourceUpload:
 							progressDlg.SetText("Uploading " + evt.Name)
 							progressDlg.SetTotal(float64(evt.Total))
 							progressDlg.SetValue(float64(evt.Sent))

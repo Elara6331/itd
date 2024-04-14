@@ -6,7 +6,7 @@ import (
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/urfave/cli/v2"
-	"go.elara.ws/infinitime"
+	"go.elara.ws/itd/infinitime"
 )
 
 func resourcesLoad(c *cli.Context) error {
@@ -39,7 +39,7 @@ func resLoad(ctx context.Context, args []string) error {
 			return evt.Err
 		}
 
-		if evt.Operation == infinitime.ResourceOperationRemoveObsolete {
+		if evt.Operation == infinitime.ResourceRemove {
 			bar.SetTemplateString(rmTmpl)
 			bar.Set("filename", evt.Name)
 		} else {
