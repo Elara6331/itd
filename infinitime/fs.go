@@ -266,6 +266,7 @@ type File struct {
 	offset       uint32
 	size         uint32
 	readOnly     bool
+	closed       bool
 	ProgressFunc func(transferred, total uint32)
 }
 
@@ -294,6 +295,10 @@ func (ifs *FS) Create(path string, size uint32) (*File, error) {
 // Write writes data from the byte slice b to the file.
 // It returns the number of bytes written and an error, if any.
 func (fl *File) Write(b []byte) (int, error) {
+	if fl.closed {
+		return 0, fsproto.ErrFileClosed
+	}
+
 	if fl.readOnly {
 		return 0, fsproto.ErrFileReadOnly
 	}
@@ -384,6 +389,10 @@ func (fl *File) Write(b []byte) (int, error) {
 // Read reads data from the file into the byte slice b.
 // It returns the number of bytes read and an error, if any.
 func (fl *File) Read(b []byte) (int, error) {
+	if fl.closed {
+		return 0, fsproto.ErrFileClosed
+	}
+
 	fl.fs.mtx.Lock()
 	defer fl.fs.mtx.Unlock()
 
@@ -504,6 +513,10 @@ func (fl *File) Stat() (fs.FileInfo, error) {
 //
 // Seek returns the new offset and an error, if any.
 func (fl *File) Seek(offset int64, whence int) (int64, error) {
+	if fl.closed {
+		return 0, fsproto.ErrFileClosed
+	}
+
 	if offset > math.MaxUint32 {
 		return 0, fsproto.ErrInvalidOffset
 	}
@@ -534,8 +547,11 @@ func (fl *File) Seek(offset int64, whence int) (int64, error) {
 	return int64(fl.offset), nil
 }
 
-// Close always returns nil
+// Close closes the file for future operations
 func (fl *File) Close() error {
+	fl.fs.mtx.Lock()
+	defer fl.fs.mtx.Unlock()
+	fl.closed = true
 	return nil
 }
 

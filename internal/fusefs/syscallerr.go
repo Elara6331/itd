@@ -61,6 +61,8 @@ func syscallErr(err error) syscall.Errno {
 			return syscall.EINVAL
 		case fsproto.ErrNoRemoveRoot: // refusing to remove root directory
 			return syscall.EPERM
+		case fsproto.ErrFileClosed: // cannot perform operation on closed file
+			return syscall.EBADF
 		default:
 			return syscall.EINVAL
 		}

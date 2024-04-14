@@ -11,6 +11,7 @@ var (
 	ErrFileWriteOnly = errors.New("file is write only")
 	ErrInvalidOffset = errors.New("offset out of range")
 	ErrNoRemoveRoot  = errors.New("refusing to remove root directory")
+	ErrFileClosed    = errors.New("cannot perform operation on a closed file")
 )
 
 // Error represents an error returned by BLE FS
