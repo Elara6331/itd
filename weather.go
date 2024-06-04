@@ -155,7 +155,6 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 func getLocation(ctx context.Context, loc string) (lat, lon float64, err error) {
 	// Create request URL and perform GET request
 	reqURL := fmt.Sprintf("https://nominatim.openstreetmap.org/search.php?q=%s&format=jsonv2", url.QueryEscape(loc))
-	println(reqURL)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
 	if err != nil {
 		return
