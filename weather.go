@@ -155,10 +155,12 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 func getLocation(ctx context.Context, loc string) (lat, lon float64, err error) {
 	// Create request URL and perform GET request
 	reqURL := fmt.Sprintf("https://nominatim.openstreetmap.org/search.php?q=%s&format=jsonv2", url.QueryEscape(loc))
+	println(reqURL)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
 	if err != nil {
 		return
 	}
+	req.Header.Set("User-Agent", fmt.Sprintf("ITD/%s gitea.elara.ws/Elara6331/itd", strings.TrimSpace(version)))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return
@@ -210,7 +212,7 @@ func getWeather(ctx context.Context, lat, lon float64) (*METResponse, error) {
 	}
 
 	// Set identifying user agent as per NMI requirements
-	req.Header.Set("User-Agent", fmt.Sprintf("ITD/%s gitea.arsenm.dev/Arsen6331/itd", strings.TrimSpace(version)))
+	req.Header.Set("User-Agent", fmt.Sprintf("ITD/%s gitea.elara.ws/Elara6331/itd", strings.TrimSpace(version)))
 
 	// Perform request
 	res, err := http.DefaultClient.Do(req)

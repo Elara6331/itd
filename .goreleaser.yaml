@@ -44,6 +44,7 @@ archives:
       - README.md
       - itd.toml
       - itd.service
+    allow_different_binary_count: true
 nfpms:
   - id: itd
     file_name_template: >-
