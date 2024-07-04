@@ -42,7 +42,10 @@ func (c *FSClient) Mkdir(ctx context.Context, paths ...string) error {
 
 func (c *FSClient) ReadDir(ctx context.Context, dir string) ([]FileInfo, error) {
 	res, err := c.client.ReadDir(ctx, &rpc.PathRequest{Path: dir})
-	return convertEntries(res.Entries), err
+	if err != nil {
+		return nil, err
+	}
+	return convertEntries(res.Entries), nil
 }
 
 func convertEntries(e []*rpc.FileInfo) []FileInfo {
