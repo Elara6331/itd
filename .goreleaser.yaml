@@ -56,7 +56,7 @@ nfpms:
         {{- end }}
     description: "Companion daemon for the InfiniTime firmware on the PineTime smartwatch"
     homepage: 'https://gitea.elara.ws/Elara6331/itd'
-    maintainer: 'Elara Musayelyan <elara@elara.ws>'
+    maintainer: 'Elara Ivy <elara@elara.ws>'
     license: GPLv3
     formats:
       - apk
@@ -79,7 +79,7 @@ aurs:
     homepage: 'https://gitea.elara.ws/Elara6331/itd'
     description: "Companion daemon for the InfiniTime firmware on the PineTime smartwatch"
     maintainers:
-      - 'Elara Musayelyan <elara@elara.ws>'
+      - 'Elara Ivy <elara@elara.ws>'
     license: GPLv3
     private_key: '{{ .Env.AUR_KEY }}'
     git_url: 'ssh://aur@aur.archlinux.org/itd-bin.git'
