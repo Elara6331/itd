@@ -153,7 +153,7 @@ func sendFirmware(ctrlPoint, packet *bluetooth.DeviceCharacteristic, opts DFUOpt
 		}
 
 		chunksSinceReceipt += 1
-		if chunksSinceReceipt == opts.ReceiveInterval {
+		if chunksSinceReceipt == opts.ReceiveInterval && bytesSent < totalSize {
 			sizeData, err := awaitDFUResponse(ctrlPoint, []byte{0x11})
 			if err != nil {
 				return err
@@ -167,6 +167,15 @@ func sendFirmware(ctrlPoint, packet *bluetooth.DeviceCharacteristic, opts DFUOpt
 			}
 			chunksSinceReceipt = 0
 		}
+	}
+
+	_, err = awaitDFUResponse(ctrlPoint, dfuResponseRecvFwImgSuccess)
+	if err != nil {
+		return err
+	}
+
+	if opts.ProgressFunc != nil {
+		opts.ProgressFunc(bytesSent, bytesSent, totalSize)
 	}
 
 	return nil
