@@ -1,8 +1,0 @@
-pipeline:
-  release:
-    image: goreleaser/goreleaser
-    commands:
-      - goreleaser release
-    secrets: [ gitea_token, aur_key ]
-    when:
-      event: tag
