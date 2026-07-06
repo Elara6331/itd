@@ -8,11 +8,18 @@ on:
 jobs:
   release:
     runs-on: any
-    container: goreleaser/goreleaser
     steps:
-      - uses: actions/checkout@v4
-      - name: goreleaser release
-        run: goreleaser release
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GoReleaser
+        uses: https://github.com/goreleaser/goreleaser-action@v7
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --clean
         env:
-          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITEA_TOKEN }}
           AUR_KEY: ${{ secrets.AUR_KEY }}
