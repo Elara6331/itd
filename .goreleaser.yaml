@@ -55,7 +55,7 @@ nfpms:
         {{- else }}{{.Arch}}
         {{- end }}
     description: "Companion daemon for the InfiniTime firmware on the PineTime smartwatch"
-    homepage: 'https://gitea.elara.ws/Elara6331/itd'
+    homepage: 'https://git.elara.ws/Elara6331/itd'
     maintainer: 'Elara Ivy <elara@elara.ws>'
     license: GPLv3
     formats:
@@ -76,7 +76,7 @@ nfpms:
           mode: 0755
 aurs:
   - name: itd-bin
-    homepage: 'https://gitea.elara.ws/Elara6331/itd'
+    homepage: 'https://git.elara.ws/Elara6331/itd'
     description: "Companion daemon for the InfiniTime firmware on the PineTime smartwatch"
     maintainers:
       - 'Elara Ivy <elara@elara.ws>'
@@ -107,15 +107,15 @@ aurs:
       install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/itd/LICENSE"
 release:
   gitea:
-    owner: Elara6331
+    owner: elara6331
     name: itd
 gitea_urls:
-  api: 'https://gitea.elara.ws/api/v1/'
-  download: 'https://gitea.elara.ws'
+  api: 'https://git.elara.ws/api/v1/'
+  download: 'https://git.elara.ws'
   skip_tls_verify: false
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
