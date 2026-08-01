@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/godbus/dbus/v5"
 	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/internal/utils"
-	"go.elara.ws/logger/log"
 )
 
 func initCallNotifs(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
@@ -65,14 +65,14 @@ func initCallNotifs(ctx context.Context, wg WaitGroup, dev *infinitime.Device) e
 				// Get phone number from call object using method call connection
 				phoneNum, err := getPhoneNum(conn, callObj)
 				if err != nil {
-					log.Error("Error getting phone number").Err(err).Send()
+					log.Error("Error getting phone number", slog.Any("error", err))
 					continue
 				}
 
 				// Get direction of call object using method call connection
 				direction, err := getDirection(conn, callObj)
 				if err != nil {
-					log.Error("Error getting call direction").Err(err).Send()
+					log.Error("Error getting call direction", slog.Any("error", err))
 					continue
 				}
 
@@ -87,17 +87,17 @@ func initCallNotifs(ctx context.Context, wg WaitGroup, dev *infinitime.Device) e
 						// Attempt to accept call
 						err = acceptCall(ctx, conn, callObj)
 						if err != nil {
-							log.Warn("Error accepting call").Err(err).Send()
+							log.Warn("Error accepting call", slog.Any("error", err))
 						}
 					case infinitime.CallStatusDeclined:
 						// Attempt to decline call
 						err = declineCall(ctx, conn, callObj)
 						if err != nil {
-							log.Warn("Error declining call").Err(err).Send()
+							log.Warn("Error declining call", slog.Any("error", err))
 						}
 					case infinitime.CallStatusMuted:
 						// Warn about unimplemented muting
-						log.Warn("Muting calls is not implemented").Send()
+						log.Warn("Muting calls is not implemented")
 					}
 				})
 				if err != nil {
@@ -109,7 +109,7 @@ func initCallNotifs(ctx context.Context, wg WaitGroup, dev *infinitime.Device) e
 		}
 	}()
 
-	log.Info("Relaying calls to InfiniTime").Send()
+	log.Info("Relaying calls to InfiniTime")
 	return nil
 }
 

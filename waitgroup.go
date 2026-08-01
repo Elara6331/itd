@@ -1,9 +1,8 @@
 package main
 
 import (
+	"log/slog"
 	"sync"
-
-	"go.elara.ws/logger/log"
 )
 
 type WaitGroup struct {
@@ -11,6 +10,6 @@ type WaitGroup struct {
 }
 
 func (wg WaitGroup) Done(c string) {
-	log.Info("Component stopped").Str("name", c).Send()
+	log.Info("Component stopped", slog.String("name", c))
 	wg.WaitGroup.Done()
 }

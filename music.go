@@ -20,18 +20,18 @@ package main
 
 import (
 	"context"
+	"log/slog"
 
 	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/mpris"
 	"go.elara.ws/itd/translit"
-	"go.elara.ws/logger/log"
 )
 
 func initMusicCtrl(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
 	mpris.Init(ctx)
 
-	maps := k.Strings("notifs.translit.use")
-	translit.Transliterators["custom"] = translit.Map(k.Strings("notifs.translit.custom"))
+	maps := cfg.Notifs.Translit.Use
+	translit.Transliterators["custom"] = translit.Map(cfg.Notifs.Translit.Custom)
 
 	mpris.OnChange(func(ct mpris.ChangeType, val string) {
 		newVal := translit.Transliterate(val, maps...)
@@ -52,7 +52,7 @@ func initMusicCtrl(ctx context.Context, wg WaitGroup, dev *infinitime.Device) er
 	// Watch for music events
 	err := dev.WatchMusicEvents(ctx, func(event infinitime.MusicEvent, err error) {
 		if err != nil {
-			log.Error("Music event error").Err(err).Send()
+			log.Error("Music event error", slog.Any("error", err))
 		}
 		
 		// Perform appropriate action based on event
@@ -66,9 +66,9 @@ func initMusicCtrl(ctx context.Context, wg WaitGroup, dev *infinitime.Device) er
 		case infinitime.MusicEventPrev:
 			mpris.Prev()
 		case infinitime.MusicEventVolUp:
-			mpris.VolUp(uint(k.Int("music.vol.interval")))
+			mpris.VolUp(cfg.Music.Vol.Interval)
 		case infinitime.MusicEventVolDown:
-			mpris.VolDown(uint(k.Int("music.vol.interval")))
+			mpris.VolDown(cfg.Music.Vol.Interval)
 		}
 	})
 	if err != nil {
@@ -76,7 +76,7 @@ func initMusicCtrl(ctx context.Context, wg WaitGroup, dev *infinitime.Device) er
 	}
 
 	// Log completed initialization
-	log.Info("Initialized InfiniTime music controls").Send()
+	log.Info("Initialized InfiniTime music controls")
 
 	return nil
 }

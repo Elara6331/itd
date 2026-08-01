@@ -23,22 +23,20 @@ import (
 	_ "embed"
 	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
 
 	"github.com/gen2brain/dlgs"
-	"github.com/knadh/koanf"
 	"github.com/mattn/go-isatty"
 	"go.elara.ws/itd/infinitime"
-	"go.elara.ws/logger"
-	"go.elara.ws/logger/log"
+	"go.elara.ws/loggers"
 )
-
-var k = koanf.New(".")
 
 var (
 	firmwareUpdating = false
@@ -46,25 +44,35 @@ var (
 	updateFS = false
 )
 
+var (
+	cfg Config
+	log *slog.Logger
+)
+
 func main() {
 	showVer := flag.Bool("version", false, "Show version number and exit")
 	flag.Parse()
-	// If version requested, print and exit
 	if *showVer {
 		fmt.Println(version)
 		return
 	}
-
-	level, err := logger.ParseLogLevel(k.String("logging.level"))
+	
+	err := loadConfig(&cfg)
+	
+	log = slog.New(loggers.NewPretty(os.Stderr, loggers.Options{
+		Level: parseLogLevel(cfg.Logging.Level),
+	}))
+	
+	// Defer handling the error until we have the logger set up
 	if err != nil {
-		level = logger.LogLevelInfo
+		log.Error("Error loading config", slog.Any("error", err))
+		os.Exit(1)
 	}
-	log.Logger.SetLevel(level)
 
 	// Create infinitime options struct
 	opts := infinitime.Options{
 		OnReconnect: func(dev *infinitime.Device) {
-			if k.Bool("on.reconnect.setTime") {
+			if cfg.On.Reconnect.SetTime {
 				// Set time to current time
 				err = dev.SetTime(time.Now())
 				if err != nil {
@@ -73,7 +81,7 @@ func main() {
 			}
 
 			// If config specifies to notify on reconnect
-			if k.Bool("on.reconnect.notify") {
+			if cfg.On.Reconnect.Notify {
 				// Send notification to InfiniTime
 				err = dev.Notify("itd", "Successfully reconnected")
 				if err != nil {
@@ -93,31 +101,35 @@ func main() {
 	// Connect to InfiniTime with default options
 	dev, err := infinitime.Connect(opts)
 	if err != nil {
-		log.Fatal("Error connecting to InfiniTime").Err(err).Send()
+		log.Error("Error connecting to InfiniTime", slog.Any("error", err))
+		os.Exit(1)
 	}
 
 	// Get firmware version
 	ver, err := dev.Version()
 	if err != nil {
-		log.Error("Error getting firmware version").Err(err).Send()
+		log.Error("Error getting firmware version", slog.Any("error", err))
+		os.Exit(1)
 	}
 
 	// Log connection
-	log.Info("Connected to InfiniTime").Str("version", ver).Send()
+	log.Info("Connected to InfiniTime", slog.String("version", ver), slog.String("addr", dev.Address()))
 
 	// If config specifies to notify on connect
-	if k.Bool("on.connect.notify") {
+	if cfg.On.Connect.Notify {
 		// Send notification to InfiniTime
 		err = dev.Notify("itd", "Successfully connected")
 		if err != nil {
-			log.Error("Error sending notification to InfiniTime").Err(err).Send()
+			log.Warn("Error sending noification to InfiniTime", slog.Any("error", err))
 		}
 	}
 
-	// Set time to current time
-	err = dev.SetTime(time.Now())
-	if err != nil {
-		log.Error("Error setting current time on connected InfiniTime").Err(err).Send()
+	if cfg.On.Connect.SetTime {
+		// Set time to current time
+		err = dev.SetTime(time.Now())
+		if err != nil {
+			log.Warn("Error setting current time on connected InfiniTime", slog.Any("error", err))
+		}
 	}
 
 	sigCh := make(chan os.Signal, 1)
@@ -128,7 +140,7 @@ func main() {
 
 	go func() {
 		sig := <-sigCh
-		log.Warn("Signal received, shutting down").Stringer("signal", sig).Send()
+		slog.Warn("Signal received, shutting down", slog.String("signal", sig.String()))
 		cancel()
 	}()
 
@@ -137,51 +149,51 @@ func main() {
 	// Initialize music controls
 	err = initMusicCtrl(ctx, wg, dev)
 	if err != nil {
-		log.Error("Error initializing music control").Err(err).Send()
+		log.Warn("Error initializing music control", slog.Any("error", err))
 	}
 
 	// Start control socket
 	err = initCallNotifs(ctx, wg, dev)
 	if err != nil {
-		log.Error("Error initializing call notifications").Err(err).Send()
+		log.Warn("Error initializing call notifications", slog.Any("error", err))
 	}
 
 	// Initialize notification relay
 	err = initNotifRelay(ctx, wg, dev)
 	if err != nil {
-		log.Error("Error initializing notification relay").Err(err).Send()
+		log.Warn("Error initializing notification relay", slog.Any("error", err))
 	}
 
 	// Initializa weather
 	err = initWeather(ctx, wg, dev)
 	if err != nil {
-		log.Error("Error initializing weather").Err(err).Send()
+		log.Warn("Error initializing weather", slog.Any("error", err))
 	}
 
 	// Initialize metrics collection
 	err = initMetrics(ctx, wg, dev)
 	if err != nil {
-		log.Error("Error intializing metrics collection").Err(err).Send()
+		log.Warn("Error initializing metrics collection", slog.Any("error", err))
 	}
 
 	// Initialize puremaps integration
 	err = initPureMaps(ctx, wg, dev)
 	if err != nil {
-		log.Error("Error intializing puremaps integration").Err(err).Send()
+		log.Warn("Error initializing puremaps integration", slog.Any("error", err))
 	}
 
 	// Start fuse socket
-	if k.Bool("fuse.enabled") {
+	if cfg.Fuse.Enabled {
 		err = startFUSE(ctx, wg, dev)
 		if err != nil {
-			log.Error("Error starting fuse socket").Err(err).Send()
+			log.Warn("Error starting fuse socket", slog.Any("error", err))
 		}
 	}
 
 	// Start control socket
 	err = startSocket(ctx, wg, dev)
 	if err != nil {
-		log.Error("Error starting socket").Err(err).Send()
+		log.Warn("Error starting control socket, itctl and other clients will not work", slog.Any("error", err))
 	}
 
 	wg.Wait()
@@ -224,4 +236,19 @@ func onReqPasskey() (uint32, error) {
 		return uint32(passkeyInt), err
 	}
 	return out, nil
+}
+
+func parseLogLevel(lv string) slog.Level {
+	switch strings.ToLower(lv) {
+	case "debug":
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "error":
+		return slog.LevelError
+	case "warn":
+		return slog.LevelWarn
+	default:
+		return slog.LevelInfo
+	}
 }

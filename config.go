@@ -3,111 +3,156 @@ package main
 import (
 	"os"
 	"path/filepath"
-	"strings"
 
-	"github.com/knadh/koanf/parsers/toml"
-	"github.com/knadh/koanf/providers/confmap"
-	"github.com/knadh/koanf/providers/env"
-	"github.com/knadh/koanf/providers/file"
-	"go.elara.ws/logger"
-	"go.elara.ws/logger/log"
+	"github.com/pelletier/go-toml/v2"
 )
 
-var cfgDir string
-
-func init() {
-	etcPath := "/etc/itd.toml"
-
-	// Set up logger
-	log.Logger = logger.NewPretty(os.Stderr)
-
-	// Get user's configuration directory
+func getCfgPath() (string, error) {
 	userCfgDir, err := os.UserConfigDir()
-	if err != nil {
-		panic(err)
-	}
-	cfgDir = filepath.Join(userCfgDir, "itd")
+	return filepath.Join(userCfgDir, "itd", "itd.toml"), err
+}
 
-	// If config dir is not readable
+func loadConfig(cfg *Config) error {
+	*cfg = defaults
+
+	cfgPath, err := getCfgPath()
+	if err != nil {
+		return err
+	}
+
+	cfgDir := filepath.Dir(cfgPath)
 	if _, err = os.ReadDir(cfgDir); err != nil {
-		// Create config dir with 700 permissions
 		err = os.MkdirAll(cfgDir, 0o700)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
+	(*cfg).Dir = cfgDir
 
-	// Get current and old config paths
-	cfgPath := filepath.Join(cfgDir, "itd.toml")
-	oldCfgPath := filepath.Join(userCfgDir, "itd.toml")
-
-	// If old config path exists
-	if _, err = os.Stat(oldCfgPath); err == nil {
-		// Move old config to new path
-		err = os.Rename(oldCfgPath, cfgPath)
-		if err != nil {
-			panic(err)
-		}
+	fl, err := os.Open(cfgPath)
+	if err != nil {
+		return nil // cfg is already set to defaults
 	}
 
-	// Set config defaults
-	setCfgDefaults()
-
-	// Load and watch config files
-	loadAndwatchCfgFile(etcPath)
-	loadAndwatchCfgFile(cfgPath)
-
-	// Load envireonment variables
-	k.Load(env.Provider("ITD_", "_", func(s string) string {
-		return strings.ToLower(strings.TrimPrefix(s, "ITD_"))
-	}), nil)
+	return toml.NewDecoder(fl).Decode(cfg)
 }
 
-func loadAndwatchCfgFile(filename string) {
-	provider := file.Provider(filename)
-
-	if cfgError := k.Load(provider, toml.Parser()); cfgError != nil {
-		log.Warn("Error while trying to read config file").Str("filename", filename).Err(cfgError).Send()
-	}
-
-	// Watch for changes and reload when detected
-	provider.Watch(func(_ interface{}, err error) {
-		if err != nil {
-			return
-		}
-
-		if cfgError := k.Load(provider, toml.Parser()); cfgError != nil {
-			log.Warn("Error while trying to read config file").Str("filename", filename).Err(cfgError).Send()
-		}
-	})
+var defaults = Config{
+	Bluetooh: Bluetooh{Adapter: "hci0"},
+	Socket:   Socket{Path: "/tmp/itd/socket"},
+	Conn: Conn{
+		Reconnect: true,
+		Whitelist: Whitelist{Enabled: false},
+	},
+	On: On{
+		Connect:   Hook{Notify: true, SetTime: true},
+		Reconnect: Hook{Notify: true, SetTime: true},
+	},
+	Notifs: Notifs{
+		Translit: NotifsTranslit{
+			Use: []string{"eASCII"},
+		},
+		Ignore: NotifsIgnore{
+			Summary: []string{"InfiniTime"},
+		},
+	},
+	Music: Music{
+		Vol: Volume{Interval: 5},
+	},
+	Fuse: Fuse{
+		Enabled:    false,
+		Mountpoint: "/tmp/itd/mnt",
+	},
 }
 
-func setCfgDefaults() {
-	k.Load(confmap.Provider(map[string]interface{}{
-		"bluetooth.adapter": "hci0",
+type Config struct {
+	Dir      string   `toml:"-"`
+	Logging  Logging  `toml:"logging"`
+	Weather  Weather  `toml:"weather"`
+	Bluetooh Bluetooh `toml:"bluetooth"`
+	Notifs   Notifs   `toml:"notifs"`
+	Conn     Conn     `toml:"conn"`
+	On       On       `toml:"on"`
+	Fuse     Fuse     `toml:"fuse"`
+	Music    Music    `toml:"music"`
+	Metrics  Metrics  `toml:"metrics"`
+	Socket   Socket   `toml:"socket"`
+}
 
-		"socket.path": "/tmp/itd/socket",
+type Weather struct {
+	Enabled  bool   `toml:"enabled"`
+	Location string `toml:"location"`
+}
 
-		"conn.reconnect": true,
+type Logging struct {
+	Level string `toml:"level"`
+}
 
-		"conn.whitelist.enabled": false,
-		"conn.whitelist.devices": []string{},
+type Bluetooh struct {
+	Adapter string `toml:"adapter"`
+}
 
-		"on.connect.notify": true,
+type Socket struct {
+	Path string `toml:"path"`
+}
 
-		"on.reconnect.notify":  true,
-		"on.reconnect.setTime": true,
+type Metrics struct {
+	Enabled   bool   `toml:"enabled"`
+	HeartRate Metric `toml:"heartRate"`
+	StepCount Metric `toml:"stepCount"`
+	BattLevel Metric `toml:"battLevel"`
+	Motion    Metric `toml:"motion"`
+}
 
-		"notifs.translit.use":    []string{"eASCII"},
-		"notifs.translit.custom": []string{},
+type Metric struct {
+	Enabled bool `toml:"enabled"`
+}
 
-		"notifs.ignore.sender":  []string{},
-		"notifs.ignore.summary": []string{"InfiniTime"},
-		"notifs.ignore.body":    []string{},
+type Conn struct {
+	Reconnect bool      `toml:"reconnect"`
+	Whitelist Whitelist `toml:"whitelist"`
+}
 
-		"music.vol.interval": 5,
+type On struct {
+	Connect   Hook `toml:"connect"`
+	Reconnect Hook `toml:"reconnect"`
+}
 
-		"fuse.enabled":    false,
-		"fuse.mountpoint": "/tmp/itd/mnt",
-	}, "."), nil)
+type Hook struct {
+	Notify  bool `toml:"notify"`
+	SetTime bool `toml:"setTime"`
+}
+
+type Whitelist struct {
+	Enabled bool     `toml:"enabled"`
+	Devices []string `toml:"devices"`
+}
+
+type Notifs struct {
+	Translit NotifsTranslit `toml:"translit"`
+	Ignore   NotifsIgnore   `toml:"ignore"`
+}
+
+type NotifsTranslit struct {
+	Use    []string `toml:"user"`
+	Custom []string `toml:"custom"`
+}
+
+type NotifsIgnore struct {
+	Sender  []string `toml:"sender"`
+	Summary []string `toml:"summary"`
+	Body    []string `toml:"body"`
+}
+
+type Fuse struct {
+	Enabled    bool   `toml:"enabled"`
+	Mountpoint string `toml:"mountpoint"`
+}
+
+type Music struct {
+	Vol Volume `toml:"vol"`
+}
+
+type Volume struct {
+	Interval uint `toml:"interval"`
 }

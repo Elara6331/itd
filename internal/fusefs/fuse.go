@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"log/slog"
 	"strconv"
 	"syscall"
 
 	"github.com/hanwen/go-fuse/v2/fs"
 	"github.com/hanwen/go-fuse/v2/fuse"
 	"go.elara.ws/itd/infinitime"
-	"go.elara.ws/logger/log"
 )
 
 type ITProperty struct {
@@ -48,17 +48,19 @@ const (
 var (
 	myfs     *infinitime.FS    = nil
 	inodemap map[string]uint64 = nil
+	log *slog.Logger
 )
 
-func BuildRootNode(dev *infinitime.Device) (*ITNode, error) {
+func BuildRootNode(ilog *slog.Logger, dev *infinitime.Device) (*ITNode, error) {
 	var err error
 	inodemap = make(map[string]uint64)
 	myfs = dev.FS()
 	if err != nil {
-		log.Error("FUSE Failed to get filesystem").Err(err).Send()
+		log.Error("FUSE Failed to get filesystem", slog.Any("error", err))
 		return nil, err
 	}
 
+	log = ilog
 	return &ITNode{kind: nodeKindRoot}, nil
 }
 
@@ -146,17 +148,17 @@ func (n *ITNode) Readdir(ctx context.Context) (fs.DirStream, syscall.Errno) {
 		// on info
 		files, err := myfs.ReadDir(n.path)
 		if err != nil {
-			log.Error("FUSE ReadDir failed").Str("path", n.path).Err(err).Send()
+			log.Error("FUSE ReadDir failed", slog.String("path", n.path))
 			return nil, syscallErr(err)
 		}
 
-		log.Debug("FUSE ReadDir succeeded").Str("path", n.path).Int("objects", len(files)).Send()
+		log.Debug("FUSE ReadDir succeeded", slog.String("path", n.path), slog.Int("objects", len(files)))
 		r := make([]fuse.DirEntry, len(files))
 		n.lst = make([]DirEntry, len(files))
 		for ind, entry := range files {
 			info, err := entry.Info()
 			if err != nil {
-				log.Error("FUSE Info failed").Str("path", n.path).Err(err).Send()
+				log.Error("FUSE Info failed", slog.String("path", n.path))
 				return nil, syscallErr(err)
 			}
 			name := info.Name()
@@ -242,7 +244,7 @@ func (n *ITNode) Lookup(ctx context.Context, name string, out *fuse.EntryOut) (*
 			if file.path != n.path+"/"+name {
 				continue
 			}
-			log.Debug("FUSE Lookup successful").Str("path", file.path).Send()
+			log.Debug("FUSE Lookup successful", slog.String("path", file.path))
 
 			if file.isDir {
 				stable := fs.StableAttr{
@@ -265,7 +267,7 @@ func (n *ITNode) Lookup(ctx context.Context, name string, out *fuse.EntryOut) (*
 				return child, 0
 			}
 		}
-		log.Warn("FUSE Lookup failed").Str("path", n.path+"/"+name).Send()
+		log.Warn("FUSE Lookup failed", slog.String("path", n.path+"/"+name))
 	}
 	return nil, syscall.ENOENT
 }
@@ -277,7 +279,7 @@ type bytesFileReadHandle struct {
 var _ fs.FileReader = (*bytesFileReadHandle)(nil)
 
 func (fh *bytesFileReadHandle) Read(ctx context.Context, dest []byte, off int64) (fuse.ReadResult, syscall.Errno) {
-	log.Debug("FUSE Executing Read").Int("size", len(fh.content)).Send()
+	log.Debug("FUSE Executing Read", slog.Int("size", len(fh.content)))	
 	end := off + int64(len(dest))
 	if end > int64(len(fh.content)) {
 		end = int64(len(fh.content))
@@ -292,7 +294,7 @@ type sensorFileReadHandle struct {
 var _ fs.FileReader = (*sensorFileReadHandle)(nil)
 
 func (fh *sensorFileReadHandle) Read(ctx context.Context, dest []byte, off int64) (fuse.ReadResult, syscall.Errno) {
-	log.Debug("FUSE Executing Read").Int("size", len(fh.content)).Send()
+	log.Debug("FUSE Executing Read", slog.Int("size", len(fh.content)))
 	end := off + int64(len(dest))
 	if end > int64(len(fh.content)) {
 		end = int64(len(fh.content))
@@ -314,9 +316,16 @@ type bytesFileWriteHandle struct {
 var _ fs.FileWriter = (*bytesFileWriteHandle)(nil)
 
 func (fh *bytesFileWriteHandle) Write(ctx context.Context, data []byte, off int64) (written uint32, errno syscall.Errno) {
-	log.Debug("FUSE Executing Write").Str("path", fh.path).Int("prev_size", len(fh.content)).Int("next_size", len(data)).Send()
+	log.Debug("FUSE Executing Write",
+		slog.String("path", fh.path),
+		slog.Int("prev_size", len(fh.content)),
+		slog.Int("next_size", len(data)),
+	)
 	if off != int64(len(fh.content)) {
-		log.Error("FUSE Write file size changed unexpectedly").Int("expect", int(off)).Int("received", len(fh.content)).Send()
+		log.Debug("FUSE Write file size changed unexpectedly",
+			slog.Int("expect", int(off)),
+			slog.Int("received", len(fh.content)),
+		)
 		return 0, syscall.ENXIO
 	}
 	fh.content = append(fh.content[:], data[:]...)
@@ -326,45 +335,49 @@ func (fh *bytesFileWriteHandle) Write(ctx context.Context, data []byte, off int6
 var _ fs.FileFlusher = (*bytesFileWriteHandle)(nil)
 
 func (fh *bytesFileWriteHandle) Flush(ctx context.Context) (errno syscall.Errno) {
-	log.Debug("FUSE Attempting flush").Str("path", fh.path).Send()
+	log.Debug("FUSE Attempting flush", slog.String("path", fh.path))
 	fp, err := myfs.Create(fh.path, uint32(len(fh.content)))
 	if err != nil {
-		log.Error("FUSE Flush failed: create").Str("path", fh.path).Err(err).Send()
+		log.Error("FUSE Flush failed: create", slog.String("path", fh.path))
 		return syscallErr(err)
 	}
 
 	if len(fh.content) == 0 {
-		log.Debug("FUSE Flush no data to write").Str("path", fh.path).Send()
+		log.Debug("FUSE Flush no data to write", slog.String("path", fh.path))
 		err = fp.Close()
 		if err != nil {
-			log.Error("FUSE Flush failed during close").Str("path", fh.path).Err(err).Send()
+			log.Error("FUSE Flush failed during close", slog.String("path", fh.path))
 			return syscallErr(err)
 		}
 		return 0
 	}
 	
 	fp.ProgressFunc = func(transferred, total uint32) {
-		log.Debug("FUSE Read progress").Uint32("bytes", transferred).Uint32("total", total).Send()
+		log.Debug("FUSE Read progress", slog.Uint64("bytes", uint64(transferred)), slog.Uint64("total", uint64(total)))
 	}
 
 	r := bytes.NewReader(fh.content)
 	nread, err := io.Copy(fp, r)
 	if err != nil {
-		log.Error("FUSE Flush failed during write").Str("path", fh.path).Err(err).Send()
+		log.Error("FUSE Flush failed during write", slog.String("path", fh.path))
 		fp.Close()
 		return syscallErr(err)
 	}
 	if int(nread) != len(fh.content) {
-		log.Error("FUSE Flush failed during write").Str("path", fh.path).Int("expect", len(fh.content)).Int("got", int(nread)).Send()
+		log.Error("FUSE Flush failed during wrote", 
+			slog.String("path", fh.path),
+			slog.Int("expect", len(fh.content)),
+			slog.Int64("got", nread),
+		)
 		fp.Close()
 		return syscall.EIO
 	}
 	err = fp.Close()
 	if err != nil {
-		log.Error("FUSE Flush failed during close").Str("path", fh.path).Err(err).Send()
+		log.Error("FUSE Flush failed during close", slog.String("path", fh.path))
 		return syscallErr(err)
 	}
-	log.Debug("FUSE Flush done").Str("path", fh.path).Int("size", len(fh.content)).Send()
+	log.Debug("FUSE Flush done", slog.String("path", fh.path), slog.Int("size", len(fh.content)))
 
 	return 0
 }
@@ -378,7 +391,7 @@ func (fh *bytesFileWriteHandle) Fsync(ctx context.Context, flags uint32) (errno 
 var _ fs.NodeGetattrer = (*ITNode)(nil)
 
 func (bn *ITNode) Getattr(ctx context.Context, f fs.FileHandle, out *fuse.AttrOut) syscall.Errno {
-	log.Debug("FUSE getattr").Str("path", bn.path).Send()
+	log.Debug("FUSE getattr", slog.String("path", bn.path))
 	out.Ino = bn.Ino
 	out.Mtime = bn.self.modtime
 	out.Ctime = bn.self.modtime
@@ -390,7 +403,7 @@ func (bn *ITNode) Getattr(ctx context.Context, f fs.FileHandle, out *fuse.AttrOu
 var _ fs.NodeSetattrer = (*ITNode)(nil)
 
 func (bn *ITNode) Setattr(ctx context.Context, fh fs.FileHandle, in *fuse.SetAttrIn, out *fuse.AttrOut) syscall.Errno {
-	log.Debug("FUSE setattr").Str("path", bn.path).Send()
+	log.Debug("FUSE setattr", slog.String("path", bn.path))
 	out.Size = 0
 	out.Mtime = 0
 	return 0
@@ -403,22 +416,22 @@ func (f *ITNode) Open(ctx context.Context, openFlags uint32) (fh fs.FileHandle, 
 	case 2:
 		// FS file
 		if openFlags&syscall.O_RDWR != 0 {
-			log.Error("FUSE Open failed: RDWR").Str("path", f.path).Send()
+			log.Error("FUSE Open failed: RDWR", slog.String("path", f.path))
 			return nil, 0, syscall.EROFS
 		}
 
 		if openFlags&syscall.O_WRONLY != 0 {
-			log.Debug("FUSE Opening for write").Str("path", f.path).Send()
+			log.Debug("FUSE Opening for write", slog.String("path", f.path))
 			fh = &bytesFileWriteHandle{
 				path:    f.path,
 				content: make([]byte, 0),
 			}
 			return fh, fuse.FOPEN_DIRECT_IO, 0
 		} else {
-			log.Debug("FUSE Opening for read").Str("path", f.path).Send()
+			log.Debug("FUSE Opening for read", slog.String("path", f.path))
 			fp, err := myfs.Open(f.path)
 			if err != nil {
-				log.Error("FUSE: Opening failed").Str("path", f.path).Err(err).Send()
+				log.Error("FUSE: Opening failed", slog.String("path", f.path))
 				return nil, 0, syscallErr(err)
 			}
 
@@ -427,12 +440,12 @@ func (f *ITNode) Open(ctx context.Context, openFlags uint32) (fh fs.FileHandle, 
 			b := &bytes.Buffer{}
 
 			fp.ProgressFunc = func(transferred, total uint32) {
-				log.Debug("FUSE Read progress").Uint32("bytes", transferred).Uint32("total", total).Send()
+				log.Debug("FUSE Read progress", slog.Uint64("bytes", uint64(transferred)), slog.Uint64("total", uint64(total)))
 			}
 
 			_, err = io.Copy(b, fp)
 			if err != nil {
-				log.Error("FUSE Read failed").Str("path", f.path).Err(err).Send()
+				log.Error("FUSE Read failed", slog.String("path", f.path))
 				fp.Close()
 				return nil, 0, syscallErr(err)
 			}
@@ -494,7 +507,7 @@ func (f *ITNode) Create(ctx context.Context, name string, flags uint32, mode uin
 		content: make([]byte, 0),
 	}
 
-	log.Debug("FUSE Creating file").Str("path", path).Send()
+	log.Debug("FUSE Creating file", slog.String("path", path))
 
 	errno = 0
 	return node, fh, fuseFlags, 0
@@ -510,10 +523,7 @@ func (f *ITNode) Mkdir(ctx context.Context, name string, mode uint32, out *fuse.
 	path := f.path + "/" + name
 	err := myfs.Mkdir(path)
 	if err != nil {
-		log.Error("FUSE Mkdir failed").
-			Str("path", path).
-			Err(err).
-			Send()
+		log.Error("FUSE Mkdir failed", slog.String("path", path), slog.Any("error", err))
 		return nil, syscallErr(err)
 	}
 
@@ -530,10 +540,7 @@ func (f *ITNode) Mkdir(ctx context.Context, name string, mode uint32, out *fuse.
 	}
 	node := f.NewInode(ctx, operations, stable)
 
-	log.Debug("FUSE Mkdir success").
-		Str("path", path).
-		Int("ino", int(ino)).
-		Send()
+	log.Debug("FUSE Mkdir success", slog.String("path", path), slog.Int("ino", int(ino)))
 	return node, 0
 }
 
@@ -549,18 +556,10 @@ func (f *ITNode) Rename(ctx context.Context, name string, newParent fs.InodeEmbe
 
 	err := myfs.Rename(p1, p2)
 	if err != nil {
-		log.Error("FUSE Rename failed").
-			Str("src", p1).
-			Str("dest", p2).
-			Err(err).
-			Send()
-
+		log.Error("FUSE rename failed", slog.String("src", p1), slog.String("dest", p2), slog.Any("error", err))
 		return syscallErr(err)
 	}
-	log.Debug("FUSE Rename sucess").
-		Str("src", p1).
-		Str("dest", p2).
-		Send()
+	log.Debug("FUSE rename success", slog.String("src", p1), slog.String("dest", p2))
 
 	ino := inodemap[p1]
 	delete(inodemap, p1)
@@ -579,17 +578,11 @@ func (f *ITNode) Unlink(ctx context.Context, name string) syscall.Errno {
 	delete(inodemap, f.path+"/"+name)
 	err := myfs.Remove(f.path + "/" + name)
 	if err != nil {
-		log.Error("FUSE Unlink failed").
-			Str("file", f.path+"/"+name).
-			Err(err).
-			Send()
-
+		log.Error("FUSE Unlink failed", slog.String("file", f.path+"/"+name), slog.Any("error", err))
 		return syscallErr(err)
 	}
 
-	log.Debug("FUSE Unlink success").
-		Str("file", f.path+"/"+name).
-		Send()
+	log.Debug("FUSE Unlink success", slog.String("file", f.path+"/"+name))
 	return 0
 }
 

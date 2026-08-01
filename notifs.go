@@ -26,7 +26,6 @@ import (
 	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/internal/utils"
 	"go.elara.ws/itd/translit"
-	"go.elara.ws/logger/log"
 )
 
 func initNotifRelay(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
@@ -79,8 +78,8 @@ func initNotifRelay(ctx context.Context, wg WaitGroup, dev *infinitime.Device) e
 					continue
 				}
 
-				maps := k.Strings("notifs.translit.use")
-				translit.Transliterators["custom"] = translit.Map(k.Strings("notifs.translit.custom"))
+				maps := cfg.Notifs.Translit.Use
+				translit.Transliterators["custom"] = translit.Map(cfg.Notifs.Translit.Custom)
 				sender = translit.Transliterate(sender, maps...)
 				summary = translit.Transliterate(summary, maps...)
 				body = translit.Transliterate(body, maps...)
@@ -102,18 +101,15 @@ func initNotifRelay(ctx context.Context, wg WaitGroup, dev *infinitime.Device) e
 		}
 	}()
 
-	log.Info("Relaying notifications to InfiniTime").Send()
+	log.Info("Relaying notifications to InfiniTime")
 	return nil
 }
 
 // ignored checks whether any fields were ignored in the config
 func ignored(sender, summary, body string) bool {
-	ignoreSender := k.Strings("notifs.ignore.sender")
-	ignoreSummary := k.Strings("notifs.ignore.summary")
-	ignoreBody := k.Strings("notifs.ignore.body")
-	return strSlcContains(ignoreSender, sender) ||
-		strSlcContains(ignoreSummary, summary) ||
-		strSlcContains(ignoreBody, body)
+	return strSlcContains(cfg.Notifs.Ignore.Sender, sender) ||
+		strSlcContains(cfg.Notifs.Ignore.Summary, summary) ||
+		strSlcContains(cfg.Notifs.Ignore.Body, body)
 }
 
 // strSliceContains checks whether a string slice contains a string

@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"strings"
 
 	"github.com/godbus/dbus/v5"
 	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/internal/utils"
-	"go.elara.ws/logger/log"
 )
 
 const (
@@ -55,7 +55,7 @@ func initPureMaps(ctx context.Context, wg WaitGroup, dev *infinitime.Device) err
 		navigator = conn.Object("io.github.rinigus.PureMaps", "/io/github/rinigus/PureMaps/navigator")
 		err = setAll(navigator, dev)
 		if err != nil {
-			log.Error("Error setting all navigation fields").Err(err).Send()
+			log.Error("Error setting all navigation fields", slog.Any("error", err))
 		}
 	}
 
@@ -76,7 +76,7 @@ func initPureMaps(ctx context.Context, wg WaitGroup, dev *infinitime.Device) err
 				var member string
 				err = sig.Headers[dbus.FieldMember].Store(&member)
 				if err != nil {
-					log.Error("Error getting dbus member field").Err(err).Send()
+					log.Error("Error getting dbus member field", slog.Any("error", err))
 					continue
 				}
 
@@ -84,7 +84,7 @@ func initPureMaps(ctx context.Context, wg WaitGroup, dev *infinitime.Device) err
 					continue
 				}
 
-				log.Debug("Signal received from PureMaps navigator").Str("member", member).Send()
+				log.Debug("Signal received from PureMaps navigator", slog.String("member", member))
 
 				// The object must be retrieved in this loop in case PureMaps was not
 				// open at the time ITD was started.
@@ -96,52 +96,52 @@ func initPureMaps(ctx context.Context, wg WaitGroup, dev *infinitime.Device) err
 					var icon string
 					err = navigator.StoreProperty(iconProperty, &icon)
 					if err != nil {
-						log.Error("Error getting property").Err(err).Str("property", member).Send()
+						log.Error("Error getting property", slog.Any("error", err), slog.String("property", member))
 						continue
 					}
 
 					err = dev.SetNavFlag(infinitime.NavFlag(icon))
 					if err != nil {
-						log.Error("Error setting flag").Err(err).Str("property", member).Send()
+						log.Error("Error setting flag", slog.Any("error", err), slog.String("property", member))
 						continue
 					}
 				case "narrative":
 					var narrative string
 					err = navigator.StoreProperty(narrativeProperty, &narrative)
 					if err != nil {
-						log.Error("Error getting property").Err(err).Str("property", member).Send()
+						log.Error("Error getting property", slog.Any("error", err), slog.String("property", member))
 						continue
 					}
 
 					err = dev.SetNavNarrative(narrative)
 					if err != nil {
-						log.Error("Error setting flag").Err(err).Str("property", member).Send()
+						log.Error("Error setting flag", slog.Any("error", err), slog.String("property", member))
 						continue
 					}
 				case "manDist":
 					var manDist string
 					err = navigator.StoreProperty(manDistProperty, &manDist)
 					if err != nil {
-						log.Error("Error getting property").Err(err).Str("property", member).Send()
+						log.Error("Error getting property", slog.Any("error", err), slog.String("property", member))
 						continue
 					}
 
 					err = dev.SetNavManeuverDistance(manDist)
 					if err != nil {
-						log.Error("Error setting flag").Err(err).Str("property", member).Send()
+						log.Error("Error setting flag", slog.Any("error", err), slog.String("property", member))
 						continue
 					}
 				case "progress":
 					var progress int32
 					err = navigator.StoreProperty(progressProperty, &progress)
 					if err != nil {
-						log.Error("Error getting property").Err(err).Str("property", member).Send()
+						log.Error("Error getting property", slog.Any("error", err), slog.String("property", member))
 						continue
 					}
 
 					err = dev.SetNavProgress(uint8(progress))
 					if err != nil {
-						log.Error("Error setting flag").Err(err).Str("property", member).Send()
+						log.Error("Error setting flag", slog.Any("error", err), slog.String("property", member))
 						continue
 					}
 				}
@@ -152,7 +152,7 @@ func initPureMaps(ctx context.Context, wg WaitGroup, dev *infinitime.Device) err
 	}()
 
 	if exists {
-		log.Info("Sending PureMaps data to InfiniTime").Send()
+		log.Info("Sending PureMaps data to InfiniTime")
 	}
 
 	return nil

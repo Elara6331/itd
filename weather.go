@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -11,7 +12,6 @@ import (
 	"time"
 
 	"go.elara.ws/itd/infinitime"
-	"go.elara.ws/logger/log"
 )
 
 // METResponse represents a response from
@@ -73,12 +73,12 @@ func sleepCtx(ctx context.Context, d time.Duration) {
 }
 
 func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
-	if !k.Bool("weather.enabled") {
+	if !cfg.Weather.Enabled {
 		return nil
 	}
 
 	// Get location based on string in config
-	lat, lon, err := getLocation(ctx, k.String("weather.location"))
+	lat, lon, err := getLocation(ctx, cfg.Weather.Location)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 			// Attempt to get weather
 			data, err := getWeather(ctx, lat, lon)
 			if err != nil {
-				log.Warn("Error getting weather data").Err(err).Send()
+				log.Warn("Error getting weather data", slog.Any("error", err))
 				// Wait 15 minutes before retrying
 				sleepCtx(ctx, 15*time.Minute)
 				continue
@@ -127,11 +127,11 @@ func initWeather(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 				CurrentTemp: currentData.Temperature,
 				MaxTemp:     current.Data.Next6Hours.Details.MaxTemp,
 				MinTemp:     current.Data.Next6Hours.Details.MinTemp,
-				Location:    k.String("weather.location"),
+				Location:    cfg.Weather.Location,
 				Icon:        icon,
 			})
 			if err != nil {
-				log.Error("Error setting weather").Err(err).Send()
+				log.Error("Error setting weather", slog.Any("error", err))
 			}
 
 			// Reset timer to 1 hour

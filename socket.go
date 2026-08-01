@@ -23,6 +23,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"log/slog"
 	"net"
 	"os"
 	"path/filepath"
@@ -31,7 +32,6 @@ import (
 	"go.elara.ws/drpc/muxserver"
 	"go.elara.ws/itd/infinitime"
 	"go.elara.ws/itd/internal/rpc"
-	"go.elara.ws/logger/log"
 	"storj.io/drpc/drpcmux"
 )
 
@@ -43,19 +43,19 @@ var (
 
 func startSocket(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error {
 	// Make socket directory if non-existant
-	err := os.MkdirAll(filepath.Dir(k.String("socket.path")), 0o755)
+	err := os.MkdirAll(filepath.Dir(cfg.Socket.Path), 0o755)
 	if err != nil {
 		return err
 	}
 
 	// Remove old socket if it exists
-	err = os.RemoveAll(k.String("socket.path"))
+	err = os.RemoveAll(cfg.Socket.Path)
 	if err != nil {
 		return err
 	}
 
 	// Listen on socket path
-	ln, err := net.Listen("unix", k.String("socket.path"))
+	ln, err := net.Listen("unix", cfg.Socket.Path)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func startSocket(ctx context.Context, wg WaitGroup, dev *infinitime.Device) erro
 		return err
 	}
 
-	log.Info("Starting control socket").Str("path", k.String("socket.path")).Send()
+	log.Info("Starting control socket", slog.String("path", cfg.Socket.Path))
 
 	wg.Add(1)
 	go func() {
