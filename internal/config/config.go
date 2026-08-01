@@ -1,6 +1,7 @@
-package main
+package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -12,7 +13,7 @@ func getCfgPath() (string, error) {
 	return filepath.Join(userCfgDir, "itd", "itd.toml"), err
 }
 
-func loadConfig(cfg *Config) error {
+func Load(cfg *Config) error {
 	*cfg = defaults
 
 	cfgPath, err := getCfgPath()
@@ -37,9 +38,16 @@ func loadConfig(cfg *Config) error {
 	return toml.NewDecoder(fl).Decode(cfg)
 }
 
+func getRuntimeDir() string {
+	if xrd := os.Getenv("XDG_RUNTIME_DIR"); xrd != "" {
+		return xrd
+	}
+	return fmt.Sprintf("/run/user/%d", os.Getuid())
+}
+
 var defaults = Config{
 	Bluetooh: Bluetooh{Adapter: "hci0"},
-	Socket:   Socket{Path: "/tmp/itd/socket"},
+	Socket:   Socket{Path: filepath.Join(getRuntimeDir(), "itd.sock")},
 	Conn: Conn{
 		Reconnect: true,
 		Whitelist: Whitelist{Enabled: false},

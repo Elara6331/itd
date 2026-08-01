@@ -9,6 +9,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"go.elara.ws/itd/api"
+	"go.elara.ws/itd/internal/config"
 	"go.elara.ws/logger"
 	"go.elara.ws/logger/log"
 )
@@ -32,6 +33,12 @@ func main() {
 		time.Sleep(200 * time.Millisecond)
 		os.Exit(0)
 	}()
+	
+	var cfg config.Config
+	err := config.Load(&cfg)
+	if err != nil {
+		log.Fatal("Error loading itd config").Err(err).Send()
+	}
 
 	app := cli.App{
 		Name:            "itctl",
@@ -40,7 +47,7 @@ func main() {
 			&cli.StringFlag{
 				Name:    "socket-path",
 				Aliases: []string{"s"},
-				Value:   api.DefaultAddr,
+				Value:   cfg.Socket.Path,
 				Usage:   "Path to itd socket",
 			},
 		},
@@ -294,7 +301,7 @@ func main() {
 		},
 	}
 
-	err := app.RunContext(ctx, os.Args)
+	err = app.RunContext(ctx, os.Args)
 	if err != nil {
 		log.Fatal("Error while running app").Err(err).Send()
 	}

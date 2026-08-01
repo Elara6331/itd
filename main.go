@@ -35,6 +35,7 @@ import (
 	"github.com/gen2brain/dlgs"
 	"github.com/mattn/go-isatty"
 	"go.elara.ws/itd/infinitime"
+	"go.elara.ws/itd/internal/config"
 	"go.elara.ws/loggers"
 )
 
@@ -45,7 +46,7 @@ var (
 )
 
 var (
-	cfg Config
+	cfg config.Config
 	log *slog.Logger
 )
 
@@ -57,7 +58,7 @@ func main() {
 		return
 	}
 	
-	err := loadConfig(&cfg)
+	err := config.Load(&cfg)
 	
 	log = slog.New(loggers.NewPretty(os.Stderr, loggers.Options{
 		Level: parseLogLevel(cfg.Logging.Level),

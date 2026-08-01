@@ -9,8 +9,6 @@ import (
 	"storj.io/drpc"
 )
 
-const DefaultAddr = "/tmp/itd/socket"
-
 // Client is a client for ITD's socket API
 type Client struct {
 	conn   drpc.Conn

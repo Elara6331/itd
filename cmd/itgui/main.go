@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"go.elara.ws/itd/api"
+	"go.elara.ws/itd/internal/config"
 )
 
 func main() {
@@ -16,8 +17,14 @@ func main() {
 	// Create new context for use with the API client
 	ctx, cancel := context.WithCancel(context.Background())
 
+	var cfg config.Config
+	err := config.Load(&cfg)
+	if err != nil {
+		guiErr(err, "Error loading config", true, w)
+	}
+	
 	// Connect to ITD API
-	client, err := api.New(api.DefaultAddr)
+	client, err := api.New(cfg.Socket.Path)
 	if err != nil {
 		guiErr(err, "Error connecting to ITD", true, w)
 	}
