@@ -169,5 +169,5 @@ func (d *Device) getChar(c btChar) (*bluetooth.DeviceCharacteristic, error) {
 		return nil, fmt.Errorf("characteristic %s (%s) not found", c.ID, c.Name)
 	}
 
-	return chars[0], err
+	return &chars[0], err
 }
