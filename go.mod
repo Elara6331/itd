@@ -16,7 +16,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/urfave/cli/v2 v2.23.7
 	go.elara.ws/drpc v0.0.0-20230421021209-fe4c05460a3d
-	go.elara.ws/logger v0.0.0-20230928062203-85e135cf02ae
 	go.elara.ws/loggers v0.0.0-20240720233522-c61add53e1a3
 	golang.org/x/text v0.21.0
 	google.golang.org/protobuf v1.28.1
@@ -44,7 +43,6 @@ require (
 	github.com/go-text/typesetting v0.0.0-20221219135543-5d0d724ee181 // indirect
 	github.com/goki/freetype v0.0.0-20220119013949-7a161fd3728c // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/gookit/color v1.5.1 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
 	github.com/jsummers/gobmp v0.0.0-20151104160322-e2ba15ffa76e // indirect
@@ -66,7 +64,6 @@ require (
 	github.com/tevino/abool v1.2.0 // indirect
 	github.com/tinygo-org/cbgo v0.0.4 // indirect
 	github.com/tinygo-org/pio v0.3.0 // indirect
-	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	github.com/yuin/goldmark v1.5.3 // indirect
 	github.com/zeebo/errs v1.3.0 // indirect

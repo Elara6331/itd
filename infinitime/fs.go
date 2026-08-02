@@ -400,7 +400,6 @@ func (fl *File) Read(b []byte) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer char.EnableNotifications(nil)
 
 	transferred := uint32(0)
 	maxLen := uint32(len(b))
@@ -427,7 +426,7 @@ func (fl *File) Read(b []byte) (int, error) {
 		}
 
 		fl.size = rfr.FileSize
-
+		
 		if rfr.Offset == rfr.FileSize || rfr.ChunkLen == 0 {
 			notifErr = io.EOF
 			done = true
@@ -450,7 +449,6 @@ func (fl *File) Read(b []byte) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer char.EnableNotifications(nil)
 
 	amountLeft := maxLen - transferred
 	chunkLen := mtu
@@ -576,7 +574,7 @@ func (ifs *FS) requestThenAwaitResponse(char *bluetooth.DeviceCharacteristic, op
 			char.EnableNotifications(nil)
 		}
 	})
-	defer char.EnableNotifications(nil)
+	//defer char.EnableNotifications(nil)
 
 	err := fsproto.WriteRequest(char, opcode, req)
 	if err != nil {

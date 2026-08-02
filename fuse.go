@@ -39,11 +39,6 @@ func startFUSE(ctx context.Context, wg WaitGroup, dev *infinitime.Device) error 
 	}
 
 	log.Info("Mounted on target", slog.String("target", cfg.Fuse.Mountpoint))
-	fusefs.BuildProperties(dev)
-
-	if err != nil {
-		return err
-	}
 
 	wg.Add(1)
 	go func() {
