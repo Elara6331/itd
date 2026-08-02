@@ -27,7 +27,6 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -61,7 +60,7 @@ func main() {
 	err := config.Load(&cfg)
 	
 	log = slog.New(loggers.NewPretty(os.Stderr, loggers.Options{
-		Level: parseLogLevel(cfg.Logging.Level),
+		Level: config.ParseLogLevel(cfg.Logging.Level),
 	}))
 	
 	// Defer handling the error until we have the logger set up
@@ -237,19 +236,4 @@ func onReqPasskey() (uint32, error) {
 		return uint32(passkeyInt), err
 	}
 	return out, nil
-}
-
-func parseLogLevel(lv string) slog.Level {
-	switch strings.ToLower(lv) {
-	case "debug":
-		return slog.LevelDebug
-	case "info":
-		return slog.LevelInfo
-	case "error":
-		return slog.LevelError
-	case "warn":
-		return slog.LevelWarn
-	default:
-		return slog.LevelInfo
-	}
 }

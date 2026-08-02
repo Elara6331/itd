@@ -2,8 +2,10 @@ package config
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -163,4 +165,20 @@ type Music struct {
 
 type Volume struct {
 	Interval uint `toml:"interval"`
+}
+
+
+func ParseLogLevel(lv string) slog.Level {
+	switch strings.ToLower(lv) {
+	case "debug":
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "error":
+		return slog.LevelError
+	case "warn":
+		return slog.LevelWarn
+	default:
+		return slog.LevelInfo
+	}
 }

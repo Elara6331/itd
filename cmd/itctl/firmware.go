@@ -8,7 +8,6 @@ import (
 	"github.com/cheggaaa/pb/v3"
 	"github.com/urfave/cli/v2"
 	"go.elara.ws/itd/api"
-	"go.elara.ws/logger/log"
 )
 
 func fwUpgrade(c *cli.Context) error {
@@ -21,7 +20,7 @@ func fwUpgrade(c *cli.Context) error {
 
 		err = resLoad(c.Context, []string{absRes})
 		if err != nil {
-			log.Error("Resource loading has returned an error. This can happen if your current version of InfiniTime doesn't support BLE FS. Try updating without resource loading, and then load them after using the `itctl res load` command.").Send()
+			log.Error("Resource loading has returned an error. This can happen if your current version of InfiniTime doesn't support BLE FS. Try updating without resource loading, and then load them after using the `itctl res load` command.")
 			return err
 		}
 	}

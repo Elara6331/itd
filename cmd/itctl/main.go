@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,15 +11,15 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.elara.ws/itd/api"
 	"go.elara.ws/itd/internal/config"
-	"go.elara.ws/logger"
-	"go.elara.ws/logger/log"
+	"go.elara.ws/loggers"
 )
 
-var client *api.Client
+var (
+	client *api.Client
+	log *slog.Logger
+)
 
 func main() {
-	log.Logger = logger.NewPretty(os.Stderr)
-
 	ctx := context.Background()
 	ctx, _ = signal.NotifyContext(
 		ctx,
@@ -32,12 +33,19 @@ func main() {
 		<-ctx.Done()
 		time.Sleep(200 * time.Millisecond)
 		os.Exit(0)
-	}()
+	}()	
 	
 	var cfg config.Config
 	err := config.Load(&cfg)
+	
+	log = slog.New(loggers.NewPretty(os.Stderr, loggers.Options{
+		Level: config.ParseLogLevel(cfg.Logging.Level),
+	}))
+	
+	// Defer handling the error until we have the logger set up
 	if err != nil {
-		log.Fatal("Error loading itd config").Err(err).Send()
+		log.Error("Error loading config", slog.Any("error", err))
+		os.Exit(1)
 	}
 
 	app := cli.App{
@@ -287,6 +295,7 @@ func main() {
 			if !isHelpCmd() {
 				newClient, err := api.New(c.String("socket-path"))
 				if err != nil {
+					log.Error("An error occurred trying to connect to ITD. Are you sure it's running?")
 					return err
 				}
 				client = newClient
@@ -303,7 +312,7 @@ func main() {
 
 	err = app.RunContext(ctx, os.Args)
 	if err != nil {
-		log.Fatal("Error while running app").Err(err).Send()
+		log.Error("Error while running app", slog.Any("error", err))
 	}
 }
 
