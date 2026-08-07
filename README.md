@@ -1,4 +1,5 @@
 # ITD
+
 ## InfiniTime Daemon
 
 `itd` is a daemon that uses my infinitime [library](https://go.elara.ws/infinitime) to interact with the [PineTime](https://www.pine64.org/pinetime/) running [InfiniTime](https://infinitime.io).
@@ -59,6 +60,36 @@ Use the `itd-bin` or `itd-git` AUR packages.
 - Example: `sudo apk add --allow-untrusted ~/Downloads/itd-0.0.7-linux-aarch64.apk`
 
 Note: `--allow-untrusted` is required because ITD isn't part of a repository, and therefore is not signed.
+
+#### From source
+
+If you want to install `itd` from source, you should build it using the following command in the root directory:
+
+```shell
+go build
+```
+
+Then edit the value after `ExecStart=` in `itd.service` to be the absolute path of where the newly built itd executable is located. For example if you clone the repo in your home directory:
+
+```
+[Unit]
+Description=InfiniTime Daemon (itd)
+After=bluetooth.target
+
+[Service]
+ExecStart=/home/YOUR-USERNAME/itd/itd
+Restart=always
+StandardOutput=journal
+
+[Install]
+WantedBy=default.target
+```
+
+After making these changes, copy this file to `/etc/systemd/user` and reload the user services using the following command and following the instructions in the "Starting" section:
+
+```shell
+systemctl --user daemon-reload
+```
 
 ---
 
